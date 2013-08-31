@@ -3,7 +3,8 @@
     using System;
     using System.Linq;
     using MathNet.Numerics.LinearAlgebra.Double;
-    using Sharpkit.Learn.Preprocessing;
+    using Preprocessing;
+    using MathNet.Numerics.LinearAlgebra.Generic;
 
     /// <summary>
     /// Classifier using Ridge regression.
@@ -60,13 +61,13 @@
         /// <param name="x">[n_samples,n_features]. Training data</param>
         /// <param name="y">Target values.</param>
         /// <returns>Instance of self.</returns>
-        public LinearModel Fit(Matrix x, TLabel[] y)
+        public LinearModel Fit(Matrix<double> x, TLabel[] y)
         {
             this.labelBinarizer = new LabelBinarizer<TLabel>(posLabel : 1, negLabel : -1);
             Matrix Y = this.labelBinarizer.Fit(y).Transform(y);
             // second parameter is used only for ClassWeight.Auto, which we don't support here.
             // So fake it.
-            Vector cw = this.class_weight.ComputeWeights(this.Classes, new int[0]);
+            Vector cw = this.ClassWeight.ComputeWeights(this.Classes, new int[0]);
             //# get the class weight corresponding to each sample
             Vector sampleWeightClasses = y.Select(v => cw[Array.BinarySearch(this.Classes, v)]).ToArray().ToDenseVector();
             this.ridgeBase.Fit(x, Y, sampleWeight : sampleWeightClasses);

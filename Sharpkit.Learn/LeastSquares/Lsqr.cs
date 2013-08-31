@@ -1,8 +1,10 @@
-﻿using System;
-using MathNet.Numerics.LinearAlgebra.Double;
-
+﻿
 namespace Sharpkit.Learn.LeastSquares
 {
+    using System;
+    using MathNet.Numerics.LinearAlgebra.Double;
+    using MathNet.Numerics.LinearAlgebra.Generic;
+
     /// <summary>
     /// Sparse Equations and Least Squares.
     /// The original Fortran code was written by C. C. Paige and M. A. Saunders as
@@ -61,8 +63,8 @@ namespace Sharpkit.Learn.LeastSquares
         ///   and Least-Squares Problems", Dissertation,
         ///   http://www.stanford.edu/group/SOL/dissertations/sou-cheng-choi-thesis.pdf
         /// </summary>
-        /// <param name="?"></param>
-        /// <param name="?"></param>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
         private static Tuple<double, double, double> SymOrtho(double a, double b)
         {
             if (b == 0)
@@ -210,8 +212,8 @@ namespace Sharpkit.Learn.LeastSquares
         ///   systems using LSQR and CRAIG", BIT 35, 588-604.
         /// </remarks>
         public static LsqrResult lsqr(
-            Matrix a,
-            Vector b,
+            Matrix<double> a,
+            Vector<double> b,
             double damp = 0.0,
             double atol = 1E-8,
             double btol = 1E-8,
@@ -227,7 +229,7 @@ namespace Sharpkit.Learn.LeastSquares
                 iterLim = 2*n;
             }
 
-            Vector @var = DenseVector.Create(n, (i) => 0.0);
+            Vector<double> @var = DenseVector.Create(n, (i) => 0.0);
 
             string[] msg = new[]
                                {
@@ -253,7 +255,7 @@ namespace Sharpkit.Learn.LeastSquares
 
             int itn = 0;
             int istop = 0;
-            int nstop = 0;
+            // int nstop = 0;
             double ctol = 0;
             if (conlim > 0)
             {
@@ -274,24 +276,24 @@ namespace Sharpkit.Learn.LeastSquares
 
             // Set up the first vectors u and v for the bidiagonalization.
             // These satisfy  beta*u = b,  alfa*v = A'u.
-            Vector v = DenseVector.Create(n, i => 0.0);
-            Vector u = b;
-            Vector x = DenseVector.Create(n, i => 0.0);
+            Vector<double> v = DenseVector.Create(n, i => 0.0);
+            var u = b;
+            Vector<double> x = DenseVector.Create(n, i => 0.0);
             double alfa = 0;
             double beta = u.FrobeniusNorm();
-            Vector w = DenseVector.Create(n, i => 0.0);
+            Vector<double> w = DenseVector.Create(n, i => 0.0);
 
             if (beta > 0)
             {
                 u.Multiply(1/beta, u);
-                v = (Vector)(u*a);
+                v = u*a;
                 alfa = v.FrobeniusNorm();
             }
 
             if (alfa > 0)
             {
-                v = (Vector)(v*(1/alfa));
-                w = (Vector)v.Clone();
+                v = v*(1/alfa);
+                w = v.Clone();
             }
 
             double rhobar = alfa;
@@ -343,15 +345,15 @@ namespace Sharpkit.Learn.LeastSquares
                 // next  beta, u, alfa, v.  These satisfy the relations
                 // beta*u  =  a*v   -  alfa*u,
                 // alfa*v  =  A'*u  -  beta*v.
-                u = (Vector)(a*v - alfa*u);
-                beta = u.ToDenseMatrix().FrobeniusNorm();
+                u = a*v - alfa*u;
+                beta = MatrixExtensions.ToColumnMatrix(u).FrobeniusNorm();
 
                 if (beta > 0)
                 {
-                    u = (Vector)((1/beta)*u);
+                    u = (1/beta)*u;
                     anorm = Math.Sqrt(anorm*anorm + alfa*alfa + beta*beta + damp*damp);
-                    v = (Vector)((u*a) - beta*v);
-                    alfa = v.ToDenseMatrix().FrobeniusNorm();
+                    v = (u*a) - beta*v;
+                    alfa = MatrixExtensions.ToColumnMatrix(v).FrobeniusNorm();
                     if (alfa > 0)
                     {
                         v.Multiply(1/alfa, v);
@@ -382,15 +384,15 @@ namespace Sharpkit.Learn.LeastSquares
                 // Update x and w.
                 double t1 = phi/rho;
                 double t2 = -theta/rho;
-                Vector dk = (Vector)w.Multiply(1/rho);
+                Vector<double> dk = w.Multiply(1/rho);
 
                 x.Add(w.Multiply(t1), x);
-                w = (Vector)(v + w*t2);
+                w = v + w*t2;
                 ddnorm = ddnorm + Math.Pow(dk.FrobeniusNorm(), 2);
 
                 if (calcVar)
                 {
-                    @var = (Vector)(@var + dk*dk);
+                    @var = @var + dk*dk;
                 }
 
                 // Use a plane rotation on the right to eliminate the

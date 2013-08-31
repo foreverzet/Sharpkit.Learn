@@ -28,7 +28,7 @@ namespace Liblinear.Test
         try {
             var i = pFoo[3];
             Assert.Fail("IndexOutOfRangeException expected");
-        } catch (IndexOutOfRangeException e) {}
+        } catch (IndexOutOfRangeException) {}
     }
 
 
@@ -41,7 +41,7 @@ namespace Liblinear.Test
         try {
             pFoo[3] = 0;
             Assert.Fail("IndexOutOfRangeException expected");
-        } catch (IndexOutOfRangeException e) {}
+        } catch (IndexOutOfRangeException) {}
     }
 
 
@@ -55,7 +55,7 @@ namespace Liblinear.Test
         try {
             var i = pFoo[3];
             Assert.Fail("IndexOutOfRangeException expected");
-        } catch (IndexOutOfRangeException e) {}
+        } catch (IndexOutOfRangeException) {}
     }
 
 
@@ -68,7 +68,7 @@ namespace Liblinear.Test
         try {
             pFoo[3] = 0;
             Assert.Fail("IndexOutOfRangeException expected");
-        } catch (IndexOutOfRangeException e) {}
+        } catch (IndexOutOfRangeException) {}
     }
 }
 

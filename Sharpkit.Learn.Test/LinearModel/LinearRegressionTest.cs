@@ -1,14 +1,15 @@
-﻿using System;
-using MathNet.Numerics;
-using MathNet.Numerics.Algorithms.LinearAlgebra.Mkl;
-using MathNet.Numerics.Distributions;
-using MathNet.Numerics.LinearAlgebra.Double;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Sharpkit.Learn.Datasets;
-using Sharpkit.Learn.LinearModel;
-
-namespace Sharpkit.Learn.Test
+﻿namespace Sharpkit.Learn.Test.LinearModel
 {
+    using System;
+    using MathNet.Numerics;
+    using MathNet.Numerics.Algorithms.LinearAlgebra.Mkl;
+    using MathNet.Numerics.Distributions;
+    using MathNet.Numerics.LinearAlgebra.Double;
+    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using Sharpkit.Learn.Datasets;
+    using Sharpkit.Learn.LinearModel;
+    using MathNet.Numerics.LinearAlgebra.Generic;
+
     [TestClass]
     public class LinearRegressionTest
     {
@@ -16,46 +17,45 @@ namespace Sharpkit.Learn.Test
         /// Test LinearRegression on a simple dataset.
         /// </summary>
         [TestMethod]
-        public void test_linear_regression()
+        public void TestLinearRegression()
         {
-            Control.LinearAlgebraProvider = new MklLinearAlgebraProvider();
+            // Control.LinearAlgebraProvider = new MklLinearAlgebraProvider();
             // a simple dataset
-            var X = DenseMatrix.OfArray(new double[,] {{1}, {2}});
-            var Y = DenseVector.OfEnumerable(new double[] {1, 2});
+            var x = DenseMatrix.OfArray(new double[,] {{1}, {2}});
+            var y = DenseVector.OfEnumerable(new double[] {1, 2});
 
             var clf = new LinearRegression();
-            clf.Fit(X, Y);
+            clf.Fit(x, y);
 
-            Assert.AreEqual(1.0, clf.Coef[0], 1E-5);
+            Assert.AreEqual(1.0, clf.Coef.Column(0)[0], 1E-5);
             //Assert.AreEqual(0.0, clf.Intercept[0]);
-            Assert.IsTrue(((Vector)(DenseVector.OfEnumerable(new double[] {1, 2}) - clf.Predict(X).Column(0))).FrobeniusNorm() <
-                          0.0001);
+            Assert.IsTrue(DenseVector.OfEnumerable(new double[] {1, 2}).AlmostEquals(clf.Predict(x).Column(0)));
 
             // test it also for degenerate input
-            X = DenseMatrix.OfArray(new double[,] {{1}});
-            Y = DenseVector.OfEnumerable(new double[] {0});
+            x = DenseMatrix.OfArray(new double[,] {{1}});
+            y = DenseVector.OfEnumerable(new double[] {0});
 
 
             clf = new LinearRegression(fitIntercept: false);
-            clf.Fit(X, Y);
-            Assert.AreEqual(0.0, clf.Coef[0]);
+            clf.Fit(x, y);
+            Assert.AreEqual(0.0, clf.Coef.Column(0)[0]);
             //assert_array_almost_equal(clf.intercept_, [0])
-            Assert.AreEqual(0.0, clf.Predict(X).Column(0)[0]);
+            Assert.AreEqual(0.0, clf.Predict(x).Column(0)[0]);
         }
 
         /// <summary>
         /// Test assertions on betas shape.
         /// </summary>
         [TestMethod]
-        public void test_fit_intercept()
+        public void TestFitIntercept()
         {
             Control.LinearAlgebraProvider = new MklLinearAlgebraProvider();
-            var X2 = DenseMatrix.OfArray(new[,]
+            var x2 = DenseMatrix.OfArray(new[,]
                                              {
                                                  {0.38349978, 0.61650022},
                                                  {0.58853682, 0.41146318}
                                              });
-            var X3 = DenseMatrix.OfArray(new[,]
+            var x3 = DenseMatrix.OfArray(new[,]
                                              {
                                                  {0.27677969, 0.70693172, 0.01628859},
                                                  {0.08385139, 0.20692515, 0.70922346}
@@ -63,40 +63,40 @@ namespace Sharpkit.Learn.Test
             var y = DenseVector.OfEnumerable(new double[] {1, 1});
 
 
-            var lr2_without_intercept = new LinearRegression(fitIntercept: false).Fit(X2, y);
-            var lr2_with_intercept = new LinearRegression(fitIntercept: true).Fit(X2, y);
+            var lr2WithoutIntercept = new LinearRegression(fitIntercept: false).Fit(x2, y);
+            var lr2WithIntercept = new LinearRegression(fitIntercept: true).Fit(x2, y);
 
-            var lr3_without_intercept = new LinearRegression(fitIntercept: false).Fit(X3, y);
-            var lr3_with_intercept = new LinearRegression(fitIntercept: true).Fit(X3, y);
+            var lr3WithoutIntercept = new LinearRegression(fitIntercept: false).Fit(x3, y);
+            var lr3WithIntercept = new LinearRegression(fitIntercept: true).Fit(x3, y);
 
 
-            Assert.AreEqual(lr2_with_intercept.Coef.Count,
-                            lr2_without_intercept.Coef.Count);
-            Assert.AreEqual(lr3_with_intercept.Coef.Count,
-                            lr3_without_intercept.Coef.Count);
+            Assert.AreEqual(lr2WithIntercept.Coef.Column(0).Count,
+                            lr2WithoutIntercept.Coef.Column(0).Count);
+            Assert.AreEqual(lr3WithIntercept.Coef.Column(0).Count,
+                            lr3WithoutIntercept.Coef.Column(0).Count);
         }
 
 
         /// <summary>
         /// Test that linear regression also works with sparse data.
         /// </summary>
-        /// <param name="?"></param>
         [TestMethod]
-        public void test_linear_regression_sparse()
+        public void TestLinearRegressionSparse()
         {
-            int n = 100;
-            Matrix X = SparseMatrix.Identity(n);
+            const int n = 100;
+            Matrix x = SparseMatrix.Identity(n);
             var beta = DenseVector.CreateRandom(n, new Normal());
-            Vector y = (Vector)(X*beta);
+            var y = x*beta;
 
-
-            var ols = new LinearRegression(fitIntercept: true).Fit(X, y);
-            Assert.IsTrue(((Vector)(ols.Coef + ols.Intercept - beta)).FrobeniusNorm() < 0.0001);
+            var ols = new LinearRegression(fitIntercept: true).Fit(x, y);
+            Assert.IsTrue((ols.Coef.Row(0) + ols.Intercept[0]).AlmostEquals(beta));
         }
 
-        //"Test multiple-outcome linear regressions"
+        /// <summary>
+        /// Test multiple-outcome linear regressions.
+        /// </summary>
         [TestMethod]
-        public void test_linear_regression_multiple_outcome()
+        public void TestLinearRegressionMultipleOutcome()
         {
             var result = SampleGenerator.MakeRegression(shuffle:false, random : new Random(0));
 
@@ -108,40 +108,39 @@ namespace Sharpkit.Learn.Test
 
             var clf = new LinearRegression(fitIntercept: true);
             clf.Fit(result.X, y);
-            Assert.AreEqual(2, clf.CoefMatrix.ColumnCount);
-            Assert.AreEqual(numFeatures, clf.CoefMatrix.RowCount);
+            Assert.AreEqual(Tuple.Create(2, numFeatures), clf.Coef.Shape());
             
-            Matrix Y_pred = clf.Predict(result.X);
+            Matrix<double> yPred = clf.Predict(result.X);
             clf.Fit(result.X, result.Y);
-            Matrix y_pred = clf.Predict(result.X);
+            Matrix<double> yPred1 = clf.Predict(result.X);
 
-            Assert.AreEqual(((Vector)(y_pred.Column(0) - Y_pred.Column(0))).FrobeniusNorm(), 0.0,  1E-10);
-            Assert.AreEqual(((Vector)(y_pred.Column(0) - Y_pred.Column(1))).FrobeniusNorm(), 0.0,  1E-10);
+            Assert.IsTrue(yPred1.Column(0).AlmostEquals(yPred.Column(0)));
+            Assert.IsTrue(yPred1.Column(0).AlmostEquals(yPred.Column(1)));
         }
         
         /// <summary>
         /// Test multiple-outcome linear regressions with sparse data
         /// </summary>
         [TestMethod]
-        public void test_linear_regression_sparse_multiple_outcome()
+        public void TestLinearRegressionSparseMultipleOutcome()
         {
             var random = new Random(0);
             var r = SampleGenerator.MakeSparseUncorrelated(random : random);
-            Matrix X = SparseMatrix.OfMatrix(r.X);
-            Vector y = (Vector)r.Y.Column(0);
-            Matrix Y = DenseMatrix.OfColumns(y.Count, 2, new[] {y, y});
-            int n_features = X.ColumnCount;
+            Matrix x = SparseMatrix.OfMatrix(r.X);
+            Vector<double> y = r.Y.Column(0);
+            Matrix y1 = DenseMatrix.OfColumns(y.Count, 2, new[] {y, y});
+            int nFeatures = x.ColumnCount;
 
             var ols = new LinearRegression();
-            ols.Fit(X, Y);
-            Assert.AreEqual(2, ols.CoefMatrix.ColumnCount);
-            Assert.AreEqual(n_features, ols.CoefMatrix.RowCount);
-            Matrix Y_pred = ols.Predict(X);
-            ols.Fit(X, y);
-            Matrix y_pred = ols.Predict(X);
+            ols.Fit(x, y1);
+            Assert.AreEqual(Tuple.Create(2, nFeatures), ols.Coef.Shape());
+            Assert.AreEqual(Tuple.Create(2, nFeatures), ols.Coef.Shape());
+            Matrix<double> yPred = ols.Predict(x);
+            ols.Fit(x, y);
+            Matrix<double> yPred1 = ols.Predict(x);
             
-            Assert.AreEqual(((Vector)(y_pred.Column(0) - Y_pred.Column(0))).FrobeniusNorm(), 0.0,  1E-10);
-            Assert.AreEqual(((Vector)(y_pred.Column(0) - Y_pred.Column(1))).FrobeniusNorm(), 0.0, 1E-10);
+            Assert.IsTrue(yPred1.Column(0).AlmostEquals(yPred.Column(0)));
+            Assert.IsTrue(yPred1.Column(0).AlmostEquals(yPred.Column(1)));
         }
     }
 }

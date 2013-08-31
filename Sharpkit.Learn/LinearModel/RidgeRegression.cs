@@ -8,6 +8,7 @@ namespace Sharpkit.Learn.LinearModel
 {
     using System;
     using MathNet.Numerics.LinearAlgebra.Double;
+    using MathNet.Numerics.LinearAlgebra.Generic;
 
     /// <summary>
     /// Linear least squares with l2 regularization.
@@ -56,17 +57,17 @@ namespace Sharpkit.Learn.LinearModel
             ridgeBase = new RidgeBase(this, alpha, normalize, maxIter, tol, solver);
         }
 
-        public double Score(Matrix x, Matrix y)
+        public double Score(Matrix<double> x, Matrix<double> y)
         {
             return Metrics.Metrics.R2Score(y, this.Predict(x));
         }
 
-        public double Score(Matrix x, Vector y)
+        public double Score(Matrix<double> x, Vector<double> y)
         {
-            return Metrics.Metrics.R2Score((Matrix)y.ToColumnMatrix(), this.Predict(x));
+            return Metrics.Metrics.R2Score(y.ToColumnMatrix(), this.Predict(x));
         }
 
-        public override LinearRegressor Fit(Matrix x, Matrix y, Vector sampleWeight = null)
+        public override LinearRegressor Fit(Matrix<double> x, Matrix<double> y, Vector<double> sampleWeight = null)
         {
             ridgeBase.Fit(x, y, sampleWeight);
             return this;

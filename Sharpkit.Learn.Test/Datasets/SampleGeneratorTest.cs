@@ -6,17 +6,16 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-using System.Linq;
-
 namespace Sharpkit.Learn.Test.Datasets
 {
     using System;
+    using System.Linq;
     using MathNet.Numerics.LinearAlgebra.Double;
     using MathNet.Numerics.LinearAlgebra.Double.Factorization;
     using MathNet.Numerics.LinearAlgebra.Generic;
     using MathNet.Numerics.Statistics;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    using Sharpkit.Learn.Datasets;
+    using Learn.Datasets;
 
     /// <summary>
     /// Tests <see cref="SampleGenerator"/>.
@@ -24,6 +23,42 @@ namespace Sharpkit.Learn.Test.Datasets
     [TestClass]
     public class SampleGeneratorTest
     {
+        [TestMethod]
+        public void test_make_classification()
+        {
+            // todo:
+    /*X, y = make_classification(n_samples=100, n_features=20, n_informative=5,
+                               n_redundant=1, n_repeated=1, n_classes=3,
+                               n_clusters_per_class=1, hypercube=False,
+                               shift=None, scale=None, weights=[0.1, 0.25],
+                               random_state=0)
+
+    assert_equal(X.shape, (100, 20), "X shape mismatch")
+    assert_equal(y.shape, (100,), "y shape mismatch")
+    assert_equal(np.unique(y).shape, (3,), "Unexpected number of classes")
+    assert_equal(sum(y == 0), 10, "Unexpected number of samples in class #0")
+    assert_equal(sum(y == 1), 25, "Unexpected number of samples in class #1")
+    assert_equal(sum(y == 2), 65, "Unexpected number of samples in class #2")
+     * */
+        }
+
+        [TestMethod]
+        public void test_make_multilabel_classification()
+        {
+         //todo:
+            /*
+            for allow_unlabeled, min_length in zip((True, False), (0, 1)):
+            X, Y = make_multilabel_classification(n_samples=100, n_features=20,
+                                                  n_classes=3, random_state=0,
+                                                  allow_unlabeled=allow_unlabeled)
+            assert_equal(X.shape, (100, 20), "X shape mismatch")
+            if not allow_unlabeled:
+                assert_equal(max([max(y) for y in Y]), 2)
+            assert_equal(min([len(y) for y in Y]), min_length)
+            assert_true(max([len(y) for y in Y]) <= 3)
+            */
+        }
+
         /// <summary>
         /// Tests <see cref="SampleGenerator.MakeRegression"/>.
         /// </summary>
@@ -57,7 +92,7 @@ namespace Sharpkit.Learn.Test.Datasets
         [TestMethod]
         public void TestMakeLowRankMatrix()
         {
-            Matrix x = SampleGenerator.MakeLowRankMatrix(
+            Matrix<double> x = SampleGenerator.MakeLowRankMatrix(
                 numSamples: 50,
                 numFeatures: 25,
                 effectiveRank: 5,

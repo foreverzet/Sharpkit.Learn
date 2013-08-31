@@ -3,7 +3,8 @@ namespace Sharpkit.Learn.LinearModel
 {
     using System;
     using MathNet.Numerics.LinearAlgebra.Double;
-    using Sharpkit.Learn.LeastSquares;
+    using LeastSquares;
+    using MathNet.Numerics.LinearAlgebra.Generic;
 
     internal class RidgeBase
     {
@@ -30,11 +31,11 @@ namespace Sharpkit.Learn.LinearModel
             this.solver = solver;
         }
 
-        public void Fit(Matrix X, Matrix y, Vector sampleWeight = null)
+        public void Fit(Matrix<double> x, Matrix<double> y, Vector<double> sampleWeight = null)
         {
-            var t = model.CenterData(X, y, model.FitIntercept, this.normalize, sampleWeight);
+            var t = model.CenterData(x, y, model.FitIntercept, this.normalize, sampleWeight);
 
-            this.model.CoefMatrix = RidgeRegression(t.X, t.Y,
+            this.model.Coef = RidgeRegression(t.X, t.Y,
                                                      alpha: this.alpha,
                                                      maxIter: this.maxIter,
                                                      tol: this.tol,
@@ -43,66 +44,28 @@ namespace Sharpkit.Learn.LinearModel
             this.model.SetIntercept(t.xMean, t.yMean, t.xStd);
         }
 
-        /*
-         * """Solve the ridge equation by the method of normal equations.
-
-    Parameters
-    ----------
-    X : {array-like, sparse matrix, LinearOperator},
-        shape = [n_samples, n_features]
-        Training data
-
-    y : array-like, shape = [n_samples] or [n_samples, n_targets]
-        Target values
-
-    max_iter : int, optional
-        Maximum number of iterations for conjugate gradient solver.
-        The default value is determined by scipy.sparse.linalg.
-
-    sample_weight : float or numpy array of shape [n_samples]
-        Individual weights for each sample
-
-    solver : {'auto', 'svd', 'dense_cholesky', 'lsqr', 'sparse_cg'}
-        Solver to use in the computational routines:
-
-        - 'auto' chooses the solver automatically based on the type of data.
-
-        - 'svd' uses a Singular Value Decomposition of X to compute the Ridge
-          coefficients. More stable for singular matrices than 'dense_cholesky'.
-
-        - 'dense_cholesky' uses the standard scipy.linalg.solve function to
-          obtain a closed-form solution via a Cholesky decomposition of dot(X.T, X)
-
-        - 'sparse_cg' uses the conjugate gradient solver as found in
-          scipy.sparse.linalg.cg. As an iterative algorithm, this solver is
-          more appropriate than 'dense_cholesky' for large-scale data
-          (possibility to set `tol` and `max_iter`).
-
-        - 'lsqr' uses the dedicated regularized least-squares routine
-          scipy.sparse.linalg.lsqr. It is the fatest but may not be available
-          in old scipy versions. It also uses an iterative procedure.
-
-        All three solvers support both dense and sparse data.
-
-    tol: float
-        Precision of the solution.
-
-    Returns
-    -------
-    coef: array, shape = [n_features] or [n_targets, n_features]
-        Weight vector(s).
-
-    Notes
-    -----
-    This function won't compute the intercept.
-    """
-         * */
-
-        public static Matrix RidgeRegression(
-            Matrix x,
-            Matrix y,
+        /// <summary>
+        /// Solve the ridge equation by the method of normal equations.
+        /// </summary>
+        /// <param name="x">[n_samples, n_features]
+        /// Training data</param>
+        /// <param name="y">[n_samples, n_targets]
+        /// Target values</param>
+        /// <param name="alpha"></param>
+        /// <param name="sampleWeight">Individual weights for each sample.</param>
+        /// <param name="solver">Solver to use in the computational routines.</param>
+        /// <param name="maxIter">Maximum number of iterations for least squares solver. </param>
+        /// <param name="tol">Precision of the solution.</param>
+        /// <returns>[n_targets, n_features]
+        /// Weight vector(s)</returns>
+        /// <remarks>
+        /// This function won't compute the intercept;
+        /// </remarks>
+        public static Matrix<double> RidgeRegression(
+            Matrix<double> x,
+            Matrix<double> y,
             double alpha,
-            Vector sampleWeight = null,
+            Vector<double> sampleWeight = null,
             RidgeSolver solver = RidgeSolver.Auto,
             int? maxIter = null,
             double tol = 1E-3)
@@ -132,19 +95,19 @@ namespace Sharpkit.Learn.LinearModel
             if (solver == RidgeSolver.Lsqr)
             {
                 // According to the lsqr documentation, alpha = damp^2.
-                double sqrt_alpha = Math.Sqrt(alpha);
-                Matrix coefs = new DenseMatrix(x.ColumnCount, y.ColumnCount);
+                double sqrtAlpha = Math.Sqrt(alpha);
+                Matrix coefs = new DenseMatrix(y.ColumnCount, x.ColumnCount);
                 foreach (var column in y.ColumnEnumerator())
                 {
-                    Vector c = Lsqr.lsqr(
+                    Vector<double> c = Lsqr.lsqr(
                         x,
-                        (Vector)column.Item2,
-                        damp: sqrt_alpha,
+                        column.Item2,
+                        damp: sqrtAlpha,
                         atol: tol,
                         btol: tol,
                         iterLim: maxIter).X;
 
-                    coefs.SetColumn(column.Item1, c);
+                    coefs.SetRow(column.Item1, c);
                 }
 
                 return coefs;
@@ -157,8 +120,8 @@ namespace Sharpkit.Learn.LinearModel
                 {
                     // kernel ridge
                     // w = X.T * inv(X X^t + alpha*Id) y
-                    Matrix K = (Matrix)x.TransposeAndMultiply(x);
-                    Vector sw = null;
+                    var k = x.TransposeAndMultiply(x);
+                    Vector<double> sw = null;
                     if (sampleWeight != null)
                     {
                         sw = sampleWeight.Sqrt();
@@ -167,17 +130,17 @@ namespace Sharpkit.Learn.LinearModel
 
                         y = y.MulColumnVector(sw);
 
-                        K = (Matrix)K.PointwiseMultiply(sw.Outer(sw));
+                        k = k.PointwiseMultiply(sw.Outer(sw));
                     }
 
-                    K.Add(DenseMatrix.Identity(K.RowCount)*alpha, K);
+                    k.Add(DenseMatrix.Identity(k.RowCount)*alpha, k);
                     try
                     {
-                        Matrix dual_coef = (Matrix)K.Cholesky().Solve(y);
+                        var dualCoef = k.Cholesky().Solve(y);
                         if (sampleWeight != null)
-                            dual_coef = dual_coef.MulColumnVector(sw);
+                            dualCoef = dualCoef.MulColumnVector(sw);
 
-                        return (Matrix)x.TransposeThisAndMultiply(dual_coef);
+                        return x.TransposeThisAndMultiply(dualCoef).Transpose();
                     }
                     catch (Exception) //todo:
                     {
@@ -189,14 +152,14 @@ namespace Sharpkit.Learn.LinearModel
                 {
                     // ridge
                     // w = inv(X^t X + alpha*Id) * X.T y
-                    Matrix A = (Matrix)x.TransposeThisAndMultiply(x);
-                    A.Add(DenseMatrix.Identity(A.ColumnCount)*alpha, A);
+                    var a = x.TransposeThisAndMultiply(x);
+                    a.Add(DenseMatrix.Identity(a.ColumnCount)*alpha, a);
 
-                    Matrix Xy = (Matrix)x.TransposeThisAndMultiply(y);
+                    var xy = x.TransposeThisAndMultiply(y);
 
                     try
                     {
-                        return (Matrix)A.Cholesky().Solve(Xy);
+                        return a.Cholesky().Solve(xy).Transpose();
                     }
                     catch (Exception) //todo:
                     {
@@ -213,15 +176,14 @@ namespace Sharpkit.Learn.LinearModel
                 var svd = x.Svd(true);
                 //U, s, Vt = linalg.svd(X, full_matrices=False)
                 int k = Math.Min(x.ColumnCount, x.RowCount);
-                Vector d = (Vector)(svd.S()).SubVector(0, k);
+                var d = svd.S().SubVector(0, k);
                 d.MapInplace(v => v > 1e-15 ? v/(v*v + alpha) : 0.0);
 
-                Matrix Ud = (Matrix)svd.U().SubMatrix(0, x.RowCount, 0, k).TransposeThisAndMultiply(y).Transpose();
-                Ud = Ud.MulRowVector(d);
-                return (Matrix)Ud.Multiply(svd.VT().SubMatrix(0, k, 0, x.ColumnCount)).Transpose();
+                var ud = svd.U().SubMatrix(0, x.RowCount, 0, k).TransposeThisAndMultiply(y).Transpose();
+                ud = ud.MulRowVector(d);
+                return ud.Multiply(svd.VT().SubMatrix(0, k, 0, x.ColumnCount));
             }
 
-            //todo:
             return null;
         }
     }

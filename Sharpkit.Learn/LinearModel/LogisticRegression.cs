@@ -8,6 +8,7 @@ namespace Sharpkit.Learn.LinearModel
 {
     using System;
     using MathNet.Numerics.LinearAlgebra.Double;
+    using MathNet.Numerics.LinearAlgebra.Generic;
 
     /// <summary>
     /// Logistic Regression (aka logit, MaxEnt) classifier.
@@ -64,7 +65,7 @@ namespace Sharpkit.Learn.LinearModel
         /// n_samples > n_features.
         /// </param>
         /// <param name="tol"></param>
-        /// <param name="C">Inverse of regularization strength; must be a positive float.
+        /// <param name="c">Inverse of regularization strength; must be a positive float.
         /// Like in support vector machines, smaller values specify stronger
         // regularization.
         // </param>
@@ -96,7 +97,7 @@ namespace Sharpkit.Learn.LinearModel
             Norm penalty = Norm.L2,
             bool dual = false,
             double tol = 1e-4,
-            double C = 1.0,
+            double c = 1.0,
             bool fitIntercept = true,
             double interceptScaling = 1,
             ClassWeight<TLabel> classWeight = null,
@@ -108,12 +109,12 @@ namespace Sharpkit.Learn.LinearModel
                 Loss.LogisticRegression,
                 dual,
                 tol,
-                C,
+                c,
                 interceptScaling: interceptScaling,
                 random: random);
         }
 
-        public LinearClassifier<TLabel> Fit(Matrix x, TLabel[] y)
+        public LinearClassifier<TLabel> Fit(Matrix<double> x, TLabel[] y)
         {
             this.libLinearBase.Fit(x, y);
             return this;
@@ -129,7 +130,7 @@ namespace Sharpkit.Learn.LinearModel
         ///       Returns the probability of the sample for each class in the model,
         ///       where classes are ordered as they are in <see cref="Classes"/>.
         /// </returns>
-        public Matrix PredictProba(Matrix x)
+        public Matrix<double> PredictProba(Matrix<double> x)
         {
             return PredictProbaLr(x);
         }
@@ -145,7 +146,7 @@ namespace Sharpkit.Learn.LinearModel
         /// Returns the log-probability of the sample for each class in the
         /// model, where classes are ordered as they are in <see cref="Classes"/>.
         /// </returns>
-        public Matrix PredictLogProba(Matrix x)
+        public Matrix<double> PredictLogProba(Matrix<double> x)
         {
             return this.PredictProba(x).Log();
         }
@@ -157,17 +158,17 @@ namespace Sharpkit.Learn.LinearModel
 
         /// <summary>
         /// Convert coefficient matrix to sparse format.
-        /// Converts the <see cref="CoefMatrix"/> member to a <see cref="SparseMatrix"/>, which for
+        /// Converts the <see cref="LinearModel.Coef"/> member to a <see cref="SparseMatrix"/>, which for
         /// L1-regularized models can be much more memory- and storage-efficient
         /// than the usual numpy.ndarray representation.
         ///
-        /// The <see cref="InterceptVector"/> member is not converted.
+        /// The <see cref="LinearModel.Intercept"/> member is not converted.
         /// </summary>
         /// <remarks>
-        /// For non-sparse models, i.e. when there are not many zeros in ``coef_``,
+        /// For non-sparse models, i.e. when there are not many zeros in <see cref="LinearModel.Coef"/>,
         /// this may actually *increase* memory usage, so use this method with
         /// care. A rule of thumb is that the number of zero elements, which can
-        /// be computed with ``(coef_ == 0).sum()``, must be more than 50% for this
+        /// be computed with ``(Coef == 0).Sum()``, must be more than 50% for this
         /// to provide significant benefits.
         ///
         /// After calling this method, further fitting with the partial_fit
@@ -175,9 +176,9 @@ namespace Sharpkit.Learn.LinearModel
         /// </remarks>
         public LogisticRegression<TLabel> Sparsify()
         {
-            if (this.CoefMatrix is DenseMatrix)
+            if (this.Coef is DenseMatrix)
             {
-                this.CoefMatrix = SparseMatrix.OfMatrix(this.CoefMatrix);
+                this.Coef = SparseMatrix.OfMatrix(this.Coef);
             }
 
             return this;
@@ -186,17 +187,17 @@ namespace Sharpkit.Learn.LinearModel
         /// <summary>
         /// Convert coefficient matrix to dense array format.
         ///
-        /// Converts the ``coef_`` member (back) to a numpy.ndarray. This is the
-        /// default format of ``coef_`` and is required for fitting, so calling
+        /// Converts the <see cref="LinearModel.Coef"/> member (back) to a numpy.ndarray. This is the
+        /// default format of <see cref="LinearModel.Coef"/> and is required for fitting, so calling
         /// this method is only required on models that have previously been
         /// sparsified; otherwise, it is a no-op.
         /// </summary>
         /// <returns></returns>
         public LogisticRegression<TLabel> Densify()
         {
-            if (this.CoefMatrix is SparseMatrix)
+            if (this.Coef is SparseMatrix)
             {
-                this.CoefMatrix = DenseMatrix.OfMatrix(this.CoefMatrix);
+                this.Coef = DenseMatrix.OfMatrix(this.Coef);
             }
 
             return this;

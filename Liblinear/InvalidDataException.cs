@@ -19,7 +19,7 @@ namespace Liblinear
    public class InvalidInputDataException : Exception {
 
 
-    private static long serialVersionUID = 2945131732407207308L;
+    // private static long serialVersionUID = 2945131732407207308L;
 
 
     private int         _line;

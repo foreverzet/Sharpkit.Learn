@@ -1,29 +1,30 @@
-﻿using MathNet.Numerics.LinearAlgebra.Double;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Sharpkit.Learn.LeastSquares;
-
-namespace Sharpkit.Learn.Test.LeastSquares
+﻿namespace Sharpkit.Learn.Test.LeastSquares
 {
+    using MathNet.Numerics.LinearAlgebra.Double;
+    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using Sharpkit.Learn.LeastSquares;
+    using MathNet.Numerics.LinearAlgebra.Generic;
+
     [TestClass]
     public class LsqrTest
     {
         const int n = 35;
         private Vector b = Normal(size: n);
-        private Matrix G;
+        private Matrix g;
 
         [TestInitialize]
         public void TestInitialize()
         {
             //dx Set up a test problem
 
-            G = DenseMatrix.Identity(n);
+            g = DenseMatrix.Identity(n);
 
             for (int jj = 0; jj <5; jj++)
             {
                 Vector gg = Normal(size : n);
-                Vector hh = (Vector)gg.PointwiseMultiply(gg);
-                G.AddRowVector(hh, G);
-                G.AddRowVector((Vector)(Normal(size : n).PointwiseMultiply( Normal(size : n))), G);
+                var hh = gg.PointwiseMultiply(gg);
+                g.AddRowVector(hh, g);
+                g.AddRowVector(Normal(size : n).PointwiseMultiply( Normal(size : n)), g);
             }
         }
 
@@ -33,11 +34,11 @@ namespace Sharpkit.Learn.Test.LeastSquares
         }
 
         [TestMethod]
-        public void test_basic()
+        public void TestBasic()
         {
-            Vector svx = (Vector)G.Svd(true).Solve(b);
-            Vector X = Lsqr.lsqr(a: G, b: b, show: false, atol: 1E-10, btol: 1E-10).X;
-            Vector r = (Vector)(svx - X);
+            var svx = g.Svd(true).Solve(b);
+            Vector<double> x = Lsqr.lsqr(a: g, b: b, show: false, atol: 1E-10, btol: 1E-10).X;
+            var r = svx - x;
             Assert.IsTrue(r.FrobeniusNorm() < 1e-5);
         }
     }

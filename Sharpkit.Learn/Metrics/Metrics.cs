@@ -8,6 +8,7 @@ namespace Sharpkit.Learn.Metrics
 {
     using System;
     using MathNet.Numerics.LinearAlgebra.Double;
+    using MathNet.Numerics.LinearAlgebra.Generic;
 
     /// <summary>
     /// Score functions, performance metrics
@@ -34,7 +35,7 @@ namespace Sharpkit.Learn.Metrics
         /// References
         /// ----------
         /// [1] `Wikipedia entry on the Coefficient of determination
-        ///    <http://en.wikipedia.org/wiki/Coefficient_of_determination>
+        ///    http://en.wikipedia.org/wiki/Coefficient_of_determination
         /// </remarks>
         /// <example>
         ///  y_true = [3, -0.5, 2, 7]
@@ -46,7 +47,7 @@ namespace Sharpkit.Learn.Metrics
         ///  R2Score(y_true, y_pred)  # doctest: +ELLIPSIS
         ///     0.938...
         /// </example>
-        public static double R2Score(Matrix yTrue, Matrix yPred)
+        public static double R2Score(Matrix<double> yTrue, Matrix<double> yPred)
         {
             if (yTrue.RowCount != yPred.RowCount || yTrue.ColumnCount != yPred.ColumnCount)
             {
@@ -58,8 +59,8 @@ namespace Sharpkit.Learn.Metrics
                 throw new ArgumentException("r2_score can only be computed given more than one sample.");
             }
 
-            double numerator = ((Matrix)(yTrue - yPred)).Sqr().Sum();
-            double denominator = yTrue.SubtractRowVector(yTrue.MeanRows()).Sqr().Sum();
+            double numerator = (yTrue - yPred).Sqr().Sum();
+            double denominator = yTrue.SubtractRowVector(yTrue.MeanOfEveryColumn()).Sqr().Sum();
 
             if (denominator == 0.0)
             {

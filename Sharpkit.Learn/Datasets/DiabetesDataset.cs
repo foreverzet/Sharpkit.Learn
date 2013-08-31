@@ -15,6 +15,7 @@ namespace Sharpkit.Learn.Datasets
     using System.Reflection;
     using MathNet.Numerics.LinearAlgebra.Double;
     using MathNet.Numerics.LinearAlgebra.Double.IO;
+    using MathNet.Numerics.LinearAlgebra.Generic;
 
     /// <summary>
     /// Diabetes sample dataset.
@@ -31,12 +32,12 @@ namespace Sharpkit.Learn.Datasets
         /// <summary>
         /// Gets data to learn;
         /// </summary>
-        public Matrix Data { get; private set; }
+        public Matrix<double> Data { get; private set; }
 
         /// <summary>
         /// Gets regression target for each sample.
         /// </summary>
-        public Vector Target { get; private set; }
+        public Vector<double> Target { get; private set; }
 
         /// <summary>
         /// Load and return the diabetes dataset (regression).
@@ -59,7 +60,7 @@ namespace Sharpkit.Learn.Datasets
             {
                 var data = reader.ReadMatrix(new GZipStream(datastream, CompressionMode.Decompress));
                 var target = reader.ReadMatrix(new GZipStream(targetstream, CompressionMode.Decompress));
-                return new DiabetesDataset { Data = data, Target = (Vector)target.Column(0) };
+                return new DiabetesDataset { Data = data, Target = target.Column(0) };
             }
         }
     }

@@ -12,13 +12,13 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-using Sharpkit.Learn.LeastSquares;
-
 namespace Sharpkit.Learn.LinearModel
 {
     using System;
     using System.Threading.Tasks;
     using MathNet.Numerics.LinearAlgebra.Double;
+    using LeastSquares;
+    using MathNet.Numerics.LinearAlgebra.Generic;
 
     /// <summary>
     /// Ordinary least squares Linear Regression.
@@ -50,7 +50,7 @@ namespace Sharpkit.Learn.LinearModel
         /// <param name="y">Target values.[n_samples, n_targets]</param>
         /// <param name="sampleWeight">Sample weights.[n_samples]</param>
         /// <returns>Instance of self.</returns>
-        public override LinearRegressor Fit(Matrix x, Matrix y, Vector sampleWeight = null)
+        public override LinearRegressor Fit(Matrix<double> x, Matrix<double> y, Vector<double> sampleWeight = null)
         {
             var centerDataResult = CenterData(x, y, this.FitIntercept, this.Normalize);
             x = centerDataResult.X;
@@ -58,13 +58,13 @@ namespace Sharpkit.Learn.LinearModel
 
             if (x is SparseMatrix)
             {
-                this.CoefMatrix = new DenseMatrix(x.ColumnCount, y.ColumnCount);
+                this.Coef = new DenseMatrix(y.ColumnCount, x.ColumnCount);
                 Parallel.ForEach(y.ColumnEnumerator(), c=>
-                    this.CoefMatrix.SetColumn(c.Item1, Lsqr.lsqr(x, (Vector)c.Item2).X));
+                    this.Coef.SetRow(c.Item1, Lsqr.lsqr(x, c.Item2).X));
             }
             else
             {
-                this.CoefMatrix = (Matrix)x.Svd(true).Solve(y);
+                this.Coef = x.Svd(true).Solve(y).Transpose();
             }
 
             this.SetIntercept(centerDataResult.xMean, centerDataResult.yMean, centerDataResult.xStd);

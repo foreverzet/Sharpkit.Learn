@@ -15,7 +15,7 @@
 namespace Sharpkit.Learn.LinearModel
 {
     using System;
-    using MathNet.Numerics.LinearAlgebra.Double;
+    using MathNet.Numerics.LinearAlgebra.Generic;
 
     /// <summary>
     /// Generalized Linear models.
@@ -30,9 +30,9 @@ namespace Sharpkit.Learn.LinearModel
         {
         }
 
-        public LinearRegressor Fit(Matrix x, Vector y, Vector sampleWeight = null)
+        public LinearRegressor Fit(Matrix<double> x, Vector<double> y, Vector<double> sampleWeight = null)
         {
-            return Fit(x, (Matrix)y.ToColumnMatrix(), sampleWeight);
+            return Fit(x, y.ToColumnMatrix(), sampleWeight);
         }
 
         /// <summary>
@@ -42,18 +42,18 @@ namespace Sharpkit.Learn.LinearModel
         /// <param name="y">Target values.[n_samples, n_targets]</param>
         /// <param name="sampleWeight">Sample weights.[n_samples]</param>
         /// <returns>Instance of self.</returns>
-        public abstract LinearRegressor Fit(Matrix x, Matrix y, Vector sampleWeight = null);
+        public abstract LinearRegressor Fit(Matrix<double> x, Matrix<double> y, Vector<double> sampleWeight = null);
 
         /// <summary>
         /// Decision function of the linear model.
         /// </summary>
         /// <param name="x">Matrix of shape [n_samples, n_features].</param>
         /// <returns>shape = [n_samples] Returns predicted values.</returns>
-        public Matrix DecisionFunction(Matrix x)
+        public Matrix<double> DecisionFunction(Matrix<double> x)
         {
-            var tmp = x.Multiply(this.CoefMatrix);
-            tmp.MapIndexedInplace((i, j,v) => v + this.InterceptVector[j]);
-            return (Matrix)tmp;
+            var tmp = x.TransposeAndMultiply(this.Coef);
+            tmp.MapIndexedInplace((i, j,v) => v + this.Intercept[j]);
+            return tmp;
         }
  
         /// <summary>
@@ -61,7 +61,7 @@ namespace Sharpkit.Learn.LinearModel
         /// </summary>
         /// <param name="x">Matrix of shape [n_samples, n_features].</param>
         /// <returns>shape = [n_samples] Returns predicted values.</returns>
-        public Matrix Predict(Matrix x)
+        public Matrix<double> Predict(Matrix<double> x)
         {
             return this.DecisionFunction(x);
         }

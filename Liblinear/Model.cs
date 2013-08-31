@@ -25,7 +25,7 @@ namespace Liblinear
 public sealed class Model {
 
 
-    private static readonly long serialVersionUID = -6456047576741854834L;
+    // private static readonly long serialVersionUID = -6456047576741854834L;
 
 
     public double                    bias;

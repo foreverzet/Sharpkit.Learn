@@ -5,7 +5,7 @@
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>f691a38d-9738-4bfb-abe3-a990685ddb54</ProjectGuid>
+    <ProjectGuid>{c4f2e012-9c09-4288-ad36-bc6ea4c432d7}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <RootNamespace>Sharpkit.Learn.Samples.FSharp</RootNamespace>
     <AssemblyName>Sharpkit.Learn.Samples.FSharp</AssemblyName>

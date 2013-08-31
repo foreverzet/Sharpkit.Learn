@@ -155,7 +155,7 @@ namespace Liblinear
                         {
                             flag_predict_probability = (Linear.atoi(argv[i]) != 0);
                         }
-                        catch (FormatException e)
+                        catch (FormatException)
                         {
                             exit_with_help();
                         }

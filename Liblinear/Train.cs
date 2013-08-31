@@ -278,7 +278,7 @@ namespace Liblinear
                         try {
                             double value = Linear.atof(token);
                             x[j] = new Feature(index, value);
-                        } catch (FormatException e) {
+                        } catch (FormatException) {
                             throw new InvalidInputDataException("invalid value: " + token, file, lineNr);
                         }
                     }

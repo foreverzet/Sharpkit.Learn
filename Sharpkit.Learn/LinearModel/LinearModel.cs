@@ -12,11 +12,11 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-using MathNet.Numerics.LinearAlgebra.Double;
-
 namespace Sharpkit.Learn.LinearModel
 {
     using System;
+    using MathNet.Numerics.LinearAlgebra.Double;
+    using MathNet.Numerics.LinearAlgebra.Generic;
 
     /// <summary>
     /// Linear model base class.
@@ -45,49 +45,34 @@ namespace Sharpkit.Learn.LinearModel
         /// shape (n_targets, n_features)
         /// Estimated coefficients for problem.
         /// </summary>
-        public Matrix CoefMatrix { get; set; }
-
-        public Vector Coef
-        {
-            get { return (Vector)CoefMatrix.Column(0); }
-            set { CoefMatrix = (Matrix)value.ToColumnMatrix(); }
-        }
+        public Matrix<double> Coef { get; set; }
 
         /// <summary>
         /// Independent term in the linear model.
         /// </summary>
-        public Vector InterceptVector { get; set; }
+        public Vector<double> Intercept { get; set; }
 
-        public double Intercept
-        {
-            get { return InterceptVector[0]; }
-            set { InterceptVector = DenseVector.OfEnumerable(new[] { value }); }
-        }
-
-        protected internal void SetIntercept(Vector xMean, Vector yMean, Vector xStd)
+        protected internal void SetIntercept(Vector<double> xMean, Vector<double> yMean, Vector<double> xStd)
         {
             if (this.FitIntercept)
             {
-                this.CoefMatrix.DivColumnVector(xStd, this.CoefMatrix);
-                this.InterceptVector = new DenseVector(yMean.Count);
-                for (int i = 0; i < yMean.Count; i++)
-                {
-                    this.InterceptVector[i] = yMean[i] - xMean.DotProduct(this.CoefMatrix.Column(i));
-                }
+                this.Coef.DivRowVector(xStd, this.Coef);
+
+                this.Intercept = (xMean.ToRowMatrix().TransposeAndMultiply(this.Coef)*(-1)).Row(0) + yMean;
             }
             else
             {
-                this.InterceptVector = new DenseVector(yMean.Count);
+                this.Intercept = new DenseVector(yMean.Count);
             }
         }
 
         internal class CenterDataResult
         {
-            public Matrix X { get; set; }
-            public Matrix Y { get; set; }
-            public Vector xMean { get; set; }
-            public Vector yMean { get; set; }
-            public Vector xStd { get; set; }
+            public Matrix<double> X { get; set; }
+            public Matrix<double> Y { get; set; }
+            public Vector<double> xMean { get; set; }
+            public Vector<double> yMean { get; set; }
+            public Vector<double> xStd { get; set; }
         }
 
         /// <summary>
@@ -102,15 +87,15 @@ namespace Sharpkit.Learn.LinearModel
         /// <param name="normalize"></param>
         /// <param name="sampleWeight"></param>
         internal CenterDataResult CenterData(
-            Matrix x,
-            Matrix y,
+            Matrix<double> x,
+            Matrix<double> y,
             bool fitIntercept,
             bool normalize = false,
-            Vector sampleWeight = null)
+            Vector<double> sampleWeight = null)
         {
-            Vector xMean;
-            Vector yMean = new DenseVector(y.ColumnCount);
-            Vector xStd;
+            Vector<double> xMean;
+            Vector<double> yMean = new DenseVector(y.ColumnCount);
+            Vector<double> xStd;
 
             if (fitIntercept)
             {
@@ -123,11 +108,11 @@ namespace Sharpkit.Learn.LinearModel
                 {
                     if (sampleWeight == null)
                     {
-                        xMean = x.MeanRows();
+                        xMean = x.MeanOfEveryColumn();
                     }
                     else
                     {
-                        xMean = (Vector)x.MulColumnVector(sampleWeight).SumRows().Divide(sampleWeight.Sum());
+                        xMean = x.MulColumnVector(sampleWeight).SumOfEveryColumn().Divide(sampleWeight.Sum());
                     }
 
                     x = x.SubtractRowVector(xMean);
@@ -161,24 +146,20 @@ namespace Sharpkit.Learn.LinearModel
 
                 if (sampleWeight == null)
                 {
-                    yMean = y.MeanRows();
+                    yMean = y.MeanOfEveryColumn();
                 }
                 else
                 {
-                    yMean = (Vector)(y.MulColumnVector(sampleWeight).SumRows() / sampleWeight.Sum());
+                    yMean = y.MulColumnVector(sampleWeight).SumOfEveryColumn() / sampleWeight.Sum();
                 }
 
-                y = (Matrix)y.Clone();
-                foreach (var r in y.RowEnumerator())
-                {
-                    y.SetRow(r.Item1, r.Item2.Subtract(yMean));
-                }
+                y = y.Clone();
+                y = y.SubtractRowVector(yMean);
             }
             else
             {
                 xMean = DenseVector.Create(x.ColumnCount, i => 0);
                 xStd = DenseVector.Create(x.ColumnCount, i => 1);
-                //y_mean = 0;
             }
 
             return new CenterDataResult {X = x, Y = y, xMean = xMean, yMean = yMean, xStd = xStd};

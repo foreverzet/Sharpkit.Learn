@@ -1,13 +1,14 @@
-﻿using MathNet.Numerics.LinearAlgebra.Double;
-
-namespace Sharpkit.Learn.LeastSquares
+﻿namespace Sharpkit.Learn.LeastSquares
 {
+    using MathNet.Numerics.LinearAlgebra.Double;
+    using MathNet.Numerics.LinearAlgebra.Generic;
+
     internal class LsqrResult
     {
         /// <summary>
         /// The final solution.
         /// </summary>
-        public Vector X { get; set; }
+        public Vector<double> X { get; set; }
             
         /// <summary>
         /// Gives the reason for termination.
@@ -58,6 +59,6 @@ namespace Sharpkit.Learn.LeastSquares
         /// damp^2*I)^{-1}``.  This is well defined if A has full column
         /// rank or ``damp > 0``.  (Not sure what var means if ``rank(A) < n`` and ``damp = 0.``)
         /// </summary>
-        public Vector Var { get; set; }
+        public Vector<double> Var { get; set; }
     }
 }

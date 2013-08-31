@@ -12,6 +12,7 @@ namespace Sharpkit.Learn.LinearModel
     using Liblinear;
     using MathNet.Numerics.LinearAlgebra.Double;
     using Sharpkit.Learn.Preprocessing;
+    using MathNet.Numerics.LinearAlgebra.Generic;
 
     /// <summary>
     /// Base for classes binding liblinear (dense and sparse versions).
@@ -24,12 +25,12 @@ namespace Sharpkit.Learn.LinearModel
         public double interceptScaling { get; private set; }
         private readonly ClassWeight<TLabel> classWeight;
         private readonly int verbose;
-        private Random random;
+        private readonly Random random;
         private LabelEncoder<TLabel> _enc;
 
         private Model model;
         private readonly LinearClassifier<TLabel> classifier;
-        private bool dual;
+        private readonly bool dual;
 
         public LibLinearBase(
             LinearClassifier<TLabel> classifier,
@@ -60,13 +61,13 @@ namespace Sharpkit.Learn.LinearModel
         {
             if (multiclass == Multiclass.CrammerSinger)
                 return SolverType.getById(SolverType.MCSVM_CS);
-            
+
             if (multiclass != Multiclass.Ovr)
                 throw new ArgumentException("Invalid multiclass value");
 
             if (norm == Norm.L2 && loss == Loss.LogisticRegression && !dual)
                 return SolverType.getById(SolverType.L2R_LR);
-            
+
             if (norm == Norm.L2 && loss == Loss.L2 && dual)
                 return SolverType.getById(SolverType.L2R_L2LOSS_SVC_DUAL);
 
@@ -96,24 +97,23 @@ namespace Sharpkit.Learn.LinearModel
         ///    n_features is the number of features.</param>
         /// <param name="y">shape = [n_samples]
         ///    Target vector relative to X</param>
-        public void Fit(Matrix x, TLabel[] y)
+        public void Fit(Matrix<double> x, TLabel[] y)
         {
             Linear.random = this.random;
-            
+
             this._enc = new LabelEncoder<TLabel>();
-            int[] y_ = this._enc.FitTransform(y);
+            int[] y1 = this._enc.FitTransform(y);
             if (this.Classes.Length < 2)
                 throw new ArgumentException("The number of classes has to be greater than one.");
-            
-            Vector class_weight = this.classWeight.ComputeWeights(this.Classes, y_);
-            
+
+            Vector classWeight = this.classWeight.ComputeWeights(this.Classes, y1);
+
             if (x.RowCount != y.Length)
             {
                 throw new ArgumentException(
                     string.Format("X and y have incompatible shapes.\n X has {0} samples, but y has {1}.",
                                   x.RowCount,
                                   y.Length));
-
             }
 
             if (this.verbose > 0)
@@ -124,7 +124,7 @@ namespace Sharpkit.Learn.LinearModel
             Problem problem = new Problem();
             problem.bias = this.Bias;
             var samples = new List<Feature>[x.RowCount];
-            for (int i=0; i<samples.Length; i++)
+            for (int i = 0; i < samples.Length; i++)
             {
                 samples[i] = new List<Feature>();
             }
@@ -136,39 +136,41 @@ namespace Sharpkit.Learn.LinearModel
             if (this.Bias > 0)
             {
                 for (int i = 0; i < x.RowCount; i++)
+                {
                     samples[i].Add(new Feature(x.ColumnCount + 1, this.Bias));
+                }
             }
 
             problem.x = samples.Select(s => s.ToArray()).ToArray();
-            problem.y = y_.Select( v => (double)v).ToArray();
+            problem.y = y1.Select(v => (double)v).ToArray();
             problem.l = x.RowCount;
             problem.n = this.Bias > 0 ? x.ColumnCount + 1 : x.ColumnCount;
-            
+
             Parameter prm = new Parameter(this.solverType, this.C, this.tol);
             prm.weightLabel = Enumerable.Range(0, this.Classes.Length).ToArray();
-            prm.weight = class_weight.ToArray();
+            prm.weight = classWeight.ToArray();
 
             this.model = Linear.train(problem, prm);
-            
+
             //
-            int nr_class = model.getNrClass();
-            int nr_feature = model.getNrFeature();
+            int nrClass = model.getNrClass();
+            int nrFeature = model.getNrFeature();
             if (Bias > 0)
             {
-                nr_feature = nr_feature + 1;
+                nrFeature = nrFeature + 1;
             }
 
-            Matrix r;
-            if (nr_class == 2)
+            Matrix<double> r;
+            if (nrClass == 2)
             {
-                r = DenseMatrix.OfColumnMajor(1, nr_feature, model.getFeatureWeights());
+                r = DenseMatrix.OfColumnMajor(1, nrFeature, model.getFeatureWeights());
             }
             else
             {
-                r = DenseMatrix.OfColumnMajor(nr_class, nr_feature, model.getFeatureWeights());
+                r = DenseMatrix.OfColumnMajor(nrClass, nrFeature, model.getFeatureWeights());
             }
 
-            if (nr_class > 2)
+            if (nrClass > 2)
             {
                 var rClone = r.Clone();
                 var labels = model.getLabels();
@@ -176,44 +178,50 @@ namespace Sharpkit.Learn.LinearModel
                 {
                     rClone.SetRow(labels[i], r.Row(i));
                 }
-                r = (Matrix)rClone;
+
+                r = rClone;
             }
             else
             {
-                r.MapInplace(v => v * -1);
+                r.MapInplace(v => v*-1);
             }
 
             if (this.classifier.FitIntercept)
             {
-                this.classifier.CoefMatrix = (Matrix)r.SubMatrix(0, r.RowCount, 0, r.ColumnCount - 1).Transpose();
-                this.classifier.InterceptVector = (Vector)(r.Column(r.ColumnCount - 1) * this.interceptScaling);
+                this.classifier.Coef = r.SubMatrix(0, r.RowCount, 0, r.ColumnCount - 1);
+                this.classifier.Intercept = r.Column(r.ColumnCount - 1)*this.interceptScaling;
             }
             else
             {
-                this.classifier.CoefMatrix = (Matrix)r.Transpose();
-                this.classifier.InterceptVector = new DenseVector(r.ColumnCount);
+                this.classifier.Coef = r;
+                this.classifier.Intercept = new DenseVector(r.RowCount);
             }
         }
-    
-    public TLabel[] Classes
-    {
-        get { return this._enc.Classes; }
-    }
 
-    public bool Dual { get { return this.dual; } }
-    
-
-    private double Bias
-    {
-        get
+        public TLabel[] Classes
         {
-            if (this.classifier.FitIntercept)
-                return this.interceptScaling;
-            else
+            get { return this._enc.Classes; }
+        }
+
+        public bool Dual
+        {
+            get { return this.dual; }
+        }
+
+
+        private double Bias
+        {
+            get
             {
-                return -1.0;
+                if (this.classifier.FitIntercept)
+                {
+                    return this.interceptScaling;
+                }
+                else
+                {
+                    return -1.0;
+                }
             }
         }
-    }
     }
 }
