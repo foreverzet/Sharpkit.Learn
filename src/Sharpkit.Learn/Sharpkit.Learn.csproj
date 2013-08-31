@@ -1,0 +1,108 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{94F65494-63E6-4802-AA08-61B3D2F440B4}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Sharpkit.Learn</RootNamespace>
+    <AssemblyName>Sharpkit.Learn</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="MathNet.Numerics">
+      <HintPath>..\packages\MathNet.Numerics.2.5.0\lib\net40\MathNet.Numerics.dll</HintPath>
+    </Reference>
+    <Reference Include="MathNet.Numerics.IO">
+      <HintPath>..\packages\MathNet.Numerics.2.5.0\lib\net40\MathNet.Numerics.IO.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ClassWeight.cs" />
+    <Compile Include="Datasets\DiabetesDataset.cs" />
+    <Compile Include="Datasets\IrisDataset.cs" />
+    <Compile Include="Datasets\SampleGenerator.cs" />
+    <Compile Include="LeastSquares\LsqrResult.cs" />
+    <Compile Include="LinearModel\LogisticRegression.cs" />
+    <Compile Include="LinearModel\Loss.cs" />
+    <Compile Include="LinearModel\Multiclass.cs" />
+    <Compile Include="LinearModel\Norm.cs" />
+    <Compile Include="LinearModel\RidgeSolver.cs" />
+    <Compile Include="Preprocessing\LabelBinarizer.cs" />
+    <Compile Include="LinearModel\LibLinearBase.cs" />
+    <Compile Include="LinearModel\LinearClassifier.cs" />
+    <Compile Include="LinearModel\LinearModel.cs" />
+    <Compile Include="LinearModel\LinearRegressor.cs" />
+    <Compile Include="LinearModel\LinearRegression.cs" />
+    <Compile Include="LeastSquares\Lsqr.cs" />
+    <Compile Include="LinearModel\RidgeBase.cs" />
+    <Compile Include="LinearModel\RidgeClassifier.cs" />
+    <Compile Include="LinearModel\RidgeRegression.cs" />
+    <Compile Include="MatrixExtensions.cs" />
+    <Compile Include="Metrics\Metrics.cs" />
+    <Compile Include="Preprocessing\LabelEncoder.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Datasets\Data\diabetes_data.csv.gz" />
+    <EmbeddedResource Include="Datasets\Data\diabetes_target.csv.gz" />
+    <EmbeddedResource Include="Datasets\Data\iris.csv" />
+    <EmbeddedResource Include="Datasets\Data\iris.rst" />
+    <EmbeddedResource Include="Datasets\Data\diabetes.rst" />
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="libiomp5md.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MathNet.Numerics.MKL.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Liblinear\Liblinear.csproj">
+      <Project>{D32C55BA-4543-483D-86B0-DBE02B951579}</Project>
+      <Name>Liblinear</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
