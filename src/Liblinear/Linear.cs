@@ -13,18 +13,12 @@ namespace Liblinear
     using System.Text;
 
     /// <summary>
-    /// TODO: Update summary.
+    /// C# port of java port of <a href="http://www.csie.ntu.edu.tw/~cjlin/liblinear/">liblinear</a>.
+    /// The usage should be pretty similar to the C version of <tt>liblinear</tt>.
+    /// <em>The port was done by Benedikt Waldvogel (mail at bwaldvogel.de) to Java</em>
+    /// <em>The port was done by Sergey Zyuzin to C#.</em>
+    /// version 1.92
     /// </summary>
-    /**
- * <h2>Java port of <a href="http://www.csie.ntu.edu.tw/~cjlin/liblinear/">liblinear</a></h2>
- *
- * <p>The usage should be pretty similar to the C version of <tt>liblinear</tt>.</p>
- * <p>Please consider reading the <tt>README</tt> file of <tt>liblinear</tt>.</p>
- *
- * <p><em>The port was done by Benedikt Waldvogel (mail at bwaldvogel.de)</em></p>
- *
- * @version 1.92
- */
     public class Linear
     {
 

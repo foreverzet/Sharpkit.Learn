@@ -12,6 +12,9 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
+using MathNet.Numerics;
+using MathNet.Numerics.LinearAlgebra.Generic.Factorization;
+
 namespace Sharpkit.Learn.LinearModel
 {
     using System;
@@ -64,7 +67,7 @@ namespace Sharpkit.Learn.LinearModel
             }
             else
             {
-                this.Coef = x.Svd(true).Solve(y).Transpose();
+                this.Coef = x.SvdSolve(y).Transpose();
             }
 
             this.SetIntercept(centerDataResult.xMean, centerDataResult.yMean, centerDataResult.xStd);

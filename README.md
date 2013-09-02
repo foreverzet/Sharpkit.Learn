@@ -3,7 +3,7 @@ Sharpkit.Learn - Machine Learning library for .Net (C#, F#)
 
 Sharpkit.Learn is machine learning library for .Net and mono.
 It is based on Math.Net library and different state-of-the art
-machine learning libraries, like liblinear.
+machine learning libraries. In particular it uses [liblinear](http://www.csie.ntu.edu.tw/~cjlin/liblinear/).
 
 It supports both sparse and dense matrices. If you need extra
 performance, you can use various BLAS providers (like MKL and cublas)
@@ -34,6 +34,13 @@ What it will contain soon
    * PCA
    * Ensemble methods
 
+Documentation
+===============
+   Currently the design is very close to the Scikit-learn python library.
+   You can start [there](http://scikit-learn.org/stable/documentation.html)
+   I will provide basic C# and F# examples, but complete documentation requires
+   a lot of time to write.
+
 
 How you can help
 ===============
@@ -43,3 +50,10 @@ How you can help
    * Implement some missing feature you need     
    * Perform benchmarking
    * Blob about the library.
+
+License
+===============
+
+     Math.NET Numerics is covered under the terms of the [MIT/X11](http://mathnetnumerics.codeplex.com/license)
+     Sharpkit.Learn is covered under the terms of the BSD Clause 3 license.
+     Liblinear is covered under the terms of the Modified BSD License.

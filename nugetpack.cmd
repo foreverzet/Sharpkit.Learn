@@ -1,0 +1,1 @@
+d:\nuget pack src\Sharpkit.Learn\Sharpkit.Learn.csproj -Prop Configuration=Release -IncludereferencedProjects

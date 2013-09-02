@@ -30,6 +30,11 @@ namespace Sharpkit.Learn.LinearModel
         {
         }
 
+        public LinearRegressor Fit(double[,] x, double[] y, double[] sampleWeight = null)
+        {
+            return Fit(x.ToDenseMatrix(), y.ToDenseVector(), sampleWeight.ToDenseVector());
+        }
+
         public LinearRegressor Fit(Matrix<double> x, Vector<double> y, Vector<double> sampleWeight = null)
         {
             return Fit(x, y.ToColumnMatrix(), sampleWeight);

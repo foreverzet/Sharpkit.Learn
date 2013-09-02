@@ -4,6 +4,9 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
+using MathNet.Numerics;
+using MathNet.Numerics.LinearAlgebra.Generic.Factorization;
+
 namespace Sharpkit.Learn
 {
     using System;
@@ -297,7 +300,7 @@ namespace Sharpkit.Learn
         /// <returns>Instance of <see cref="DenseVector"/>.</returns>
         public static DenseVector ToDenseVector(this double[] data)
         {
-            return new DenseVector(data);
+            return data == null ? null : new DenseVector(data);
         }
 
         /// <summary>
@@ -362,6 +365,43 @@ namespace Sharpkit.Learn
             }
 
             return r;
+        }
+
+        public static Matrix<double> SvdSolve(this Matrix<double> x, Matrix<double> y)
+        {
+            var svd = x.Svd(true);
+            // todo: math.net svd cannot solve underdetermined systems.
+            // report bug. For now workaraound with pseudoinverse.
+            if (svd.Rank >= x.ColumnCount)
+            {
+                return svd.Solve(y);
+            }
+            else
+            {
+                return PseudoInverse(svd) * y;
+            }
+        }
+
+        private static Matrix<double> PseudoInverse(Svd<double> svd)
+        {
+            Matrix<double> W = svd.W();
+            Vector<double> s = svd.S();
+
+            // The first element of W has the maximum value. 
+            double tolerance = Precision.EpsilonOf(2) * Math.Max(svd.U().RowCount, svd.VT().ColumnCount) * W[0, 0];
+
+            for (int i = 0; i < s.Count; i++)
+            {
+                if (s[i] < tolerance)
+                    s[i] = 0;
+                else
+                    s[i] = 1 / s[i];
+            }
+
+            W.SetDiagonal(s);
+
+            // (U * W * VT)T is equivalent with V * WT * UT 
+            return (svd.U() * W * svd.VT()).Transpose();
         }
     }
 }
