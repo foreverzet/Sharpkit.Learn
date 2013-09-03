@@ -14,7 +14,8 @@
     Currently has Linear Regression, Logistic Regression, Ridge Regression/Classifier.
     Initially it is port of popular Scikit-learn machine learning python library and has very close design.
     Sharpkit.Learn is based on the state of the art algorithm implementations and uses liblinear, libsvm, Math.Net
-    etc. Various BLAS providers like MKL can be used to speed up the computation.
+    etc. Various BLAS providers like MKL can be used to speed up the computation. Both dense and sparse matrices
+    are supported.
     </description>
     <releaseNotes>Alpha version of the library.</releaseNotes>
     <copyright>Copyright 2013</copyright>
