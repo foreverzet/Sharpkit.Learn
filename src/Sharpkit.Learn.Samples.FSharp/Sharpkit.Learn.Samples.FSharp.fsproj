@@ -60,6 +60,7 @@
   <ItemGroup>
     <Compile Include="LinearRegression.fs" />
     <None Include="packages.config" />
+    <Compile Include="RidgeRegression.fs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="MathNet.Numerics">

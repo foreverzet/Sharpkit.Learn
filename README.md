@@ -50,6 +50,6 @@ How you can help
 License
 ===============
 
-Math.NET Numerics is covered under the terms of the [MIT/X11](http://mathnetnumerics.codeplex.com/license)
-Sharpkit.Learn is covered under the terms of the BSD Clause 3 license.
-Liblinear is covered under the terms of the Modified BSD License.
+*Math.NET Numerics is covered under the terms of the [MIT/X11](http://mathnetnumerics.codeplex.com/license)
+*Sharpkit.Learn is covered under the terms of the BSD Clause 3 license.
+*Liblinear is covered under the terms of the Modified BSD License.

@@ -70,5 +70,15 @@ namespace Sharpkit.Learn.LinearModel
         {
             return this.DecisionFunction(x);
         }
+
+        /// <summary>
+        /// Predict using the linear model.
+        /// </summary>
+        /// <param name="x">Array of length [nFeatures].</param>
+        /// <returns>Returns predicted value.</returns>
+        public double Predict(double[] x)
+        {
+            return Predict(x.ToDenseVector().ToRowMatrix())[0,0];
+        }
     }
 }
