@@ -49,7 +49,6 @@
         [TestMethod]
         public void TestFitIntercept()
         {
-            Control.LinearAlgebraProvider = new MklLinearAlgebraProvider();
             var x2 = DenseMatrix.OfArray(new[,]
                                              {
                                                  {0.38349978, 0.61650022},
