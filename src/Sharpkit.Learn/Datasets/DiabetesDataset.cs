@@ -13,8 +13,7 @@ namespace Sharpkit.Learn.Datasets
     using System;
     using System.IO.Compression;
     using System.Reflection;
-    using MathNet.Numerics.LinearAlgebra.Double;
-    using MathNet.Numerics.LinearAlgebra.Double.IO;
+    using MathNet.Numerics.Data.Text;
     using MathNet.Numerics.LinearAlgebra.Generic;
 
     /// <summary>
@@ -53,13 +52,13 @@ namespace Sharpkit.Learn.Datasets
         /// </returns>
         public static DiabetesDataset Load()
         {
-            var reader = new DelimitedReader<DenseMatrix>(' ');
+            var reader = new DelimitedReader {Sparse = false, Delimiter = " "};
             var assembly = Assembly.GetAssembly(typeof(DiabetesDataset));
             using (var datastream = assembly.GetManifestResourceStream("Sharpkit.Learn.Datasets.Data.diabetes_data.csv.gz"))
             using (var targetstream = assembly.GetManifestResourceStream("Sharpkit.Learn.Datasets.Data.diabetes_target.csv.gz"))
             {
-                var data = reader.ReadMatrix(new GZipStream(datastream, CompressionMode.Decompress));
-                var target = reader.ReadMatrix(new GZipStream(targetstream, CompressionMode.Decompress));
+                var data = reader.ReadMatrix<double>(new GZipStream(datastream, CompressionMode.Decompress));
+                var target = reader.ReadMatrix<double>(new GZipStream(targetstream, CompressionMode.Decompress));
                 return new DiabetesDataset { Data = data, Target = target.Column(0) };
             }
         }

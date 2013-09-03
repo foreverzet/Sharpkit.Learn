@@ -1,0 +1,76 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="BuildPackages" ToolsVersion="4.0">
+	<UsingTask AssemblyFile="$(MSBuildProjectDirectory)/build/MSBuild.Community.Tasks.v1.2.0.306/MSBuild.Community.Tasks.dll" TaskName="MSBuild.Community.Tasks.XmlUpdate" />
+	<UsingTask AssemblyFile="$(MSBuildProjectDirectory)/build/MSBuild.Community.Tasks.v1.2.0.306/MSBuild.Community.Tasks.dll" TaskName="MSBuild.Community.Tasks.FileUpdate" />
+
+	<PropertyGroup>
+		<Root>$(MSBuildProjectDirectory)</Root>
+		<OutNuGetPackages>$(MSBuildProjectDirectory)\outpackages</OutNuGetPackages>
+		<OutLib>$(MSBuildProjectDirectory)\outlib</OutLib>
+		<NuGetExe>$(MSBuildProjectDirectory)\build\Nuget\nuget.exe</NuGetExe>
+                <SharpkitLearnPack>$(MSBuildProjectDirectory)\out\Sharpkit.Learn</SharpkitLearnPack>
+	</PropertyGroup>
+
+        <ItemGroup>
+		<SharpkitLearnNet40 Include="$(OutLib)/Net40/Sharpkit.Learn.dll;$(OutLib)/Net40/Sharpkit.Learn.pdb;$(OutLib)/Net40/Sharpkit.Learn.xml;$(OutLib)/Net40/LibLinear.exe;$(OutLib)/Net40/LibLinear.pdb;$(OutLib)/Net40/LibLinear.xml;" />
+                
+	</ItemGroup>
+
+        <Target Name="CopyContentFiles">
+		<Copy SourceFiles="$(Root)/LICENSE" DestinationFiles="$(SharpkitLearnPack)/license.txt" />
+        
+		<RemoveDir Directories="$(SharpkitLearnPack)/lib" />
+		<Copy SourceFiles="@(SharpkitLearnNet40)" DestinationFolder="$(SharpkitLearnPack)/lib/net40" />
+                <Copy SourceFiles="$(OutLib)/Net40/Sharpkit.Learn.nuspec" DestinationFolder="$(SharpkitLearnPack)" />
+	</Target>
+
+        <Target Name="UpdateNuspec" DependsOnTargets="CopyContentFiles">
+	
+		<!-- Evaluate Assembly Identity -->
+		<GetAssemblyIdentity AssemblyFiles="$(SharpkitLearnPack)/lib/Net40/Sharpkit.Learn.dll">
+			<Output TaskParameter="Assemblies" ItemName="SharpkitLearnAssemblyInfo"/>
+		</GetAssemblyIdentity>
+		
+		<!-- Extract Assembly Versions -->
+		<PropertyGroup>
+			<SharpkitLearnAssemblyVersion>%(SharpkitLearnAssemblyInfo.Version)</SharpkitLearnAssemblyVersion>
+		</PropertyGroup>
+		
+		<!-- Package Versions (skip 4th part/build number, for semvar compliance) -->
+		<PropertyGroup>
+			<SharpkitLearnPackVersion>$(SharpkitLearnAssemblyVersion.Substring(0, $(SharpkitLearnAssemblyVersion.LastIndexOf('.'))))</SharpkitLearnPackVersion>
+		</PropertyGroup>
+
+		<XmlUpdate
+			XmlFileName="$(SharpkitLearnPack)/Sharpkit.Learn.nuspec"
+			XPath="//package/metadata/version"
+			Value="$(SharpkitLearnPackVersion)"/>
+	</Target>
+
+	
+        <Target Name="BuildSolution1">
+               <ItemGroup>
+                  <ProjectToBuild Include="src\Sharpkit.Learn.sln">
+                      <Properties>OutputPath=$(OutLib)\Net40;Configuration=Release;Platform=Any CPU</Properties>
+                  </ProjectToBuild>
+               </ItemGroup>
+              <MSBuild Projects="@(ProjectToBuild)"/>
+        </Target>
+
+        <Target Name="Clean">
+              <ItemGroup>
+                <DirsToClean Include="$(OutLib)" />
+                <DirsToClean Include="$(OutNuGetPackages)" />
+                <DirsToClean Include="$(SharpkitLearnPack)" />
+              </ItemGroup>
+              <RemoveDir Directories="@(DirsToClean)" />
+        </Target>
+
+	<Target Name="BuildPackages" DependsOnTargets="Clean; BuildSolution1; CopyContentFiles; UpdateNuspec">
+              
+
+<!--          	<MakeDir Directories="$(OutputDir)" /> -->
+		<MakeDir Directories="$(OutNuGetPackages)" />
+		<Exec Command="$(NuGetExe) pack $(SharpkitLearnPack)/Sharpkit.Learn.nuspec -Verbosity detailed -OutputDirectory $(OutNuGetPackages)" />
+	</Target>
+
+</Project>

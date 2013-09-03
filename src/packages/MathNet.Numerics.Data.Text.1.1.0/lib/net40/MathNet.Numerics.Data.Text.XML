@@ -1,0 +1,216 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>MathNet.Numerics.Data.Text</name>
+    </assembly>
+    <members>
+        <member name="T:MathNet.Numerics.Data.Text.DelimitedReader">
+            <summary>
+            Creates a <see cref="T:MathNet.Numerics.LinearAlgebra.Generic.Matrix`1"/> from a delimited text file. If the user does not
+            specify a delimiter, then any whitespace is used.
+            </summary>
+        </member>
+        <member name="F:MathNet.Numerics.Data.Text.DelimitedReader.RegexTemplate">
+            <summary>
+            The base regular expression.
+            </summary>
+        </member>
+        <member name="F:MathNet.Numerics.Data.Text.DelimitedReader.RegexCache">
+            <summary>
+            Cached compiled regular expressions for various delimiters, as needed.
+            </summary>
+        </member>
+        <member name="M:MathNet.Numerics.Data.Text.DelimitedReader.ReadMatrix``1(System.String)">
+            <summary>
+            Performs the actual reading.
+            </summary>
+            <param name="filePath">The path and name of the file to read the matrix from.</param>
+            <returns>
+            A matrix containing the data from the <see cref="T:System.IO.Stream"/>.
+            </returns>
+        </member>
+        <member name="M:MathNet.Numerics.Data.Text.DelimitedReader.ReadMatrix``1(System.IO.Stream)">
+            <summary>
+            Performs the actual reading.
+            </summary>
+            <param name="stream">The <see cref="T:System.IO.Stream"/> to read the matrix from.</param>
+            <returns>
+            A matrix containing the data from the <see cref="T:System.IO.Stream"/>.
+            </returns>
+        </member>
+        <member name="M:MathNet.Numerics.Data.Text.DelimitedReader.ReadMatrix``1(System.IO.TextReader)">
+            <summary>
+            Performs the actual reading.
+            </summary>
+            <param name="reader">The <see cref="T:System.IO.TextReader"/> to read the matrix from.</param>
+            <returns>
+            A matrix containing the data from the <see cref="T:System.IO.Stream"/>.
+            </returns>
+        </member>
+        <member name="M:MathNet.Numerics.Data.Text.DelimitedReader.Read``1(System.IO.TextReader,System.Boolean,System.String,System.Boolean,System.IFormatProvider)">
+            <summary>
+            Reads a <see cref="T:MathNet.Numerics.LinearAlgebra.Generic.Matrix`1"/> from the given <see cref="T:System.IO.TextReader"/>.
+            </summary>
+            <param name="reader">The <see cref="T:System.IO.TextReader"/> to read the matrix from.</param>
+            <param name="sparse">Whether the the returned matrix should be constructed as sparse (true) or dense (false). Default: false.</param>
+            <param name="delimiter">Number delimiter between numbers of the same line. Supports Regex groups. Default: "\s" (white space).</param>
+            <param name="hasHeaders">Whether the first row contains column headers or not. Default: false.</param>
+            <param name="formatProvider">The culture to use. Default: null.</param>
+            <returns>A matrix containing the data from the <see cref="T:System.IO.TextReader"/>.</returns>
+            <typeparam name="TDataType">The data type of the Matrix. It can be either: double, float, Complex, or Complex32.</typeparam>
+        </member>
+        <member name="M:MathNet.Numerics.Data.Text.DelimitedReader.ReadFile``1(System.String,System.Boolean,System.String,System.Boolean,System.IFormatProvider)">
+            <summary>
+            Reads a <see cref="T:MathNet.Numerics.LinearAlgebra.Generic.Matrix`1"/> from the given file.
+            </summary>
+            <param name="filePath">The path and name of the file to read the matrix from.</param>
+            <param name="sparse">Whether the the returned matrix should be constructed as sparse (true) or dense (false). Default: false.</param>
+            <param name="delimiter">Number delimiter between numbers of the same line. Supports Regex groups. Default: "\s" (white space).</param>
+            <param name="hasHeaders">Whether the first row contains column headers or not. Default: false.</param>
+            <param name="formatProvider">The culture to use. Default: null.</param>
+            <returns>A matrix containing the data from the <see cref="T:System.IO.TextReader"/>.</returns>
+            <typeparam name="TDataType">The data type of the Matrix. It can be either: double, float, Complex, or Complex32.</typeparam>
+        </member>
+        <member name="M:MathNet.Numerics.Data.Text.DelimitedReader.ReadStream``1(System.IO.Stream,System.Boolean,System.String,System.Boolean,System.IFormatProvider)">
+            <summary>
+            Reads a <see cref="T:MathNet.Numerics.LinearAlgebra.Generic.Matrix`1"/> from the given <see cref="T:System.IO.Stream"/>.
+            </summary>
+            <param name="stream">The <see cref="T:System.IO.Stream"/> to read the matrix from.</param>
+            <param name="sparse">Whether the the returned matrix should be constructed as sparse (true) or dense (false). Default: false.</param>
+            <param name="delimiter">Number delimiter between numbers of the same line. Supports Regex groups. Default: "\s" (white space).</param>
+            <param name="hasHeaders">Whether the first row contains column headers or not. Default: false.</param>
+            <param name="formatProvider">The culture to use. Default: null.</param>
+            <returns>A matrix containing the data from the <see cref="T:System.IO.TextReader"/>.</returns>
+            <typeparam name="TDataType">The data type of the Matrix. It can be either: double, float, Complex, or Complex32.</typeparam>
+        </member>
+        <member name="P:MathNet.Numerics.Data.Text.DelimitedReader.Delimiter">
+            <summary>
+            The delimiter to use for parsing. Defaults to any whitespace.
+            </summary>
+        </member>
+        <member name="P:MathNet.Numerics.Data.Text.DelimitedReader.Sparse">
+            <summary>
+            Whether to create sparse matrices or not. Defaults to false.
+            </summary>
+        </member>
+        <member name="P:MathNet.Numerics.Data.Text.DelimitedReader.HasHeaderRow">
+            <summary>
+            Gets or sets a value indicating whether the files has a header row.
+            </summary>
+            <value>
+            <c>true</c> if this instance has a header row; otherwise, <c>false</c>.
+            </value>
+            <remarks>Defaults to <see langword="false"/>.</remarks>
+        </member>
+        <member name="P:MathNet.Numerics.Data.Text.DelimitedReader.FormatProvider">
+            <summary>
+            Gets or sets the <see cref="P:MathNet.Numerics.Data.Text.DelimitedReader.FormatProvider"/> to use when parsing the numbers.
+            </summary>
+            <value>The culture info.</value>
+            <remarks>Defaults to <c>CultureInfo.CurrentCulture</c>.</remarks>
+        </member>
+        <member name="T:MathNet.Numerics.Data.Text.DelimitedWriter">
+            <summary>
+            Writes an <see cref="T:MathNet.Numerics.LinearAlgebra.Generic.Matrix`1"/> to delimited text file. If the user does not
+            specify a delimiter, a tab separator is used.
+            </summary>
+        </member>
+        <member name="M:MathNet.Numerics.Data.Text.DelimitedWriter.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:MathNet.Numerics.Data.Text.DelimitedWriter"/> class, using a comma as the delimiter.
+            </summary>
+        </member>
+        <member name="M:MathNet.Numerics.Data.Text.DelimitedWriter.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:MathNet.Numerics.Data.Text.DelimitedWriter"/> class, using the given delimiter.
+            </summary>
+        </member>
+        <member name="M:MathNet.Numerics.Data.Text.DelimitedWriter.WriteMatrix``1(MathNet.Numerics.LinearAlgebra.Generic.Matrix{``0},System.String)">
+            <summary>
+            Writes the given <see cref="T:MathNet.Numerics.LinearAlgebra.Generic.Matrix`1"/> to the given file. If the file already exists, 
+            the file will be overwritten.
+            </summary>
+            <param name="matrix">The matrix to write.</param>
+            <param name="filePath">The file to write the matrix to.</param>
+            <exception cref="T:System.ArgumentNullException">If either <paramref name="matrix"/> or <paramref name="file"/> is <c>null</c>.</exception>
+            <typeparam name="TDataType">The data type of the Matrix. It can be either: double, float, Complex, or Complex32.</typeparam>
+        </member>
+        <member name="M:MathNet.Numerics.Data.Text.DelimitedWriter.WriteMatrix``1(MathNet.Numerics.LinearAlgebra.Generic.Matrix{``0},System.IO.Stream)">
+            <summary>
+            Writes the given <see cref="T:MathNet.Numerics.LinearAlgebra.Generic.Matrix`1"/> to the given stream.
+            </summary>
+            <param name="matrix">The matrix to write.</param>
+            <param name="stream">The <see cref="T:System.IO.Stream"/> to write the matrix to.</param>
+            <exception cref="T:System.ArgumentNullException">If either <paramref name="matrix"/> or <paramref name="stream"/> is <c>null</c>.</exception>
+            <typeparam name="TDataType">The data type of the Matrix. It can be either: double, float, Complex, or Complex32.</typeparam>
+        </member>
+        <member name="M:MathNet.Numerics.Data.Text.DelimitedWriter.WriteMatrix``1(MathNet.Numerics.LinearAlgebra.Generic.Matrix{``0},System.IO.TextWriter)">
+            <summary>
+            Writes the given <see cref="T:MathNet.Numerics.LinearAlgebra.Generic.Matrix`1"/> to the given <see cref="T:System.IO.TextWriter"/>.
+            </summary>
+            <param name="matrix">The matrix to write.</param>
+            <param name="writer">The <see cref="T:System.IO.TextWriter"/> to write the matrix to.</param>
+            <exception cref="T:System.ArgumentNullException">If either <paramref name="matrix"/> or <paramref name="writer"/> is <c>null</c>.</exception>
+            <typeparam name="TDataType">The data type of the Matrix. It can be either: double, float, Complex, or Complex32.</typeparam>
+        </member>
+        <member name="M:MathNet.Numerics.Data.Text.DelimitedWriter.Write``1(MathNet.Numerics.LinearAlgebra.Generic.Matrix{``0},System.IO.TextWriter,System.String,System.Collections.Generic.IList{System.String},System.String,System.IFormatProvider)">
+            <summary>
+            Writes a matrix to the given TextWriter. Optionally accepts custom column headers, delimiter, number format and culture.
+            </summary>
+            <param name="matrix">The matrix to write.</param>
+            <param name="writer">The <see cref="T:System.IO.TextWriter"/> to write the matrix to. Default: ",".</param>
+            <param name="delimiter">Number delimiter to write between numbers of the same line.</param>
+            <param name="columnHeaders">Custom column header. Headers are only written if non-null and non-empty headers are provided. Default: null.</param>
+            <param name="format">The number format to use on each element. Default: null.</param>
+            <param name="formatProvider">The culture to use. Default: null.</param>
+            <exception cref="T:System.ArgumentNullException">If either <paramref name="matrix"/> or <paramref name="writer"/> is <c>null</c>.</exception>
+            <typeparam name="TDataType">The data type of the Matrix. It can be either: Double, Single, Complex, or Complex32.</typeparam>
+        </member>
+        <member name="M:MathNet.Numerics.Data.Text.DelimitedWriter.WriteFile``1(MathNet.Numerics.LinearAlgebra.Generic.Matrix{``0},System.String,System.String,System.Collections.Generic.IList{System.String},System.String,System.IFormatProvider)">
+            <summary>
+            Writes a matrix to the given file. Optionally accepts custom column headers, delimiter, number format and culture.
+            </summary>
+            <param name="matrix">The matrix to write.</param>
+            <param name="filePath">The path and name of the file to write the matrix to. If the file already exists, the file will be overwritten.</param>
+            <param name="delimiter">Number delimiter to write between numbers of the same line. Default: ",".</param>
+            <param name="columnHeaders">Custom column header. Headers are only written if non-null and non-empty headers are provided. Default: null.</param>
+            <param name="format">The number format to use on each element. Default: null.</param>
+            <param name="formatProvider">The culture to use. Default: null.</param>
+            <exception cref="T:System.ArgumentNullException">If either <paramref name="matrix"/> or <paramref name="writer"/> is <c>null</c>.</exception>
+            <typeparam name="TDataType">The data type of the Matrix. It can be either: Double, Single, Complex, or Complex32.</typeparam>
+        </member>
+        <member name="M:MathNet.Numerics.Data.Text.DelimitedWriter.WriteStream``1(MathNet.Numerics.LinearAlgebra.Generic.Matrix{``0},System.IO.Stream,System.String,System.Collections.Generic.IList{System.String},System.String,System.IFormatProvider)">
+            <summary>
+            Writes a matrix to the given stream. Optionally accepts custom column headers, delimiter, number format and culture.
+            </summary>
+            <param name="matrix">The matrix to write.</param>
+            <param name="stream">The <see cref="T:System.IO.Stream"/> to write the matrix to.</param>
+            <param name="delimiter">Number delimiter to write between numbers of the same line. Default: ",".</param>
+            <param name="columnHeaders">Custom column header. Headers are only written if non-null and non-empty headers are provided. Default: null.</param>
+            <param name="format">The number format to use on each element. Default: null.</param>
+            <param name="formatProvider">The culture to use. Default: null.</param>
+            <exception cref="T:System.ArgumentNullException">If either <paramref name="matrix"/> or <paramref name="writer"/> is <c>null</c>.</exception>
+            <typeparam name="TDataType">The data type of the Matrix. It can be either: Double, Single, Complex, or Complex32.</typeparam>
+        </member>
+        <member name="P:MathNet.Numerics.Data.Text.DelimitedWriter.Delimiter">
+            <summary>
+            The delimiter to use.
+            </summary>
+        </member>
+        <member name="P:MathNet.Numerics.Data.Text.DelimitedWriter.ColumnHeaders">
+            <summary>
+            Gets or sets column headers. Headers are only written if the header list is neither <c>null</c> nor empty.
+            </summary>
+        </member>
+        <member name="P:MathNet.Numerics.Data.Text.DelimitedWriter.Format">
+            <summary>
+            Gets or sets the number format to use when writing numbers.
+            </summary>
+        </member>
+        <member name="P:MathNet.Numerics.Data.Text.DelimitedWriter.FormatProvider">
+            <summary>
+            Gets or sets the number format culture provider to use when writing numbers.
+            </summary>
+        </member>
+    </members>
+</doc>

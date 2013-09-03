@@ -1,18 +1,21 @@
 <?xml version="1.0"?>
 <package >
   <metadata>
-    <id>$id$</id>
+    <id>Sharpkit.Learn</id>
     <version>$version$</version>
-    <title>$title$</title>
-    <authors>$author$</authors>
-    <owners>$author$</owners>
+    <title>Shartpkit.Learn - machine learning library for .Net and Mono.</title>
+    <authors>Sergey Zyuzin</authors>
+    <owners>Sergey Zyuzin</owners>
     <licenseUrl>https://github.com/foreverzet/Sharpkit.Learn</licenseUrl>
     <projectUrl>https://github.com/foreverzet/Sharpkit.Learn</projectUrl>
-    <iconUrl>http://ICON_URL_HERE_OR_DELETE_THIS_LINE</iconUrl>
+    <!--<iconUrl>http://ICON_URL_HERE_OR_DELETE_THIS_LINE</iconUrl>-->
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>$description$</description>
+    <description>Machine learning library for .Net and Mono. Currently has Linear Regression, Logistic Regression, Ridge Regression/Classifier.</description>
     <releaseNotes>Alpha version of the library.</releaseNotes>
     <copyright>Copyright 2013</copyright>
-    <tags>ML MachineLearning Machine Learning DataMining Data Mining Regression Classification</tags>
+    <tags>ML MachineLearning Machine Learning DataMining Data Mining Regression Classification LibLinear Logistic Linear</tags>
+    <dependencies>
+          <dependency id="MathNet.Numerics" version="2.6.1" />
+    </dependencies>
   </metadata>
 </package>

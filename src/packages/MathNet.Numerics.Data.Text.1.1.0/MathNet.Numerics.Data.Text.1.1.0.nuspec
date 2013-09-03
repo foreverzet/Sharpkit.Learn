@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>MathNet.Numerics.Data.Text</id>
+    <version>1.1.0</version>
+    <title>Math.NET Numerics - Text Data I/O Extensions</title>
+    <authors>Marcus Cuda,  Christoph Ruegg</authors>
+    <owners>Marcus Cuda,  Christoph Ruegg</owners>
+    <licenseUrl>http://mathnetnumerics.codeplex.com/license</licenseUrl>
+    <projectUrl>http://numerics.mathdotnet.com/</projectUrl>
+    <iconUrl>http://www.mathdotnet.com/images/MathNet128.png</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Text Data Input/Output Extensions for Math.NET Numerics, the numerical foundation of the Math.NET project, aiming to provide methods and algorithms for numerical computations in science, engineering and every day use.</description>
+    <releaseNotes />
+    <copyright />
+    <language />
+    <tags>math numeric data text csv tsv json xml</tags>
+    <dependencies>
+      <dependency id="MathNet.Numerics" version="2.5.0" />
+    </dependencies>
+  </metadata>
+</package>
