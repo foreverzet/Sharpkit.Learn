@@ -2,8 +2,9 @@ Sharpkit.Learn - Machine Learning library for .Net (C#, F#)
 ==============
 
 Sharpkit.Learn is machine learning library for .Net and mono.
-Currently the library is a port of scikit-learn python library and is very
-close to it's code base. Eventually the codebase may become different.
+Currently the library is a port of the very nice scikit-learn python library and is very
+close to it's code base (hence the name Sharpkit.Learn).
+Eventually the codebase may become different.
 It is based on Math.Net library and different state-of-the art
 machine learning libraries. In particular it uses [liblinear](http://www.csie.ntu.edu.tw/~cjlin/liblinear/).
 
