@@ -66,10 +66,6 @@
     <CodeAnalysisIgnoreBuiltInRules>true</CodeAnalysisIgnoreBuiltInRules>
   </PropertyGroup>
 
-    <PropertyGroup>
-        <DocumentationFile>$(OutDir)\Liblinear.XML</DocumentationFile>
-    </PropertyGroup>
-
     <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />

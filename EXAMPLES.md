@@ -2,6 +2,8 @@ Examples
 ===============
 *  [Linear Regression] (#linearregression)
 *  [Ridge Regression] (#ridgeregression)
+*  [Ridge Classifier] (#ridgeclassifier)
+*  [Logistic Regression] (#logisticregression)
 
 <a id="linearregression"></a>Linear Regression
 ------------------
@@ -50,3 +52,31 @@ Console.WriteLine(clf.Intercept)
 let prediction = clf.Predict([|5.0; 6.0|])
 Console.WriteLine(prediction);
 ```
+
+C\#
+```C#
+var clf = new RidgeRegression(alpha: 0.5);
+clf.Fit(new[,] {{0.0, 0.0}, {0.0, 0.0}, {1.0, 1.0}}, new[] {0.0, 0.1, 1.0});
+Console.WriteLine(clf.Coef);
+Console.WriteLine(clf.Intercept);
+
+var prediction = clf.Predict(new[] {5.0, 6.0});
+Console.WriteLine(prediction);
+```
+
+<a id="ridgeclassifier"></a>Ridge Classifier
+------------------
+C\#
+```C#
+var clf = new RidgeClassifier<string>(alpha: 0.5);
+clf.Fit(new[,] { { 0.0, 0.0 }, { 0.0, 0.0 }, { 1.0, 1.0 } }, new[] { "a", "b", "c" });
+Console.WriteLine(clf.Coef);
+Console.WriteLine(clf.Intercept);
+
+var prediction = clf.Predict(new[] { 5.0, 6.0 });
+Console.WriteLine(prediction);
+```
+
+<a id="logisticregression"></a>Logistic Regression
+------------------
+Please find full documentation here:[Logistic Regression] (http://scikit-learn.org/stable/modules/linear_model.html#logistic-regression)

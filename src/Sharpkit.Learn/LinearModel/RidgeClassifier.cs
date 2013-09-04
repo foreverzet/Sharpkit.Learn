@@ -61,6 +61,17 @@
         /// <param name="x">[n_samples,n_features]. Training data</param>
         /// <param name="y">Target values.</param>
         /// <returns>Instance of self.</returns>
+        public LinearModel Fit(double[,] x, TLabel[] y)
+        {
+            return this.Fit(x.ToDenseMatrix(), y);
+        }
+
+        /// <summary>
+        /// Fit Ridge regression model.
+        /// </summary>
+        /// <param name="x">[n_samples,n_features]. Training data</param>
+        /// <param name="y">Target values.</param>
+        /// <returns>Instance of self.</returns>
         public LinearModel Fit(Matrix<double> x, TLabel[] y)
         {
             this.labelBinarizer = new LabelBinarizer<TLabel>(posLabel : 1, negLabel : -1);

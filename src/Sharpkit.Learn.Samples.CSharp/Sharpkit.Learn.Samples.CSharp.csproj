@@ -85,6 +85,7 @@
   <ItemGroup>
     <Compile Include="LinearRegression.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Ridge.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Sharpkit.Learn\Sharpkit.Learn.csproj">

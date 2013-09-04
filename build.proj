@@ -11,7 +11,7 @@
 	</PropertyGroup>
 
         <ItemGroup>
-		<SharpkitLearnNet40 Include="$(OutLib)/Net40/Sharpkit.Learn.dll;$(OutLib)/Net40/Sharpkit.Learn.pdb;$(OutLib)/Net40/Sharpkit.Learn.xml;$(OutLib)/Net40/LibLinear.exe;$(OutLib)/Net40/LibLinear.pdb;$(OutLib)/Net40/LibLinear.xml;" />
+		<SharpkitLearnNet40 Include="$(OutLib)/Net40/Sharpkit.Learn.dll;$(OutLib)/Net40/Sharpkit.Learn.pdb;$(OutLib)/Net40/Sharpkit.Learn.xml;$(OutLib)/Net40/LibLinear.exe;$(OutLib)/Net40/LibLinear.pdb;" />
                 
 	</ItemGroup>
 

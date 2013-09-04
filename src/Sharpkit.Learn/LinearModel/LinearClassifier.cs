@@ -8,7 +8,6 @@ namespace Sharpkit.Learn.LinearModel
 {
     using System;
     using System.Linq;
-    using MathNet.Numerics.LinearAlgebra.Double;
     using MathNet.Numerics.LinearAlgebra.Generic;
 
     /// <summary>
@@ -79,6 +78,16 @@ namespace Sharpkit.Learn.LinearModel
                 prob.DivColumnVector(prob.SumOfEveryRow(), prob);
                 return prob;
             }
+        }
+
+        /// <summary>
+        /// Predict class labels for samples in X.
+        /// </summary>
+        /// <param name="x">[n_samples, n_features] Samples.</param>
+        /// <returns>[n_samples] Predicted class label per sample.</returns>
+        public TLabel Predict(double[] x)
+        {
+            return this.Predict(x.ToDenseVector().ToRowMatrix())[0];
         }
 
         /// <summary>
