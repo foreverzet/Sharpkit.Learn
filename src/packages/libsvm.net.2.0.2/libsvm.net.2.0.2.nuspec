@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+  <metadata>
+    <id>libsvm.net</id>
+    <version>2.0.2</version>
+    <title>libsvm.net</title>
+    <authors>nicolas.panel@live.fr</authors>
+    <owners>nicolas.panel@live.fr</owners>
+    <licenseUrl>https://github.com/nicolaspanel/libsvm.net/blob/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/nicolaspanel/libsvm.net</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>An easy and quick way to use libsvm in your .NET projects. Envoy !</description>
+    <releaseNotes>Supported SVM : C-SVC and epsilon-SVR</releaseNotes>
+    <copyright>Copyright (C) 2013 Nicolas Panel</copyright>
+    <language />
+    <tags>svm libsvm Machinelearning .net ikvm</tags>
+  </metadata>
+</package>

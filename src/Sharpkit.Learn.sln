@@ -13,6 +13,8 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Sharpkit.Learn.Samples.FSha
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sharpkit.Learn.Samples.CSharp", "Sharpkit.Learn.Samples.CSharp\Sharpkit.Learn.Samples.CSharp.csproj", "{00A64037-C3C9-4A63-B10D-0FCABBE55273}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibSvm", "LibSvm\LibSvm.csproj", "{0A15E888-53DE-4196-B60B-BC52667C51BA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -124,6 +126,21 @@ Global
 		{00A64037-C3C9-4A63-B10D-0FCABBE55273}.Release-Signed|Mixed Platforms.Build.0 = Release|x86
 		{00A64037-C3C9-4A63-B10D-0FCABBE55273}.Release-Signed|x86.ActiveCfg = Release|x86
 		{00A64037-C3C9-4A63-B10D-0FCABBE55273}.Release-Signed|x86.Build.0 = Release|x86
+		{0A15E888-53DE-4196-B60B-BC52667C51BA}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{0A15E888-53DE-4196-B60B-BC52667C51BA}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
+		{0A15E888-53DE-4196-B60B-BC52667C51BA}.Debug|Mixed Platforms.Build.0 = Debug|x86
+		{0A15E888-53DE-4196-B60B-BC52667C51BA}.Debug|x86.ActiveCfg = Debug|x86
+		{0A15E888-53DE-4196-B60B-BC52667C51BA}.Debug|x86.Build.0 = Debug|x86
+		{0A15E888-53DE-4196-B60B-BC52667C51BA}.Release|Any CPU.ActiveCfg = Release|x86
+		{0A15E888-53DE-4196-B60B-BC52667C51BA}.Release|Mixed Platforms.ActiveCfg = Release|x86
+		{0A15E888-53DE-4196-B60B-BC52667C51BA}.Release|Mixed Platforms.Build.0 = Release|x86
+		{0A15E888-53DE-4196-B60B-BC52667C51BA}.Release|x86.ActiveCfg = Release|x86
+		{0A15E888-53DE-4196-B60B-BC52667C51BA}.Release|x86.Build.0 = Release|x86
+		{0A15E888-53DE-4196-B60B-BC52667C51BA}.Release-Signed|Any CPU.ActiveCfg = Release|x86
+		{0A15E888-53DE-4196-B60B-BC52667C51BA}.Release-Signed|Mixed Platforms.ActiveCfg = Release|x86
+		{0A15E888-53DE-4196-B60B-BC52667C51BA}.Release-Signed|Mixed Platforms.Build.0 = Release|x86
+		{0A15E888-53DE-4196-B60B-BC52667C51BA}.Release-Signed|x86.ActiveCfg = Release|x86
+		{0A15E888-53DE-4196-B60B-BC52667C51BA}.Release-Signed|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

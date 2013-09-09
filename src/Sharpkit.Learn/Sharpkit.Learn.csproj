@@ -76,6 +76,12 @@
     <Compile Include="Metrics\Metrics.cs" />
     <Compile Include="Preprocessing\LabelEncoder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Svm\LibSvmBase.cs" />
+    <Compile Include="Svm\LibSvmImpl.cs" />
+    <Compile Include="Svm\SparseKernel.cs" />
+    <Compile Include="Svm\Svc.cs" />
+    <Compile Include="Svm\SvcBase.cs" />
+    <Compile Include="Svm\SvcLoss.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Datasets\Data\diabetes_data.csv.gz" />
@@ -95,6 +101,10 @@
     <ProjectReference Include="..\Liblinear\Liblinear.csproj">
       <Project>{D32C55BA-4543-483D-86B0-DBE02B951579}</Project>
       <Name>Liblinear</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\LibSvm\LibSvm.csproj">
+      <Project>{0A15E888-53DE-4196-B60B-BC52667C51BA}</Project>
+      <Name>LibSvm</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
