@@ -18,11 +18,11 @@ What it contains now
    * Logistic regression
    * Ridge regression
    * Ridge classifier
+   * Support Vector Classifier
       
 
 What it will contain soon
 ==============
-   * SVM
    * Decision Trees
    * Random Forests
    * Nearest neighbors
@@ -35,7 +35,7 @@ Documentation
 ===============
    Currently the design is very close to the Scikit-learn python library.
    You can start by reading [Scikit Learn](http://scikit-learn.org/stable/documentation.html) documentation.
-   Examples in C# and F# are available [here](EXAMPLES.md)
+   Examples in C# and F# are available [here](https://github.com/foreverzet/Sharpkit.Learn/wiki/Examples)
 
 
 How you can help
