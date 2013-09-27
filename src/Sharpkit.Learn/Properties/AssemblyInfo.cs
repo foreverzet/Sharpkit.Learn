@@ -1,4 +1,11 @@
-﻿using System.Reflection;
+﻿// -----------------------------------------------------------------------
+// <copyright file="AssemblyInfo.cs" company="Sharpkit.Learn">
+//  Copyright (c) 2013 Sergey Zyuzin
+//  License: BSD 3 clause
+// </copyright>
+// -----------------------------------------------------------------------
+
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -15,7 +22,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyCulture("")]
 
 // Setting ComVisible to false makes the types in this assembly not visible 
-// to COM components.  If you need to access a type in this assembly from 
+// to COM components. If you need to access a type in this assembly from 
 // COM, set the ComVisible attribute to true on that type.
 [assembly: ComVisible(false)]
 
@@ -32,6 +39,6 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("0.1.0.1")]
-[assembly: AssemblyFileVersion("0.1.0.1")]
+[assembly: AssemblyVersion("0.2.0.1")]
+[assembly: AssemblyFileVersion("0.2.0.1")]
 [assembly: InternalsVisibleTo("Sharpkit.Learn.Test")]

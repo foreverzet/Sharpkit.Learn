@@ -1,37 +1,46 @@
 ﻿// -----------------------------------------------------------------------
-// <copyright file="LabelBinarizer.cs" company="">
-// TODO: Update copyright text.
+// <copyright file="LabelBinarizer.cs" company="Sharpkit.Learn">
+// Authors: Alexandre Gramfort &lt;alexandre.gramfort@inria.fr>
+//         Mathieu Blondel &lt;mathieu@mblondel.org>
+//         Olivier Grisel &lt;olivier.grisel@ensta.org>
+//         Andreas Mueller &lt;amueller@ais.uni-bonn.de>
+// License: BSD 3 clause
 // </copyright>
 // -----------------------------------------------------------------------
 
+using MathNet.Numerics.LinearAlgebra.Double;
+
 namespace Sharpkit.Learn.Preprocessing
 {
-    using MathNet.Numerics.LinearAlgebra.Double;
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using MathNet.Numerics.LinearAlgebra.Generic;
 
     /// <summary>
     /// Binarize labels in a one-vs-all fashion
-    ///
+    /// <para>
     /// Several regression and binary classification algorithms are
     /// available in the sharpkit. A simple way to extend these algorithms
     /// to the multi-class classification case is to use the so-called
     /// one-vs-all scheme.
-    ///
+    /// </para>
+    /// <para>
     /// At learning time, this simply consists in learning one regressor
     /// or binary classifier per class. In doing so, one needs to convert
     /// multi-class labels to binary labels (belong or does not belong
     /// to the class). LabelBinarizer makes this process easy with the
     /// transform method.
-    ///
+    /// </para>
+    /// <para>
     /// At prediction time, one assigns the class for which the corresponding
     /// model gave the greatest confidence. LabelBinarizer makes this easy
     /// with the InverseTransform method.
+    /// </para>
     /// </summary>
-    /// <typeparam name="TLabel"></typeparam>
+    /// <typeparam name="TLabel">Type of class label.</typeparam>
     /// <example>
-    /// var lb = new LabelBinarizer<int>();
+    /// var lb = new LabelBinarizer&lt;int>();
     /// lb.fit([1, 2, 6, 4, 2]);
     ///     LabelBinarizer(neg_label=0, pos_label=1)
     /// lb.Classes
@@ -40,9 +49,16 @@ namespace Sharpkit.Learn.Preprocessing
     ///   {{1, 0, 0, 0},
     ///    {0, 0, 0, 1}}
     /// </example>
-    public class LabelBinarizer<TLabel>  where TLabel:IEquatable<TLabel>
+    public class LabelBinarizer<TLabel> where TLabel : IEquatable<TLabel>
     {
+        /// <summary>
+        /// Value to use as negative label.
+        /// </summary>
         private readonly int negLabel;
+
+        /// <summary>
+        /// Value to use as positive label.
+        /// </summary>
         private readonly int posLabel;
 
         /// <summary>
@@ -50,23 +66,19 @@ namespace Sharpkit.Learn.Preprocessing
         /// </summary>
         /// <param name="negLabel">Value with which negative labels must be encoded.</param>
         /// <param name="posLabel">Value with which positive labels must be encoded.</param>
-        public LabelBinarizer(int negLabel=0, int posLabel=1)
+        public LabelBinarizer(int negLabel = 0, int posLabel = 1)
         {
             if (negLabel >= posLabel)
-                throw new ArgumentException("neg_label must be strictly less than pos_label.");
+            {
+                throw new ArgumentException("negLabel must be strictly less than posLabel.");
+            }
 
             this.negLabel = negLabel;
             this.posLabel = posLabel;
         }
 
-        private void CheckFitted()
-        {
-            if (this.Classes == null)
-                throw new InvalidOperationException("LabelBinarizer was not fitted yet.");
-        }
-
         /// <summary>
-        /// Holds the label for each class.
+        /// Gets label for each class.
         /// </summary>
         public TLabel[] Classes { get; private set; }
 
@@ -88,17 +100,21 @@ namespace Sharpkit.Learn.Preprocessing
         /// </summary>
         /// <param name="y">array of shape [n_samples]. Target values.</param>
         /// <returns>Matrix of shape [n_samples, n_classes]</returns>
-        public Matrix Transform(TLabel[] y)
+        public Matrix<double> Transform(TLabel[] y)
         {
             this.CheckFitted();
 
-            DenseMatrix Y;
+            DenseMatrix yMatrix;
             if (this.Classes.Length > 2)
-                Y = new DenseMatrix(y.Length, this.Classes.Length);
+            {
+                yMatrix = new DenseMatrix(y.Length, this.Classes.Length);
+            }
             else
-                Y = new DenseMatrix(y.Length, 1);
+            {
+                yMatrix = new DenseMatrix(y.Length, 1);
+            }
 
-            Y.MapInplace(i => i + this.negLabel);
+            yMatrix.MapInplace(i => i + this.negLabel);
 
             if (this.Classes.Length > 2)
             {
@@ -108,41 +124,42 @@ namespace Sharpkit.Learn.Preprocessing
                     .ToDictionary(t => t.Item2, t => t.Item1);
 
                 for (int i = 0; i < y.Length; i++)
-                    Y[i, imap[y[i]]] = this.posLabel;
+                {
+                    yMatrix[i, imap[y[i]]] = this.posLabel;
+                }
 
-                return Y;
+                return yMatrix;
             }
-
             else if (this.Classes.Length == 2)
             {
                 for (int i = 0; i < y.Length; i++)
                 {
                     if (y[i].Equals(this.Classes[1]))
-                        Y[i, 0] = this.posLabel;
+                    {
+                        yMatrix[i, 0] = this.posLabel;
+                    }
                 }
 
-                return Y;
+                return yMatrix;
             }
             else
             {
                 // Only one class, returns a matrix with all negative labels.
-                return Y;
+                return yMatrix;
             }
         }
 
         /// <summary>
         /// Transform binary labels back to multi-class labels.
         /// </summary>
-        /// <param name="y">Array of shape [n_samples]. Target values.</param>
+        /// <param name="y">Array of shape [nSamples]. Target values.</param>
         /// <param name="threshold">Threshold used in the binary and multi-label cases.
-        ///
         ///    Use 0 when:
         ///        - Y contains the output of decision_function (classifier)
         ///    Use 0.5 when:
         ///        - Y contains the output of predict_proba
-        ///
         ///    If None, the threshold is assumed to be half way between
-        ///    neg_label and pos_label.
+        ///    negLabel and posLabel.
         /// </param>
         /// <returns>Array of shape [n_samples]. Target values.</returns>
         /// <remarks>
@@ -152,13 +169,13 @@ namespace Sharpkit.Learn.Preprocessing
         /// linear model's DecisionFunction method directly as the input
         /// of InverseTransform.
         /// </remarks>
-        public TLabel[] InverseTransform(Matrix y, double? threshold=null)
+        public TLabel[] InverseTransform(Matrix<double> y, double? threshold = null)
         {
             this.CheckFitted();
 
             if (threshold == null)
             {
-                double half = (this.posLabel - this.negLabel)/2.0;
+                double half = (this.posLabel - this.negLabel) / 2.0;
                 threshold = this.negLabel + half;
             }
 
@@ -179,6 +196,17 @@ namespace Sharpkit.Learn.Preprocessing
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// Ensures that binarizer is fitted.
+        /// </summary>
+        private void CheckFitted()
+        {
+            if (this.Classes == null)
+            {
+                throw new InvalidOperationException("LabelBinarizer was not fitted yet.");
+            }
         }
     }
 }

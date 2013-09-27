@@ -48,7 +48,7 @@ public class svm_parameter
                        eps = this.eps,
                        C = this.C,
                        nr_weight = this.nr_weight,
-                       weight_label = (int[])this.weight_label.Clone(),
+                       weight_label = weight_label == null ? null : (int[])this.weight_label.Clone(),
                        weight = this.weight,
                        nu = this.nu,
                        p = this.p,

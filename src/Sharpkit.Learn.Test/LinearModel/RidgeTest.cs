@@ -308,7 +308,7 @@ namespace Sharpkit.Learn.Test.LinearModel
                                            });
             var y = new [] {1, 1, 1, -1, -1};
 
-            var clf = new RidgeClassifier<int>(classWeight : null);
+            var clf = new RidgeClassifier<int>(classWeightEstimator : null);
             clf.Fit(x, y);
             Assert.AreEqual(
                 clf.Predict(DenseMatrix.OfArray(new[,] {{0.2, -1.0}})),
@@ -316,7 +316,7 @@ namespace Sharpkit.Learn.Test.LinearModel
 
             // we give a small weights to class 1
             clf = new RidgeClassifier<int>(
-                classWeight: ClassWeight<int>.Explicit(new Dictionary<int, double> {{1, 0.001}}));
+                classWeightEstimator: ClassWeightEstimator<int>.Explicit(new Dictionary<int, double> {{1, 0.001}}));
 
             clf.Fit(x, y);
 

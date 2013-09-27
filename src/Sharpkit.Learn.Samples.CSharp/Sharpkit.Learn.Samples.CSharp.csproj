@@ -88,13 +88,13 @@
     <Compile Include="Ridge.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="app.config" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\Sharpkit.Learn\Sharpkit.Learn.csproj">
       <Project>{94F65494-63E6-4802-AA08-61B3D2F440B4}</Project>
       <Name>Sharpkit.Learn</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="app.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

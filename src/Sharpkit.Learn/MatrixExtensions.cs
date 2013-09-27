@@ -4,6 +4,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
+using System.Collections.Generic;
 using MathNet.Numerics;
 using MathNet.Numerics.LinearAlgebra.Generic.Factorization;
 
@@ -17,7 +18,7 @@ namespace Sharpkit.Learn
     /// <summary>
     /// <see cref="Matrix"/> and <see cref="Vector"/> extention methods.
     /// </summary>
-    public static class MatrixExtensions
+    internal static class MatrixExtensions
     {
         /// <summary>
         /// Returns dimensions of a matrix as Tuple.
@@ -67,6 +68,19 @@ namespace Sharpkit.Learn
         }
 
         /// <summary>
+        /// Returns matrix where every element is exponent of corresponding
+        /// element in the original matrix.
+        /// </summary>
+        /// <param name="matrix">Matrix which elements will be transformed.</param>
+        /// <returns>Resulting matrix.</returns>
+        public static Matrix<double> Exp(this Matrix<double> matrix)
+        {
+            var newMatrix = matrix.Clone();
+            newMatrix.MapInplace(Math.Exp);
+            return newMatrix;
+        }
+
+        /// <summary>
         /// Returns vector where every element is square of corresponding
         /// element in the original vector.
         /// </summary>
@@ -88,13 +102,16 @@ namespace Sharpkit.Learn
         }
 
         /// <summary>
-        /// Subtracts <paramref name="vector"/> from all elements of matrix <see cref="matrix"/>
+        /// Subtracts <paramref name="vector"/> from all elements of <paramref name="matrix"/>
         /// and places result into <paramref name="destMatrix"/>.
         /// </summary>
         /// <param name="matrix">Source matrix.</param>
         /// <param name="vector">Vector to subtract.</param>
         /// <param name="destMatrix">Resulting matrix.</param>
-        public static void SubtractRowVector(this Matrix<double> matrix, Vector<double> vector, Matrix<double> destMatrix)
+        public static void SubtractRowVector(
+            this Matrix<double> matrix,
+            Vector<double> vector,
+            Matrix<double> destMatrix)
         {
             foreach (var row in matrix.RowEnumerator())
             {
@@ -103,7 +120,7 @@ namespace Sharpkit.Learn
         }
 
         /// <summary>
-        /// Subtracts <paramref name="vector"/> from all rows elements of matrix <see cref="matrix"/>.
+        /// Subtracts <paramref name="vector"/> from all rows elements of <paramref name="matrix"/>.
         /// </summary>
         /// <param name="matrix">Source matrix.</param>
         /// <param name="vector">Vector to subtract.</param>
@@ -148,7 +165,7 @@ namespace Sharpkit.Learn
         }
 
         /// <summary>
-        /// Adds <paramref name="vector"/> to all rows of matrix <see cref="matrix"/>.
+        /// Adds <paramref name="vector"/> to all rows of <paramref name="matrix"/>.
         /// </summary>
         /// <param name="matrix">Source matrix.</param>
         /// <param name="vector">Vector to add.</param>
@@ -162,7 +179,7 @@ namespace Sharpkit.Learn
         }
 
         /// <summary>
-        /// Adds <paramref name="vector"/> to all rows of matrix <see cref="matrix"/>.
+        /// Adds <paramref name="vector"/> to all rows of <paramref name="matrix"/>.
         /// </summary>
         /// <param name="matrix">Source matrix.</param>
         /// <param name="vector">Vector to add.</param>
@@ -179,7 +196,7 @@ namespace Sharpkit.Learn
         }
 
         /// <summary>
-        /// Adds <paramref name="vector"/> to all columns of matrix <see cref="matrix"/>.
+        /// Adds <paramref name="vector"/> to all columns of <paramref name="matrix"/>.
         /// </summary>
         /// <param name="matrix">Source matrix.</param>
         /// <param name="vector">Vector to add.</param>
@@ -191,6 +208,20 @@ namespace Sharpkit.Learn
                 destMatrix.SetColumn(row.Item1, row.Item2.Add(vector));
             }
         }
+
+        /// <summary>
+        /// Adds <paramref name="vector"/> to all columns of <paramref name="matrix"/>.
+        /// </summary>
+        /// <param name="matrix">Source matrix.</param>
+        /// <param name="vector">Vector to add.</param>
+        /// <returns>Resulting matrix.</returns>
+        public static Matrix<double> AddColumnVector(this Matrix<double> matrix, Vector<double> vector)
+        {
+            var result = matrix.Clone();
+            AddColumnVector(matrix, vector, result);
+            return result;
+        }
+
         /// <summary>
         /// Multiplies rows of matrix <paramref name="matrix"/> by <paramref name="vector"/> pointwise.
         /// </summary>
@@ -325,14 +356,19 @@ namespace Sharpkit.Learn
             return ToColumnMatrix(vector).FrobeniusNorm();
         }
 
-        public static bool AlmostEquals(this Matrix<double> matrix1, Matrix<double> matrix2)
+        public static bool AlmostEquals(this Matrix<double> matrix1, Matrix<double> matrix2, double epsilon = 1e-10)
         {
-            return (matrix1 - matrix2).FrobeniusNorm() < 1e-10;
+            return (matrix1 - matrix2).FrobeniusNorm() < epsilon;
         }
 
         public static bool AlmostEquals(this Vector<double> vector1, Vector<double> vector2)
         {
             return (vector1 - vector2).FrobeniusNorm() < 1e-10;
+        }
+
+        public static bool AlmostEquals(this double[] vector1, double[] vector2, double epsilon = 1e-10)
+        {
+            return (new DenseVector(vector1) - new DenseVector(vector2)).FrobeniusNorm() < epsilon;
         }
 
         public static Matrix VStack(this Matrix<double> upper, Matrix<double> lower)
@@ -382,6 +418,33 @@ namespace Sharpkit.Learn
             }
         }
 
+        public static Matrix<double> RowsAt(this Matrix<double> x, IList<int> indices)
+        {
+            var result = x.CreateMatrix(indices.Count, x.ColumnCount);
+            for (int i = 0; i < indices.Count; i++ )
+            {
+                result.SetRow(i, x.Row(indices[i]));
+            }
+            
+            return result;
+        }
+
+        public static T[] ElementsAt<T>(this T[] x, IList<int> indices)
+        {
+            var result = new T[indices.Count];
+            for (int i = 0; i < indices.Count; i++)
+            {
+                result[i] = x[indices[i]];
+            }
+
+            return result;
+        }
+
+        public static int[] Indices<T>(this T[] x, Func<T, bool> func)
+        {
+            return x.Select((v, i) => Tuple.Create(v, i)).Where(t => func(t.Item1)).Select(t => t.Item2).ToArray();
+        }
+
         private static Matrix<double> PseudoInverse(Svd<double> svd)
         {
             Matrix<double> W = svd.W();
@@ -402,6 +465,16 @@ namespace Sharpkit.Learn
 
             // (U * W * VT)T is equivalent with V * WT * UT 
             return (svd.U() * W * svd.VT()).Transpose();
+        }
+
+        public static string ToPythonArray(this Matrix<double> m)
+        {
+            return "[" + string.Join(",", m.RowEnumerator().Select(v => v.Item2.ToPythonArray())) + "]";
+        }
+
+        public static string ToPythonArray(this Vector<double> m)
+        {
+            return "[" + string.Join(",", m) + "]";
         }
     }
 }

@@ -7,14 +7,11 @@
 namespace Sharpkit.Learn.Svm
 {
     using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
 
     /// <summary>
     /// TODO: Update summary.
     /// </summary>
-    public enum LibSvmImpl
+    internal enum LibSvmImpl
     {
         c_svc = 0,
         nu_svc = 1,

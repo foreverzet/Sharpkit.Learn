@@ -1,6 +1,6 @@
 ﻿// -----------------------------------------------------------------------
 // <copyright file="DiabetesDatasetTest.cs" company="Sharpkit.Learn">
-// # Copyright (c) 2007 David Cournapeau &lt;cournape@gmail.com>
+//   Copyright (c) 2007 David Cournapeau &lt;cournape@gmail.com>
 //   2010 Fabian Pedregosa &lt;fabian.pedregosa@inria.fr>
 //   2010 Olivier Grisel &lt;olivier.grisel@ensta.org>
 //   2013 Sergey Zyuzin &lt;forever.zet@gmail.com>
@@ -16,6 +16,7 @@ namespace Sharpkit.Learn.Test.Datasets
     /// <summary>
     /// Tests for <see cref="DiabetesDataset"/>.
     /// </summary>
+    [TestClass]
     public class DiabetesDatasetTest
     {
         /// <summary>

@@ -74,6 +74,7 @@
     <Compile Include="LinearModel\LogisticRegressionTest.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Metrics\MetricsTest.cs" />
     <Compile Include="Preprocessing\LabelBinarizerTest.cs" />
     <Compile Include="Preprocessing\LabelEncoderTest.cs" />
     <Compile Include="LinearModel\LinearRegressionTest.cs" />
@@ -88,7 +89,7 @@
       <Name>Liblinear</Name>
     </ProjectReference>
     <ProjectReference Include="..\Sharpkit.Learn\Sharpkit.Learn.csproj">
-      <Project>{94f65494-63e6-4802-aa08-61b3d2f440b4}</Project>
+      <Project>{94F65494-63E6-4802-AA08-61B3D2F440B4}</Project>
       <Name>Sharpkit.Learn</Name>
     </ProjectReference>
   </ItemGroup>

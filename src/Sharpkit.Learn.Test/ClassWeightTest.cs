@@ -26,7 +26,7 @@ namespace Sharpkit.Learn.Test
         {
             int[] classes = new[] {2, 3, 4};
             int[] y_ind = new[] {0, 0, 0, 1, 1, 2};
-            Vector cw = ClassWeight<int>.Auto.ComputeWeights(classes, y_ind);
+            Vector cw = ClassWeightEstimator<int>.Auto.ComputeWeights(classes, y_ind);
             Assert.AreEqual(cw.Sum(), classes.Length);
             Assert.IsTrue(cw[0] < cw[1] && cw[1] < cw[2]);
         }
@@ -37,7 +37,7 @@ namespace Sharpkit.Learn.Test
         {
             int[] classes = new[] {0, 1, 2, 3};
             int[] y = new[] {0, 0, 0, 1, 1, 2};
-            Vector cw = ClassWeight<int>.Auto.ComputeWeights(classes, y);
+            Vector cw = ClassWeightEstimator<int>.Auto.ComputeWeights(classes, y);
             Assert.AreEqual(cw.Sum(), classes.Length);
             Assert.AreEqual(cw.Count, classes.Length);
             Assert.IsTrue(cw[0] < cw[1] && cw[1] < cw[2] && cw[2] <= cw[3]);

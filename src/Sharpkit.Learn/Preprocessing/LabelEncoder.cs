@@ -1,6 +1,10 @@
 ﻿// -----------------------------------------------------------------------
-// <copyright file="LabelEncoder.cs" company="">
-// TODO: Update copyright text.
+// <copyright file="LabelEncoder.cs" company="Sharpkit.Learn">
+// Authors: Alexandre Gramfort &lt;alexandre.gramfort@inria.fr>
+//         Mathieu Blondel &lt;mathieu@mblondel.org>
+//         Olivier Grisel &lt;olivier.grisel@ensta.org>
+//         Andreas Mueller &lt;amueller@ais.uni-bonn.de>
+// License: BSD 3 clause
 // </copyright>
 // -----------------------------------------------------------------------
 
@@ -13,9 +17,10 @@ namespace Sharpkit.Learn.Preprocessing
     /// <summary>
     /// Encode labels with value between 0 and n_classes-1.
     /// </summary>
+    /// <typeparam name="TLabel">Type of class label.</typeparam>
     /// <example>
     /// `LabelEncoder` can be used to normalize labels.
-    ///
+    /// <para>
     /// var le = new.LabelEncoder();
     /// le.Fit(new [] {1, 2, 2, 6});
     /// le.Classes
@@ -24,9 +29,11 @@ namespace Sharpkit.Learn.Preprocessing
     ///     {0, 0, 1, 2}
     /// le.InverseTransform(new[] {0, 0, 1, 2})
     ///     {1, 1, 2, 6}
-    ///
+    /// </para>
+    /// <para>
     /// It can also be used to transform non-numerical labels to numerical labels.
-    /// 
+    /// </para>
+    /// <para>
     /// var le = new LabelEncoder();
     /// le.Fit(new[] {"paris", "paris", "tokyo", "amsterdam"});
     /// le.Classes
@@ -35,16 +42,14 @@ namespace Sharpkit.Learn.Preprocessing
     ///     {2, 2, 1}
     /// le.InverseTransform(new[] {2, 2, 1});
     ///     {"tokyo", "tokyo", "paris"}
+    /// </para>
     /// </example>
     public class LabelEncoder<TLabel>
     {
-        private void CheckFitted()
-        {
-            if (this.Classes == null)
-            {
-                throw new InvalidOperationException("LabelNormalizer was not fitted yet.");
-            }
-        }
+        /// <summary>
+        /// Gets or sets an array with labels for each class.
+        /// </summary>
+        public TLabel[] Classes { get; private set; }
 
         /// <summary>
         /// Fit label encoder.
@@ -56,11 +61,6 @@ namespace Sharpkit.Learn.Preprocessing
             this.Classes = y.Distinct().OrderBy(a => a).ToArray();
             return this;
         }
-
-        /// <summary>
-        /// Holds the label for each class.
-        /// </summary>
-        public TLabel[] Classes { get; private set; }
 
         /// <summary>
         /// Fit label encoder and return encoded labels.
@@ -89,8 +89,8 @@ namespace Sharpkit.Learn.Preprocessing
                 throw new ArgumentException("y contains new labels: {0}", string.Concat(",", diff));
             }
 
-            var dict = this.Classes.Select((label, index) => Tuple.Create(label, index)).ToDictionary(t => t.Item1,
-                                                                                                      t => t.Item2);
+            var dict = this.Classes.Select((label, index) => Tuple.Create(label, index))
+                .ToDictionary(t => t.Item1, t => t.Item2);
             return y.Select(l => dict[l]).ToArray();
         }
 
@@ -104,6 +104,17 @@ namespace Sharpkit.Learn.Preprocessing
             CheckFitted();
 
             return y.Select(a => this.Classes[a]).ToArray();
+        }
+
+        /// <summary>
+        /// Ensures that <see cref="Fit"/> was called.
+        /// </summary>
+        private void CheckFitted()
+        {
+            if (this.Classes == null)
+            {
+                throw new InvalidOperationException("LabelNormalizer was not fitted yet.");
+            }
         }
     }
 }

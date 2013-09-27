@@ -1676,7 +1676,7 @@ public class svm {
 	}
 
 	// Method 2 from the multiclass_prob paper by Wu, Lin, and Weng
-	private static void multiclass_probability(int k, double[][] r, double[] p)
+	private static void multiclass_probability(int k, double[,] r, double[] p)
 	{
 		int t,j;
 		int iter = 0, max_iter=Math.Max(100,k);
@@ -1690,13 +1690,13 @@ public class svm {
 			Q[t,t]=0;
 			for (j=0;j<t;j++)
 			{
-				Q[t,t]+=r[j][t]*r[j][t];
+				Q[t,t]+=r[j,t]*r[j,t];
 				Q[t,j]=Q[j,t];
 			}
 			for (j=t+1;j<k;j++)
 			{
-				Q[t,t]+=r[j][t]*r[j][t];
-				Q[t,j]=-r[j][t]*r[t][j];
+				Q[t,t]+=r[j,t]*r[j,t];
+				Q[t,j]=-r[j,t]*r[t,j];
 			}
 		}
 		for (iter=0;iter<max_iter;iter++)
@@ -2415,17 +2415,16 @@ public class svm {
 			svm_predict_values(model, x, dec_values);
 
 			double min_prob=1e-7;
-			double[][] pairwise_prob=new double[nr_class][];
+			double[,] pairwise_prob=new double[nr_class, nr_class];
 			
 			int k=0;
 			for(i=0;i<nr_class;i++)
 			{
-			    pairwise_prob[i] = new double[nr_class];
 			    for (int j = i + 1; j < nr_class; j++)
 			    {
-			        pairwise_prob[i][j] =
+			        pairwise_prob[i,j] =
 			            Math.Min(Math.Max(sigmoid_predict(dec_values[k], model.probA[k], model.probB[k]), min_prob), 1 - min_prob);
-			        pairwise_prob[j][i] = 1 - pairwise_prob[i][j];
+			        pairwise_prob[j,i] = 1 - pairwise_prob[i,j];
 			        k++;
 			    }
 			}

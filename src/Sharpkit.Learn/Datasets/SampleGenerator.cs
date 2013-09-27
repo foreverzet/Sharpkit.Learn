@@ -13,8 +13,8 @@ namespace Sharpkit.Learn.Datasets
     using System.Linq;
     using MathNet.Numerics.Distributions;
     using MathNet.Numerics.LinearAlgebra.Double;
-    using MathNet.Numerics.LinearAlgebra.Generic.Factorization;
     using MathNet.Numerics.LinearAlgebra.Generic;
+    using MathNet.Numerics.LinearAlgebra.Generic.Factorization;
 
     /// <summary>
     /// Generate samples of synthetic data sets.
@@ -235,20 +235,6 @@ namespace Sharpkit.Learn.Datasets
             return new RegressionResult { X = x, Y = MatrixExtensions.ToColumnMatrix(y) };
         }
 
-        public class Classification
-        {
-            /// <summary>
-            /// array of shape [n_samples, n_features]
-            /// The generated samples.
-            /// </summary>
-            public Matrix X { get; set; }
-            
-            /// <summary>
-            /// Target lables.
-            /// </summary>
-            public int[] Y { get; set; }
-        }
-
         /// <summary>
         /// Generate a random n-class classification problem.
         /// </summary>
@@ -285,7 +271,7 @@ namespace Sharpkit.Learn.Datasets
         /// happens after shifting.
         /// </param>
         /// <param name="shuffle">Shuffle the samples and the features.</param>
-        /// <param name="randomState"></param>
+        /// <param name="randomState">Random generator.</param>
         /// <returns>array of shape [n_samples]
         /// The integer labels for class membership of each sample.</returns>
         /// <remarks>
@@ -296,13 +282,22 @@ namespace Sharpkit.Learn.Datasets
         /// .. [1] I. Guyon, "Design of experiments for the NIPS 2003 variable
         ///   selection benchmark", 2003.
         /// </remarks>
-        public static Classification MakeClassification(int nSamples = 100, int nFeatures = 20, int nInformative = 2,
-                                                 int nRedundant = 2, int nRepeated = 0, int nClasses = 2,
-                                                 int nClustersPerClass = 2, List<double> weights = null,
-                                                 double flipY = 0.01,
-                                                 double classSep = 1.0, bool hypercube = true, double? shift = 0.0,
-                                                 double? scale = 1.0,
-                                                 bool shuffle = true, Random randomState = null)
+        public static Classification MakeClassification(
+            int nSamples = 100,
+            int nFeatures = 20,
+            int nInformative = 2,
+            int nRedundant = 2,
+            int nRepeated = 0,
+            int nClasses = 2,
+            int nClustersPerClass = 2,
+            List<double> weights = null,
+            double flipY = 0.01,
+            double classSep = 1.0,
+            bool hypercube = true,
+            double? shift = 0.0,
+            double? scale = 1.0,
+            bool shuffle = true,
+            Random randomState = null)
         {
             var generator = randomState ?? new Random();
 
@@ -314,19 +309,20 @@ namespace Sharpkit.Learn.Datasets
                                             " features");
             }
 
-            if (nInformative*nInformative < nClasses*nClustersPerClass)
+            if (nInformative * nInformative < nClasses * nClustersPerClass)
             {
-                throw new ArgumentException("n_classes * n_clusters_per_class must" +
-                                            "be smaller or equal 2 ** n_informative");
+                throw new ArgumentException(
+                    "n_classes * n_clusters_per_class must" +
+                    "be smaller or equal 2 ** n_informative");
             }
 
-            if (weights != null && !new[] {nClasses, nClasses - 1}.Contains(weights.Count))
+            if (weights != null && !new[] { nClasses, nClasses - 1 }.Contains(weights.Count))
             {
                 throw new ArgumentException("Weights specified but incompatible with number of classes.");
             }
 
             int nUseless = nFeatures - nInformative - nRedundant - nRepeated;
-            int nClusters = nClasses*nClustersPerClass;
+            int nClusters = nClasses * nClustersPerClass;
 
             if (weights != null && weights.Count == nClasses - 1)
             {
@@ -341,15 +337,15 @@ namespace Sharpkit.Learn.Datasets
 
             var nSamplesPerCluster = new List<int>();
 
-            for (int k =0; k<nClusters; k++)
+            for (int k = 0; k < nClusters; k++)
             {
-                nSamplesPerCluster.Add((int)(nSamples*weights[k%nClasses]
-                                                /nClustersPerClass));
+                nSamplesPerCluster.Add(
+                    (int)(nSamples * weights[k % nClasses] / nClustersPerClass));
             }
 
-            for (int i=0; i< nSamples - (nSamplesPerCluster).Sum(); i++)
+            for (int i = 0; i < nSamples - nSamplesPerCluster.Sum(); i++)
             {
-                nSamplesPerCluster[i%nClusters] += 1;
+                nSamplesPerCluster[i % nClusters] += 1;
             }
 
             // Intialize X and y
@@ -358,10 +354,10 @@ namespace Sharpkit.Learn.Datasets
 
             // Build the polytope
             Matrix c = new DenseMatrix(1 << nInformative, nInformative);
-            for (int i=0; i<1 << nInformative; i++)
+            for (int i = 0; i < 1 << nInformative; i++)
             {
                 var row = new DenseVector(nInformative);
-                for (int bitN =0; bitN <nInformative; bitN ++)
+                for (int bitN = 0; bitN < nInformative; bitN++)
                 {
                     row[bitN] = (i & (1 << bitN)) == 1 ? classSep : -classSep;
                 }
@@ -371,19 +367,19 @@ namespace Sharpkit.Learn.Datasets
 
             if (!hypercube)
             {
-                for (int k =0; k < nClusters; k++)
+                for (int k = 0; k < nClusters; k++)
                 {
                     c.SetRow(k, c.Row(k) * generator.NextDouble());
                 }
 
-                for (int f = 0; f <nInformative; f++)
+                for (int f = 0; f < nInformative; f++)
                 {
                     c.SetColumn(f, c.Column(f) * generator.NextDouble());
                 }
             }
 
             // todo:
-            //generator.shuffle(C)
+            // generator.shuffle(C)
 
             // Loop over all clusters
             int pos = 0;
@@ -399,20 +395,29 @@ namespace Sharpkit.Learn.Datasets
                 posEnd = pos + nSamplesK;
 
                 // Assign labels
-                for (int l=pos; l<posEnd; l++)
+                for (int l = pos; l < posEnd; l++)
                 {
-                    y[l] = k%nClasses;
+                    y[l] = k % nClasses;
                 }
 
                 // Draw features at random
-                var subMatrix = DenseMatrix.CreateRandom(nSamplesK, nInformative, new Normal {RandomSource = generator});
+                var subMatrix = DenseMatrix.CreateRandom(
+                    nSamplesK,
+                    nInformative,
+                    new Normal { RandomSource = generator });
+
                 x.SetSubMatrix(pos, nSamplesK, 0, nInformative, subMatrix);
 
                 // Multiply by a random matrix to create co-variance of the features
-                var uniform = new ContinuousUniform(-1, 1) {RandomSource = generator};
+                var uniform = new ContinuousUniform(-1, 1) { RandomSource = generator };
                 Matrix a = DenseMatrix.CreateRandom(nInformative, nInformative, uniform);
 
-                x.SetSubMatrix(pos, nSamplesK, 0, nInformative, x.SubMatrix(pos, nSamplesK, 0, nInformative)*a);
+                x.SetSubMatrix(
+                    pos,
+                    nSamplesK,
+                    0,
+                    nInformative,
+                    x.SubMatrix(pos, nSamplesK, 0, nInformative) * a);
 
                 // Shift the cluster to a vertice
                 var v = x.SubMatrix(pos, nSamplesK, 0, nInformative).AddRowVector(c.Row(k));
@@ -422,30 +427,35 @@ namespace Sharpkit.Learn.Datasets
             // Create redundant features
             if (nRedundant > 0)
             {
-                var uniform = new ContinuousUniform(-1, 1) {RandomSource = generator};
-                Matrix b =  DenseMatrix.CreateRandom(nInformative, nRedundant, uniform);
-                x.SetSubMatrix(0, x.RowCount, nInformative, nRedundant, x.SubMatrix(0, x.RowCount, 0, nInformative)*b);
+                var uniform = new ContinuousUniform(-1, 1) { RandomSource = generator };
+                Matrix b = DenseMatrix.CreateRandom(nInformative, nRedundant, uniform);
+                x.SetSubMatrix(
+                    0,
+                    x.RowCount,
+                    nInformative,
+                    nRedundant,
+                    x.SubMatrix(0, x.RowCount, 0, nInformative) * b);
             }
 
             // Repeat some features
             if (nRepeated > 0)
             {
                 int n = nInformative + nRedundant;
-                for (int i=0; i<nRepeated; i++)
+                for (int i = 0; i < nRepeated; i++)
                 {
-                    int r = (int)(generator.Next(nRepeated)*(n - 1) + 0.5);
+                    int r = (int)((generator.Next(nRepeated) * (n - 1)) + 0.5);
                     x.SetColumn(i, x.Column(r));
                 }
             }
 
             // Fill useless features
-            var denseMatrix = DenseMatrix.CreateRandom(nSamples, nUseless, new Normal{RandomSource = generator});
+            var denseMatrix = DenseMatrix.CreateRandom(nSamples, nUseless, new Normal { RandomSource = generator });
             x.SetSubMatrix(0, nSamples, nFeatures - nUseless, nUseless, denseMatrix);
 
             // Randomly flip labels
             if (flipY >= 0.0)
             {
-                for (int i = 0; i< nSamples; i++)
+                for (int i = 0; i < nSamples; i++)
                 {
                     if (generator.NextDouble() < flipY)
                     {
@@ -462,12 +472,12 @@ namespace Sharpkit.Learn.Datasets
             {
                 if (!constantShift)
                 {
-                    shift = (2*generator.NextDouble() - 1)*classSep;
+                    shift = ((2 * generator.NextDouble()) - 1) * classSep;
                 }
 
                 if (!constantScale)
                 {
-                    scale = 1 + 100*generator.NextDouble();
+                    scale = 1 + (100 * generator.NextDouble());
                 }
 
                 x.SetColumn(f, (x.Column(f) + shift.Value) * scale.Value);
@@ -485,7 +495,7 @@ namespace Sharpkit.Learn.Datasets
                 X[:, :] = X[:, indices]
             }*/
 
-            return new Classification {X = x, Y = y};
+            return new Classification { X = x, Y = y };
         }
 
         /// <summary>
@@ -514,6 +524,23 @@ namespace Sharpkit.Learn.Datasets
             /// Gets the coefficient of the underlying linear model.
             /// </summary>
             public Matrix<double> Coef { get; internal set; }
+        }
+
+        /// <summary>
+        /// Result of <see cref="MakeClassification"/>.
+        /// </summary>
+        public class Classification
+        {
+            /// <summary>
+            /// Gets or sets the generated samples.
+            /// Matrix of shape [n_samples, n_features]
+            /// </summary>
+            public Matrix X { get; set; }
+
+            /// <summary>
+            /// Gets or sets target lables.
+            /// </summary>
+            public int[] Y { get; set; }
         }
     }
 }

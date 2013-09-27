@@ -1,6 +1,7 @@
 ﻿// -----------------------------------------------------------------------
-// <copyright file="LibLinearBase.cs" company="">
-// TODO: Update copyright text.
+// <copyright file="LibLinearBase.cs" company="Sharpkit.Learn">
+//  Copyright (c) 2013 Sergey Zyuzin
+//  License: BSD 3 clause
 // </copyright>
 // -----------------------------------------------------------------------
 
@@ -23,7 +24,7 @@ namespace Sharpkit.Learn.LinearModel
         public double tol { get; private set; }
         public double C { get; private set; }
         public double interceptScaling { get; private set; }
-        private readonly ClassWeight<TLabel> classWeight;
+        private readonly ClassWeightEstimator<TLabel> classWeightEstimator;
         private readonly int verbose;
         private readonly Random random;
         private LabelEncoder<TLabel> _enc;
@@ -38,10 +39,10 @@ namespace Sharpkit.Learn.LinearModel
             Loss loss = Loss.L2,
             bool dual = true,
             double tol = 1e-4,
-            double C = 1.0,
+            double c = 1.0,
             Multiclass multiclass = Multiclass.Ovr,
             double interceptScaling = 1,
-            ClassWeight<TLabel> classWeight = null,
+            ClassWeightEstimator<TLabel> classWeightEstimator = null,
             int verbose = 0,
             Random random = null)
         {
@@ -49,9 +50,9 @@ namespace Sharpkit.Learn.LinearModel
 
             this.classifier = classifier;
             this.tol = tol;
-            this.C = C;
+            this.C = c;
             this.interceptScaling = interceptScaling;
-            this.classWeight = classWeight ?? ClassWeight<TLabel>.Uniform;
+            this.classWeightEstimator = classWeightEstimator ?? ClassWeightEstimator<TLabel>.Uniform;
             this.verbose = verbose;
             this.random = random;
             this.dual = dual;
@@ -106,7 +107,7 @@ namespace Sharpkit.Learn.LinearModel
             if (this.Classes.Length < 2)
                 throw new ArgumentException("The number of classes has to be greater than one.");
 
-            Vector classWeight = this.classWeight.ComputeWeights(this.Classes, y1);
+            Vector classWeight = this.classWeightEstimator.ComputeWeights(this.Classes, y1);
 
             if (x.RowCount != y.Length)
             {

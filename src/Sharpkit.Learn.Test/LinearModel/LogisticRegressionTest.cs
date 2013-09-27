@@ -25,7 +25,7 @@ namespace Sharpkit.Learn.Test.LinearModel
     public class LogisticRegressionTest
     {
         [ClassInitialize]
-        public static void a(TestContext t)
+        public static void ClassInitialize(TestContext t)
         {
             Linear.disableDebugOutput();
         }
@@ -40,7 +40,7 @@ namespace Sharpkit.Learn.Test.LinearModel
         /// <summary>
         /// Check that the model is able to fit the classification data
         /// </summary>
-        private void check_predictions(LogisticRegression<int> clf, Matrix X, int[] y)
+        private void check_predictions(LogisticRegression<int> clf, Matrix<double> X, int[] y)
         {
             int nSamples = y.Length;
             int[] classes = y.Distinct().OrderBy(v => v).ToArray();

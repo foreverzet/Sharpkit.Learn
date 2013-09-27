@@ -61,7 +61,7 @@ namespace Sharpkit.Learn.Datasets
         {
             var assembly = Assembly.GetAssembly(typeof(IrisDataset));
             string descr;
-            using (var sr = new StreamReader(assembly.GetManifestResourceStream("Sharpkit.Learn.Datasets.Data.iris.csv")))
+            using (var sr = new StreamReader(assembly.GetManifestResourceStream("Sharpkit.Learn.Datasets.Data.iris.rst")))
             {
                 descr = sr.ReadToEnd();
             }

@@ -52,16 +52,21 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ClassWeight.cs" />
+    <Compile Include="ClassWeightEstimator.cs" />
     <Compile Include="Datasets\DiabetesDataset.cs" />
+    <Compile Include="Datasets\DigitsDataset.cs" />
     <Compile Include="Datasets\IrisDataset.cs" />
     <Compile Include="Datasets\SampleGenerator.cs" />
+    <Compile Include="IClassifier.cs" />
     <Compile Include="LeastSquares\LsqrResult.cs" />
     <Compile Include="LinearModel\LogisticRegression.cs" />
     <Compile Include="LinearModel\Loss.cs" />
     <Compile Include="LinearModel\Multiclass.cs" />
     <Compile Include="LinearModel\Norm.cs" />
     <Compile Include="LinearModel\RidgeSolver.cs" />
+    <Compile Include="Metrics\AverageKind.cs" />
+    <Compile Include="Metrics\PrecisionRecallResult.cs" />
+    <Compile Include="Metrics\PrecisionRecallResultAvg.cs" />
     <Compile Include="Preprocessing\LabelBinarizer.cs" />
     <Compile Include="LinearModel\LibLinearBase.cs" />
     <Compile Include="LinearModel\LinearClassifier.cs" />
@@ -76,12 +81,14 @@
     <Compile Include="Metrics\Metrics.cs" />
     <Compile Include="Preprocessing\LabelEncoder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Svm\Kernel.cs" />
     <Compile Include="Svm\LibSvmBase.cs" />
     <Compile Include="Svm\LibSvmImpl.cs" />
-    <Compile Include="Svm\SparseKernel.cs" />
+    <Compile Include="Svm\LibSvmKernel.cs" />
     <Compile Include="Svm\Svc.cs" />
     <Compile Include="Svm\SvcBase.cs" />
-    <Compile Include="Svm\SvcLoss.cs" />
+    <Compile Include="Utils\Fixes.cs" />
+    <Compile Include="Utils\Multiclass.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Datasets\Data\diabetes_data.csv.gz" />
@@ -91,6 +98,8 @@
     <EmbeddedResource Include="Datasets\Data\diabetes.rst" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Datasets\Data\digits.csv.gz" />
+    <EmbeddedResource Include="Datasets\Data\digits.rst" />
     <None Include="packages.config" />
     <None Include="Sharpkit.Learn.nuspec">
       <SubType>Designer</SubType>

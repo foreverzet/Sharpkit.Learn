@@ -57,7 +57,7 @@
         /// If ``calcVar`` is True, estimates all diagonals of
         /// ``(A'A)^{-1}`` (if ``damp == 0``) or more generally ``(A'A +
         /// damp^2*I)^{-1}``.  This is well defined if A has full column
-        /// rank or ``damp > 0``.  (Not sure what var means if ``rank(A) < n`` and ``damp = 0.``)
+        /// rank or ``damp > 0``.  (Not sure what var means if ``rank(A) &lt; n`` and ``damp = 0.``)
         /// </summary>
         public Vector<double> Var { get; set; }
     }

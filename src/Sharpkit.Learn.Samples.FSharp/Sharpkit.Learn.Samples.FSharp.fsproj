@@ -75,6 +75,8 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\Sharpkit.Learn\Sharpkit.Learn.csproj">
       <Name>Sharpkit.Learn</Name>
       <Project>{94f65494-63e6-4802-aa08-61b3d2f440b4}</Project>

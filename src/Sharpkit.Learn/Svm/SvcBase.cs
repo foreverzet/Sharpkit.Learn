@@ -1,77 +1,141 @@
 ﻿// -----------------------------------------------------------------------
-// <copyright file="SvcBase.cs" company="">
-// TODO: Update copyright text.
+// <copyright file="SvcBase.cs" company="Sharpkit.Learn">
+//  Copyright (c) 2013 Sergey Zyuzin
+//  License: BSD 3 clause
 // </copyright>
 // -----------------------------------------------------------------------
-
-using LibSvm;
 
 namespace Sharpkit.Learn.Svm
 {
     using System;
     using System.Linq;
+    using LibSvm;
     using MathNet.Numerics.LinearAlgebra.Double;
     using MathNet.Numerics.LinearAlgebra.Generic;
     using Sharpkit.Learn.Preprocessing;
 
-
     /// <summary>
     /// ABC for LibSVM-based classifiers.
     /// </summary>
-    public class SvcBase<TLabel> : LibSvmBase
+    /// <typeparam name="TLabel">Type of class label.</typeparam>
+    public class SvcBase<TLabel> : LibSvmBase, IClassifier<TLabel>
     {
-        private LabelEncoder<TLabel> _enc;
+        /// <summary>
+        /// Label encoder.
+        /// </summary>
+        private LabelEncoder<TLabel> enc;
         
-
-        public SvcBase(LibSvmImpl impl, Kernel kernel, int degree, double gamma, double coef0, double tol, double C, double nu, double epsilon, bool shrinking, bool probability, int cache_size, ClassWeight<TLabel> classWeight, bool verbose, int max_iter) : base(impl, kernel, degree, gamma, coef0, tol, C, nu, epsilon, shrinking, probability, cache_size, /*todo*/null, verbose, max_iter)
+        internal SvcBase(
+            LibSvmImpl impl,
+            Kernel kernel,
+            int degree,
+            double gamma,
+            double coef0,
+            double tol,
+            double c,
+            double nu,
+            double epsilon,
+            bool shrinking,
+            bool probability,
+            int cacheSize,
+            ClassWeightEstimator<TLabel> classWeightEstimator,
+            bool verbose) :
+            base(
+                impl,
+                kernel,
+                degree,
+                gamma,
+                coef0,
+                tol,
+                c,
+                nu,
+                epsilon,
+                shrinking,
+                probability,
+                cacheSize,
+                verbose)
         {
+            this.ClassWeightEstimator = classWeightEstimator;
         }
 
+        /// <summary>
+        /// Gets or sets class weight estimator.
+        /// </summary>
+        public ClassWeightEstimator<TLabel> ClassWeightEstimator { get; set; }
+
+        /// <summary>
+        /// Gets array with labels for each class.
+        /// </summary>
         public TLabel[] Classes
         {
-            get { return this._enc.Classes; }
+            get { return this.enc.Classes; }
         }
 
-        public void Fit(Matrix<double> X, TLabel[] y, Vector<double> sample_weight = null)
+        /// <summary>
+        /// Gets intercept in decision function
+        /// </summary>
+        public override Vector<double> Intercept
         {
-            this._enc = new LabelEncoder<TLabel>();
-            int[] y1 = this._enc.FitTransform(y);
+            get
+            {
+                if (new[] { LibSvmImpl.c_svc, LibSvmImpl.nu_svc }.Contains(this.Impl) && (this.Classes.Length == 2))
+                {
+                    return base.Intercept * -1;
+                }
+
+                return base.Intercept;
+            }
+        }
+
+        /// <summary>
+        /// Fit the model according to the given training data.
+        /// </summary>
+        /// <param name="x">[nSamples, nFeatures]. Training vectors,
+        /// where nSamples is the number of samples and nFeatures
+        /// is the number of features.</param>
+        /// <param name="y">[nSamples] Target class labels.</param>
+        /// <returns>Reference to itself.</returns>
+        public virtual IClassifier<TLabel> Fit(Matrix<double> x, TLabel[] y)
+        {
+            this.enc = new LabelEncoder<TLabel>();
+            int[] y1 = this.enc.FitTransform(y);
             if (this.Classes.Length < 2)
+            {
                 throw new ArgumentException("The number of classes has to be greater than one.");
+            }
 
-            base.Fit(X, DenseVector.OfEnumerable(y1.Select(Convert.ToDouble)), sample_weight == null ? null : sample_weight.ToArray());
+            this.ClassWeight = (this.ClassWeightEstimator ?? ClassWeightEstimator<TLabel>.Auto)
+                .ComputeWeights(this.enc.Classes, y1)
+                .ToArray();
 
-                        // todo:
-            // In binary case, we need to flip the sign of coef, intercept and
-            // decision function. Use self._intercept_ internally.
-            //this._intercept_ = this.intercept_.Clone();
-            //if (new[]{LibSvmImpl.c_svc, LibSvmImpl.nu_svc}.Contains(this.Impl) && (this.Classes.Length == 2))
-            //{
-            //    this.Intercept *= -1;
-            //}
+            base.Fit(x, DenseVector.OfEnumerable(y1.Select(Convert.ToDouble)));
 
+            return this;
         }
 
         /// <summary>
         /// Perform classification on samples in X.
         /// For an one-class model, +1 or -1 is returned.
         /// </summary>
-        /// <param name="X">[n_samples, n_features]</param>
+        /// <param name="x">[n_samples, n_features]</param>
         /// <returns>Class labels for samples in X.</returns>
-        public TLabel[] Predict(Matrix<double> X)
+        public TLabel[] Predict(Matrix<double> x)
         {
-            var y = base.predict(X);
+            var y = this.predict(x);
             return y.Select(v => this.Classes[(int)v]).ToArray();
         }
 
         /// <summary>
+        /// <para>
         /// Compute probabilities of possible outcomes for samples in X.
-        /// 
+        /// </para>
+        /// <para>
         /// The model need to have probability information computed at training
-        /// time: fit with attribute `probability` set to True.
+        /// time: fit with attribute <see cref="LibSvmBase.Probability"/> set to True.
+        /// </para>
         /// </summary>
-        /// <param name="X">[n_samples, n_features]</param>
-        /// <returns>[n_samples, n_classes]
+        /// <param name="x">[nSamples, nFeatures]</param>
+        /// <returns>[nSamples, nClasses]
         ///    Returns the probability of the sample for each class in
         ///   the model. The columns correspond to the classes in sorted
         ///    order, as they appear in the attribute `classes_`.</returns>
@@ -81,118 +145,76 @@ namespace Sharpkit.Learn.Svm
         /// predict. Also, it will produce meaningless results on very small
         /// datasets.
         /// </remarks>
-        public Matrix<double> predict_proba(Matrix<double> X)
+        public Matrix<double> PredictProba(Matrix<double> x)
         {
-            if (!this.probability)
+            if (!this.Probability)
             {
                 throw new InvalidOperationException("probability estimates must be enabled to use this method");
             }
 
-            if (!new[] { LibSvmImpl.c_svc, LibSvmImpl.nu_svc }.Contains(this._impl))
+            if (!new[] { LibSvmImpl.c_svc, LibSvmImpl.nu_svc }.Contains(this.Impl))
             {
                 throw new NotImplementedException("predict_proba only implemented for SVC and NuSVC");
             }
 
-            X = this._validate_for_predict(X);
-            return this._predict_proba(X);
+            x = this.ValidateForPredict(x);
+            return this.PredictProbaInternal(x);
         }
 
-        public Matrix<double> _predict_proba(Matrix<double> X)
+        /// <summary>
+        /// Distance of the samples X to the separating hyperplane.
+        /// </summary>
+        /// <param name="x">[nSamples, nFeatures]</param>
+        /// <returns>
+        /// [nSamples, nClass * (nClass-1) / 2]
+        ///        Returns the decision function of the sample for each class
+        ///        in the model.
+        /// </returns>
+        public Matrix<double> DecisionFunction(Matrix<double> x)
         {
-            X = this._compute_kernel(X);
-
-            var C = 0.0;
-
-            var kernelType = this.kernel.KernelType;
-            if (kernel.KernelFunction != null)
-                kernelType = SparseKernel.Precomputed;
-
-            double[] prob_estimates = new double[this.Classes.Length];
-
-             svm_parameter prm = new svm_parameter();
-             prm.svm_type = (int)this._impl;
-             prm.kernel_type = (int)kernelType;
-             prm.degree = degree;
-             prm.coef0 = coef0;
-             prm.nu = nu;
-             prm.cache_size = cache_size;
-             prm.C = C;
-             prm.eps = this.tol;
-             prm.p = this.epsilon;
-             prm.shrinking = shrinking ? 1 :0;
-             prm.probability = probability ? 1: 0;
-            //todo:
-             prm.nr_weight = 0;// this.class_weight.Length;
-            prm.weight_label = null;// Enumerable.Range(0, this.class_weight.Length).ToArray();
-            prm.weight = null;// this.class_weight;
-             prm.gamma = _gamma;
-             //prm.max_iter = max_iter;
-
-            svm_model m = new svm_model();
-            m.param = prm;
-            m.l = model.l;
-            m.label = model.label;
-            m.nr_class = model.nr_class;
-            m.nSV = model.nSV;
-            m.probA = model.probA;
-            m.probB = model.probB;
-            m.rho = model.rho;
-            m.SV = model.SV;
-            m.sv_coef = model.sv_coef;
-            m.sv_indices = model.sv_indices;
-
-            DenseMatrix result = new DenseMatrix(X.RowCount, this.Classes.Length);
-            foreach (var r in X.RowEnumerator())
+            if (this.IsSparse)
             {
-                svm_node n = new svm_node();
-                double[] darr = new double[this.Classes.Length];
-                var res = svm.svm_predict_probability(model,
-                                                         r.Item2.GetIndexedEnumerator().Select(
-                                                             v => new svm_node {index = v.Item1, value = v.Item2}).ToArray(), darr);
+                throw new NotImplementedException("Decision_function not supported for sparse SVM.");
+            }
+
+            x = this.ValidateForPredict(x);
+            x = this.ComputeKernel(x);
+
+            DenseMatrix result;
+            if (new[] { LibSvmImpl.c_svc, LibSvmImpl.nu_svc }.Contains(this.Impl) && this.Classes.Length == 2)
+            {
+                result = new DenseMatrix(x.RowCount, this.Classes.Length > 2 ? this.Classes.Length : 1);
+            }
+            else
+            {
+                result = new DenseMatrix(x.RowCount, this.Classes.Length);
+            }
+
+            foreach (var r in x.RowEnumerator())
+            {
+                double[] darr = new double[result.ColumnCount];
+                var svmNodes = r.Item2.Select((v, i) => new svm_node { index = i, value = v }).ToArray();
+                svm.svm_predict_values(this.Model, svmNodes, darr);
                 result.SetRow(r.Item1, darr);
+            }
+
+            // In binary case, we need to flip the sign of coef, intercept and
+            // decision function.
+            if (new[] { LibSvmImpl.c_svc, LibSvmImpl.nu_svc }.Contains(this.Impl) && this.Classes.Length == 2)
+            {
+                return result * -1;
             }
 
             return result;
         }
 
-        /*
-        private Matrix<double> _sparse_predict_proba(Matrix<double> X)
-        {
-            
-            X.data = np.asarray(X.data, dtype = np.float64, order = 'C')
-
-            kernel = self.kernel
-            if callable(kernel)
-            {
-                kernel = 'precomputed'
-            }
-
-            kernel_type = self._sparse_kernels.index(kernel)
-
-            return libsvm.svm.svm_predict_probability(
-                X.data, X.indices, X.indptr,
-                self.support_vectors_.data,
-                self.support_vectors_.indices,
-                self.support_vectors_.indptr,
-                self.dual_coef_.data, self._intercept_,
-                LIBSVM_IMPL.index(self._impl), kernel_type,
-                self.degree, self._gamma, self.coef0, self.tol,
-                self.C, self.class_weight_,
-                self.nu, self.epsilon, self.shrinking,
-                self.probability, self.n_support_, self._label,
-                self.probA_, self.probB_))
-             * 
-            throw new NotImplementedException();
-        }*/
-
-        
         /// <summary>
         /// Compute log probabilities of possible outcomes for samples in X.
         /// The model need to have probability information computed at training
         /// time: fit with attribute `probability` set to True.
         /// </summary>
-        /// <param name="X">[n_samples, n_features]</param>
-        /// <returns>[n_samples, n_classes]
+        /// <param name="x">[nSamples, nFeatures]</param>
+        /// <returns>[nSamples, nClasses]
         ///    Returns the log-probabilities of the sample for each class in
         ///    the model. The columns correspond to the classes in sorted
         ///    order, as they appear in the attribute `classes_`.</returns>
@@ -202,10 +224,38 @@ namespace Sharpkit.Learn.Svm
         /// predict. Also, it will produce meaningless results on very small
         /// datasets.
         /// </remarks>
-        public Matrix<double> predict_log_proba(Matrix<double> X)
+        public Matrix<double> PredictLogProba(Matrix<double> x)
         {
-            throw new NotImplementedException();
-            //return np.log(self.predict_proba(X));
+            return this.PredictProba(x).Log();
+        }
+
+        private Matrix<double> PredictProbaInternal(Matrix<double> x)
+        {
+            x = this.ComputeKernel(x);
+
+            DenseMatrix result = new DenseMatrix(x.RowCount, this.Classes.Length);
+            foreach (var r in x.RowEnumerator())
+            {
+                svm_node[] svmNodes;
+                if (Kernel.LibSvmKernel == LibSvmKernel.Precomputed)
+                {
+                    svmNodes = r.Item2.Select(
+                        (v, i) => new svm_node { index = i + 1, value = v }).ToArray();
+                    svmNodes = new[] { new svm_node { index = 0, value = 1 } }.Concat(svmNodes).ToArray();
+                }
+                else
+                {
+                    svmNodes =
+                        r.Item2.GetIndexedEnumerator()
+                        .Select(i => new svm_node { index = i.Item1, value = i.Item2 }).ToArray();
+                }
+
+                double[] darr = new double[this.Classes.Length];
+                var res = svm.svm_predict_probability(this.Model, svmNodes, darr);
+                result.SetRow(r.Item1, darr);
+            }
+
+            return result;
         }
     }
 }

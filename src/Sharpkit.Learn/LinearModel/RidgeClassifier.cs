@@ -34,7 +34,7 @@
         /// <param name="maxIter">Maximum number of iterations for conjugate gradient solver.
         /// The default value is determined by Math.Net.</param>
         /// <param name="tol">Precision of the solution.</param>
-        /// <param name="classWeight">Weights associated with classes in the form
+        /// <param name="classWeightEstimator">Weights associated with classes in the form
         /// {class_label : weight}. If not given, all classes are
         /// supposed to have weight one.</param>
         /// <param name="solver">Solver to use in the computational.</param>
@@ -44,10 +44,10 @@
             bool normalize = false,
             int? maxIter = null,
             double tol = 1e-3,
-            ClassWeight<TLabel> classWeight = null,
-            RidgeSolver solver = RidgeSolver.Auto) : base(fitIntercept, classWeight)
+            ClassWeightEstimator<TLabel> classWeightEstimator = null,
+            RidgeSolver solver = RidgeSolver.Auto) : base(fitIntercept, classWeightEstimator)
         {
-            if (classWeight == ClassWeight<TLabel>.Auto)
+            if (classWeightEstimator == ClassWeightEstimator<TLabel>.Auto)
             {
                 throw new ArgumentException("ClassWeight.Auto is not supported.");
             }
@@ -61,7 +61,7 @@
         /// <param name="x">[n_samples,n_features]. Training data</param>
         /// <param name="y">Target values.</param>
         /// <returns>Instance of self.</returns>
-        public LinearModel Fit(double[,] x, TLabel[] y)
+        public IClassifier<TLabel> Fit(double[,] x, TLabel[] y)
         {
             return this.Fit(x.ToDenseMatrix(), y);
         }
@@ -72,17 +72,27 @@
         /// <param name="x">[n_samples,n_features]. Training data</param>
         /// <param name="y">Target values.</param>
         /// <returns>Instance of self.</returns>
-        public LinearModel Fit(Matrix<double> x, TLabel[] y)
+        public override IClassifier<TLabel> Fit(Matrix<double> x, TLabel[] y)
         {
             this.labelBinarizer = new LabelBinarizer<TLabel>(posLabel : 1, negLabel : -1);
-            Matrix Y = this.labelBinarizer.Fit(y).Transform(y);
+            Matrix<double> Y = this.labelBinarizer.Fit(y).Transform(y);
             // second parameter is used only for ClassWeight.Auto, which we don't support here.
             // So fake it.
-            Vector cw = this.ClassWeight.ComputeWeights(this.Classes, new int[0]);
+            Vector cw = this.ClassWeightEstimator.ComputeWeights(this.Classes, new int[0]);
             //# get the class weight corresponding to each sample
             Vector sampleWeightClasses = y.Select(v => cw[Array.BinarySearch(this.Classes, v)]).ToArray().ToDenseVector();
             this.ridgeBase.Fit(x, Y, sampleWeight : sampleWeightClasses);
             return this;
+        }
+
+        public override Matrix<double> PredictProba(Matrix<double> x)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Matrix<double> PredictLogProba(Matrix<double> x)
+        {
+            throw new NotImplementedException();
         }
 
         public override TLabel[] Classes

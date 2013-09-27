@@ -52,7 +52,7 @@ namespace Sharpkit.Learn.Datasets
         /// </returns>
         public static DiabetesDataset Load()
         {
-            var reader = new DelimitedReader {Sparse = false, Delimiter = " "};
+            var reader = new DelimitedReader { Sparse = false, Delimiter = " " };
             var assembly = Assembly.GetAssembly(typeof(DiabetesDataset));
             using (var datastream = assembly.GetManifestResourceStream("Sharpkit.Learn.Datasets.Data.diabetes_data.csv.gz"))
             using (var targetstream = assembly.GetManifestResourceStream("Sharpkit.Learn.Datasets.Data.diabetes_target.csv.gz"))

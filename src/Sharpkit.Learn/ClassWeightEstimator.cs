@@ -1,6 +1,7 @@
 ﻿// -----------------------------------------------------------------------
-// <copyright file="ClassWeight.cs" company="">
-// TODO: Update copyright text.
+// <copyright file="ClassWeightEstimator.cs" company="Sharpkit.Learn">
+//  Copyright (c) 2013 Sergey Zyuzin
+//  License: BSD 3 clause
 // </copyright>
 // -----------------------------------------------------------------------
 
@@ -12,38 +13,60 @@ namespace Sharpkit.Learn
     using MathNet.Numerics.LinearAlgebra.Double;
 
     /// <summary>
-    /// TODO: Update summary.
+    /// Determines the way class weights are calculated.
     /// </summary>
-    public class ClassWeight<TLabel>
+    /// <typeparam name="TLabel">Type of class label.</typeparam>
+    public class ClassWeightEstimator<TLabel>
     {
         /// <summary>
         /// Class weights will be given inverse proportional
         /// to the frequency of the class in the data.
         /// </summary>
-        public static readonly ClassWeight<TLabel> Auto = new ClassWeight<TLabel>(
+        public static readonly ClassWeightEstimator<TLabel> Auto = new ClassWeightEstimator<TLabel>(
             (classes, yInd) => ComputeClassWeightAuto(classes, yInd));
         
-        public static readonly ClassWeight<TLabel> Uniform = new ClassWeight<TLabel>(
-            (classes, yInd) => ComputeClassWeightUniform(classes));
-        
         /// <summary>
-        /// Keys are classes and values
-        /// are corresponding class weights.
+        /// All class weights will be 1.0.
         /// </summary>
-        /// <param name="classWeights"></param>
-        /// <returns></returns>
-        public static ClassWeight<TLabel> Explicit(Dictionary<TLabel, double> classWeights)
-        {
-            return new ClassWeight<TLabel>((classes, y) => ComputeClassWeightExplicit(classWeights, classes));
-        }
-        
+        public static readonly ClassWeightEstimator<TLabel> Uniform = new ClassWeightEstimator<TLabel>(
+            (classes, yInd) => ComputeClassWeightUniform(classes));
+
+        /// <summary>
+        /// Function which computes class weights.
+        /// </summary>
         private readonly Func<TLabel[], int[], Vector> func;
-        private ClassWeight(Func<TLabel[], int[], Vector> func)
+
+        /// <summary>
+        /// Initializes a new instance of the ClassWeightEstimator class.
+        /// </summary>
+        /// <param name="func">Function which computes class weights.</param>
+        private ClassWeightEstimator(Func<TLabel[], int[], Vector> func)
         {
             this.func = func;
         }
 
-        public Vector ComputeWeights(TLabel[] classes, int[] yInd)
+        /// <summary>
+        /// Keys are classes, and values
+        /// are corresponding class weights.
+        /// </summary>
+        /// <param name="classWeights">Dictionary which has class weights
+        /// corresponding to class labels specified.</param>
+        /// <returns>Instance of <see cref="ClassWeightEstimator{TLabel}"/>.</returns>
+        public static ClassWeightEstimator<TLabel> Explicit(Dictionary<TLabel, double> classWeights)
+        {
+            return new ClassWeightEstimator<TLabel>((classes, y) => ComputeClassWeightExplicit(classWeights, classes));
+        }
+        
+        /// <summary>
+        /// Calculates weights for each sample.
+        /// </summary>
+        /// <param name="classes">List of all classes.</param>
+        /// <param name="yInd">
+        /// Target values specified as indixes pointing into <paramref name="classes"/> array.</param>
+        /// <returns>
+        /// Vector with every element containing weight for every item in <paramref name="yInd"/>.
+        /// </returns>
+        internal Vector ComputeWeights(TLabel[] classes, int[] yInd)
         {
             return this.func(classes, yInd);
         }
@@ -57,6 +80,7 @@ namespace Sharpkit.Learn
         private static Vector ComputeClassWeightAuto(TLabel[] classes, int[] yInd)
         {
             Vector weight;
+            
             // inversely proportional to the number of samples in the class
             var histogram = new Dictionary<TLabel, int>();
             foreach (var ind in yInd)
@@ -77,15 +101,26 @@ namespace Sharpkit.Learn
             return weight;
         }
 
+        /// <summary>
+        /// Computes uniform class weights.
+        /// </summary>
+        /// <param name="classes">List of all classes.</param>
+        /// <returns>Class weights for all classes.</returns>
         private static Vector ComputeClassWeightUniform(TLabel[] classes)
         {
             // uniform class weights
             return DenseVector.Create(classes.Length, i => 1.0);
         }
 
+        /// <summary>
+        /// Computes class weights given dictionary which contains weights for certain class labels.
+        /// </summary>
+        /// <param name="classWeight">Dictionary with class weights.</param>
+        /// <param name="classes">List of all classes.</param>
+        /// <returns>Vector with weights corresponding to all items in <paramref name="classes"/>.</returns>
         private static Vector ComputeClassWeightExplicit(Dictionary<TLabel, double> classWeight, TLabel[] classes)
         {
-            Vector  weight = DenseVector.Create(classes.Length, i => 1.0);
+            Vector weight = DenseVector.Create(classes.Length, i => 1.0);
 
             foreach (TLabel c in classWeight.Keys)
             {
