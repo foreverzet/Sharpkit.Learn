@@ -71,6 +71,7 @@
     <Compile Include="Datasets\DiabetesDatasetTest.cs" />
     <Compile Include="Datasets\IrisDatasetTest.cs" />
     <Compile Include="Datasets\SampleGeneratorTest.cs" />
+    <Compile Include="LinearModel\BayesianRidgeRegressionTest.cs" />
     <Compile Include="LinearModel\LogisticRegressionTest.cs">
       <SubType>Code</SubType>
     </Compile>

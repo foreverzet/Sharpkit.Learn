@@ -49,9 +49,7 @@ namespace Sharpkit.Learn
         /// <returns>Vector with square root elements.</returns>
         public static Vector<double> Sqrt(this Vector<double> vector)
         {
-            var newvec = vector.Clone();
-            newvec.MapInplace(Math.Sqrt);
-            return newvec;
+            return vector.Map(Math.Sqrt);
         }
 
         /// <summary>
@@ -62,9 +60,18 @@ namespace Sharpkit.Learn
         /// <returns>Resulting matrix.</returns>
         public static Matrix<double> Log(this Matrix<double> matrix)
         {
-            var newMatrix = matrix.Clone();
-            newMatrix.MapInplace(Math.Log);
-            return newMatrix;
+            return matrix.Map(Math.Log);
+        }
+
+        /// <summary>
+        /// Returns vector where every element is Log of corresponding
+        /// element in the original vector.
+        /// </summary>
+        /// <param name="vector">Vector which elements will be transformed.</param>
+        /// <returns>Resulting vector.</returns>
+        public static Vector<double> Log(this Vector<double> vector)
+        {
+            return vector.Map(Math.Log);
         }
 
         /// <summary>
@@ -75,9 +82,7 @@ namespace Sharpkit.Learn
         /// <returns>Resulting matrix.</returns>
         public static Matrix<double> Exp(this Matrix<double> matrix)
         {
-            var newMatrix = matrix.Clone();
-            newMatrix.MapInplace(Math.Exp);
-            return newMatrix;
+            return matrix.Map(Math.Exp);
         }
 
         /// <summary>
@@ -89,6 +94,43 @@ namespace Sharpkit.Learn
         public static Vector<double> Sqr(this Vector<double> vector)
         {
             return vector.PointwiseMultiply(vector);
+        }
+
+        /// <summary>
+        /// Returns vector where every element is abs of corresponding
+        /// element in the original vector.
+        /// </summary>
+        /// <param name="vector">Vector which elements will be squared.</param>
+        /// <returns>Vector with squared elements.</returns>
+        public static Vector<double> Abs(this Vector<double> vector)
+        {
+            return vector.Map(Math.Abs);
+        }
+
+        /// <summary>
+        /// Returns vector where every element is transformed by f of corresponding
+        /// element in the original vector.
+        /// </summary>
+        /// <param name="vector">Vector which elements will be squared.</param>
+        /// <returns>Vector with squared elements.</returns>
+        public static Vector<double> Map(this Vector<double> vector, Func<double, double> f)
+        {
+            var newVector = vector.Clone();
+            newVector.MapInplace(f);
+            return newVector;
+        }
+
+        /// <summary>
+        /// Returns vector where every element is transformed by f of corresponding
+        /// element in the original vector.
+        /// </summary>
+        /// <param name="vector">Vector which elements will be squared.</param>
+        /// <returns>Vector with squared elements.</returns>
+        public static Matrix<double> Map(this Matrix<double> matrix, Func<double, double> f)
+        {
+            var newMatrix = matrix.Clone();
+            newMatrix.MapInplace(f);
+            return newMatrix;
         }
 
         /// <summary>
@@ -150,6 +192,18 @@ namespace Sharpkit.Learn
         }
 
         /// <summary>
+        /// Divides rows of matrix <paramref name="matrix"/> by <paramref name="vector"/> pointwise
+        /// </summary>
+        /// <param name="matrix">Source matrix.</param>
+        /// <param name="vector">Divider.</param>
+        public static Matrix<double> DivRowVector(this Matrix<double> matrix, Vector<double> vector)
+        {
+            Matrix<double> destMatrix = matrix.Clone();
+            DivRowVector(matrix, vector, destMatrix);
+            return destMatrix;
+        }
+
+        /// <summary>
         /// Divides all columns of matrix <paramref name="matrix"/> by <paramref name="vector"/> pointwise
         /// and places result into <paramref name="destMatrix"/>.
         /// </summary>
@@ -162,6 +216,22 @@ namespace Sharpkit.Learn
             {
                 destMatrix.SetColumn(column.Item1, column.Item2.PointwiseDivide(vector));
             }
+        }
+
+        /// <summary>
+        /// Divides all columns of matrix <paramref name="matrix"/> by <paramref name="vector"/> pointwise.
+        /// </summary>
+        /// <param name="matrix">Source matrix.</param>
+        /// <param name="vector">Divider.</param>
+        public static Matrix<double> DivColumnVector(this Matrix<double> matrix, Vector<double> vector)
+        {
+            Matrix<double> destMatrix = matrix.Clone();
+            foreach (var column in matrix.ColumnEnumerator())
+            {
+                destMatrix.SetColumn(column.Item1, column.Item2.PointwiseDivide(vector));
+            }
+
+            return destMatrix;
         }
 
         /// <summary>
@@ -361,7 +431,7 @@ namespace Sharpkit.Learn
             return (matrix1 - matrix2).FrobeniusNorm() < epsilon;
         }
 
-        public static bool AlmostEquals(this Vector<double> vector1, Vector<double> vector2)
+        public static bool AlmostEquals(this Vector<double> vector1, Vector<double> vector2, double epsilon = 1e-10)
         {
             return (vector1 - vector2).FrobeniusNorm() < 1e-10;
         }
@@ -443,6 +513,12 @@ namespace Sharpkit.Learn
         public static int[] Indices<T>(this T[] x, Func<T, bool> func)
         {
             return x.Select((v, i) => Tuple.Create(v, i)).Where(t => func(t.Item1)).Select(t => t.Item2).ToArray();
+        }
+
+        public static IEnumerable<double> Diff(this IEnumerable<double> en)
+        {
+            var list = en.ToList();
+            return list.Take(list.Count - 1).Zip(list.Skip(1), Tuple.Create).Select(t => t.Item2 - t.Item1);
         }
 
         private static Matrix<double> PseudoInverse(Svd<double> svd)

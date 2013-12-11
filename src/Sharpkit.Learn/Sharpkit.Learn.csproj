@@ -59,6 +59,7 @@
     <Compile Include="Datasets\SampleGenerator.cs" />
     <Compile Include="IClassifier.cs" />
     <Compile Include="LeastSquares\LsqrResult.cs" />
+    <Compile Include="LinearModel\BayesianRidgeRegression.cs" />
     <Compile Include="LinearModel\LogisticRegression.cs" />
     <Compile Include="LinearModel\Loss.cs" />
     <Compile Include="LinearModel\Multiclass.cs" />
