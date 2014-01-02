@@ -4,16 +4,15 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-using System.Collections.Generic;
-using MathNet.Numerics;
-using MathNet.Numerics.LinearAlgebra.Generic.Factorization;
-
 namespace Sharpkit.Learn
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
+    using MathNet.Numerics;
     using MathNet.Numerics.LinearAlgebra.Double;
     using MathNet.Numerics.LinearAlgebra.Generic;
+    using MathNet.Numerics.LinearAlgebra.Generic.Factorization;
 
     /// <summary>
     /// <see cref="Matrix"/> and <see cref="Vector"/> extention methods.
@@ -344,6 +343,19 @@ namespace Sharpkit.Learn
             return result;
         }
 
+        public static double Mean(this Matrix<double> matrix)
+        {
+            double result = 0;
+            foreach (var column in matrix.ColumnEnumerator())
+            {
+                result+= column.Item2.Sum();
+            }
+
+            result /= matrix.ColumnCount * matrix.RowCount;
+
+            return result;
+        }
+
         /// <summary>
         /// Computes mean of every column.
         /// </summary>
@@ -414,6 +426,22 @@ namespace Sharpkit.Learn
             var m = vector.CreateMatrix(vector.Count, 1);
             m.SetColumn(0, vector);
             return m;
+        }
+
+        public static Matrix<int> ArgsortColumns(this Matrix<double> matrix)
+        {
+            Matrix<int> result = IntDenseMatrix.Create(matrix.RowCount, matrix.ColumnCount);
+            foreach (var column in matrix.ColumnEnumerator())
+            {
+                var newColumn = column.Item2
+                    .Select((v, i) => Tuple.Create(v, i))
+                    .OrderBy(t => t.Item1)
+                    .Select(t => t.Item2).ToArray();
+
+                result.SetColumn(column.Item1, newColumn);
+            }
+
+            return result;
         }
 
         /// <summary>
@@ -496,6 +524,17 @@ namespace Sharpkit.Learn
                 result.SetRow(i, x.Row(indices[i]));
             }
             
+            return result;
+        }
+
+        public static Matrix<double> ColumnsAt(this Matrix<double> x, IList<int> indices)
+        {
+            var result = x.CreateMatrix(x.RowCount, indices.Count);
+            for (int i = 0; i < indices.Count; i++)
+            {
+                result.SetColumn(i, x.Column(indices[i]));
+            }
+
             return result;
         }
 

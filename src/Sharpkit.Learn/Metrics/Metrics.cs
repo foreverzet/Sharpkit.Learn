@@ -311,6 +311,78 @@ namespace Sharpkit.Learn.Metrics
         }
 
         /// <summary>
+        /// Accuracy classification score.
+        ///
+        /// In multilabel classification, this function computes subset accuracy:
+        /// the set of labels predicted for a sample must *exactly* match the
+        /// corresponding set of labels in y_true.
+        /// </summary>
+        /// <param name="y_true">Ground truth (correct) labels.</param>
+        /// <param name="y_pred">Predicted labels, as returned by a classifier.</param>
+        /// <param name="normalize">If <c>false</c>, return the number of correctly classified samples.
+        /// Otherwise, return the fraction of correctly classified samples.</param>
+        /// <returns>If <paramref name="normalize"/> == <c>true</c>, return the correctly classified samples
+        ///  else it returns the number of correctly classified samples.</returns>
+        /// <remarks>
+        /// The best performance is 1 with <paramref name="normalize"/> == <c>true</c> and the number
+        /// of samples with <paramref name="normalize"/> == <c>false</c>.
+        /// </remarks>
+        /// <remarks>
+        /// In binary and multiclass classification, this function is equal
+        /// to the <see cref="Metrics.JaccardSimilarityScore"/> function.
+        /// </remarks>
+        /// <example>
+        /// </example>
+        /// <seealso cref="Metrics.HammingLoss"/>
+        /// <seealso cref="Metrics.ZeroOneLoss"/>
+        /// <seealso cref="Metrics.JaccardSimilarityScore"/>
+        public static double AccuracyScore<TLabel>(TLabel[] y_true, TLabel[] y_pred, bool normalize = true)
+            where TLabel : IEquatable<TLabel>
+        {
+            /*
+    Examples
+    --------
+    >>> import numpy as np
+    >>> from sklearn.metrics import accuracy_score
+    >>> y_pred = [0, 2, 1, 3]
+    >>> y_true = [0, 1, 2, 3]
+    >>> accuracy_score(y_true, y_pred)
+    0.5
+    >>> accuracy_score(y_true, y_pred, normalize=False)
+    2
+
+
+    In the multilabel case with binary indicator format:
+
+
+    >>> accuracy_score(np.array([[0.0, 1.0], [1.0, 1.0]]), np.ones((2, 2)))
+    0.5
+
+
+    and with a list of labels format:
+
+
+    >>> accuracy_score([(1, ), (3, )], [(1, 2), tuple()])
+    0.0
+
+
+    */
+
+
+            // Compute accuracy for each possible representation
+            var score = y_true.Zip(y_pred, Tuple.Create).Select(t => t.Item1.Equals(t.Item2) ? 1 : 0);
+
+            if (normalize)
+            {
+                return score.Average();
+            }
+            else
+            {
+                return score.Sum();
+            }
+        }
+
+        /// <summary>
         /// Compute the precision
         ///
         /// The precision is the ratio ``tp / (tp + fp)`` where ``tp`` is the number of
@@ -453,6 +525,43 @@ namespace Sharpkit.Learn.Metrics
             posLabel: posLabel,
             average: average).Recall;
     }
+
+     /// <summary>
+     /// Mean squared error regression loss.
+     /// </summary>
+     /// <param name="yTrue">[n_samples, n_outputs] Ground truth (correct) target values.</param>
+     /// <param name="yPred">[n_samples, n_outputs] Estimated target values.</param>
+     /// <returns>Loss.</returns>
+     public static double MeanSquaredError(Vector<double> yTrue, Vector<double> yPred)
+     {
+         return MeanSquaredError(yTrue.ToRowMatrix(), yPred.ToRowMatrix());
+     }
+
+     /// <summary>
+     /// Mean squared error regression loss.
+     /// </summary>
+     /// <param name="yTrue">[n_samples, n_outputs] Ground truth (correct) target values.</param>
+     /// <param name="yPred">[n_samples, n_outputs] Estimated target values.</param>
+     /// <returns>Loss.</returns>
+     public static double MeanSquaredError(Matrix<double> yTrue, Matrix<double> yPred)
+     {
+    /*
+    Examples
+    --------
+    >>> from sklearn.metrics import mean_squared_error
+    >>> y_true = [3, -0.5, 2, 7]
+    >>> y_pred = [2.5, 0.0, 2, 8]
+    >>> mean_squared_error(y_true, y_pred)
+    0.375
+    >>> y_true = [[0.5, 1],[-1, 1],[7, -6]]
+    >>> y_pred = [[0, 2],[-1, 2],[8, -5]]
+    >>> mean_squared_error(y_true, y_pred)  # doctest: +ELLIPSIS
+    0.708...
+
+    */
+
+         return (yPred - yTrue).Sqr().Mean();
+     }
 
     /// <summary>
     /// Compute the recall
