@@ -356,6 +356,29 @@ namespace Sharpkit.Learn
             return result;
         }
 
+        public static T[] Subarray<T>(this T[] array, int start, int length)
+        {
+            T[] result = new T[length];
+            Array.Copy(array, start, result, 0, length);
+
+            return result;
+        }
+
+        public static T[,] Subarray<T>(this T[,] array, int xstart, int xlength, int ystart, int ylength)
+        {
+            T[,] result = new T[xlength, ylength];
+            for (int x = 0; x < xlength; x++)
+                for (int y = 0; y < ylength; y++)
+                    result[x, y] = array[xstart + x, ystart + y];
+
+            return result;
+        }
+
+        public static Tuple<int,int> Shape<T>(this T[,] array)
+        {
+            return Tuple.Create(array.GetLength(0), array.GetLength(1));
+        }
+
         /// <summary>
         /// Computes mean of every column.
         /// </summary>
@@ -428,15 +451,56 @@ namespace Sharpkit.Learn
             return m;
         }
 
-        public static Matrix<int> ArgsortColumns(this Matrix<double> matrix)
+        /// <summary>
+        /// Converts <see cref="IEnumerable"/> to column matrix.
+        /// </summary>
+        /// <param name="vector">Enumerable to convert.</param>
+        /// <returns>Column matrix.</returns>
+        public static Matrix<double> ToColumnMatrix(this IEnumerable<double> vector)
         {
-            Matrix<int> result = IntDenseMatrix.Create(matrix.RowCount, matrix.ColumnCount);
+            return DenseVector.OfEnumerable(vector).ToColumnMatrix();
+        }
+
+        /// <summary>
+        /// Converts <see cref="IEnumerable"/> to column matrix.
+        /// </summary>
+        /// <param name="vector">Enumerable to convert.</param>
+        /// <returns>Column matrix.</returns>
+        public static Matrix<double> ToColumnMatrix(this IEnumerable<int> vector)
+        {
+            return DenseVector.OfEnumerable(vector.Select(v=>(double)v)).ToColumnMatrix();
+        }
+
+        /// <summary>
+        /// Converts <see cref="IEnumerable{int}"/> to Vector.
+        /// </summary>
+        /// <param name="vector">Enumerable to convert.</param>
+        /// <returns>Vector.</returns>
+        public static Vector<double> ToVector(this IEnumerable<int> vector)
+        {
+            return DenseVector.OfEnumerable(vector.Select(v => (double)v));
+        }
+
+        /// <summary>
+        /// Converts <see cref="IEnumerable{int}"/> to Vector.
+        /// </summary>
+        /// <param name="vector">Enumerable to convert.</param>
+        /// <returns>Vector.</returns>
+        public static Vector<double> ToVector(this IEnumerable<double> vector)
+        {
+            return DenseVector.OfEnumerable(vector);
+        }
+
+        //todo this shall return Matrix<int>
+        public static Matrix<double> ArgsortColumns(this Matrix<double> matrix)
+        {
+            Matrix<double> result = DenseMatrix.Create(matrix.RowCount, matrix.ColumnCount, (x,y)=>0);
             foreach (var column in matrix.ColumnEnumerator())
             {
                 var newColumn = column.Item2
                     .Select((v, i) => Tuple.Create(v, i))
                     .OrderBy(t => t.Item1)
-                    .Select(t => t.Item2).ToArray();
+                    .Select(t => t.Item2).Select(v=>(double)v).ToArray();
 
                 result.SetColumn(column.Item1, newColumn);
             }
@@ -516,12 +580,15 @@ namespace Sharpkit.Learn
             }
         }
 
-        public static Matrix<double> RowsAt(this Matrix<double> x, IList<int> indices)
+        public static Matrix<double> RowsAt(this Matrix<double> x, IEnumerable<int> indices)
         {
-            var result = x.CreateMatrix(indices.Count, x.ColumnCount);
-            for (int i = 0; i < indices.Count; i++ )
+            int numberOfRows = indices.Count();
+            var result = x.CreateMatrix(numberOfRows, x.ColumnCount);
+            int i = 0;
+            foreach (var ind in indices)
             {
-                result.SetRow(i, x.Row(indices[i]));
+                result.SetRow(i, x.Row(ind));
+                i++;
             }
             
             return result;
@@ -538,12 +605,15 @@ namespace Sharpkit.Learn
             return result;
         }
 
-        public static T[] ElementsAt<T>(this T[] x, IList<int> indices)
+        public static T[] ElementsAt<T>(this T[] x, IEnumerable<int> indices)
         {
-            var result = new T[indices.Count];
-            for (int i = 0; i < indices.Count; i++)
+            var count = indices.Count();
+            var result = new T[count];
+            int i = 0;
+            foreach (var ind in indices)
             {
-                result[i] = x[indices[i]];
+                result[i] = x[ind];
+                i++;
             }
 
             return result;

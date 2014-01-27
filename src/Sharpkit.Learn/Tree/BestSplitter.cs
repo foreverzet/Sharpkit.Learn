@@ -40,13 +40,7 @@ namespace Sharpkit.Learn.Tree
             uint best_pos = end;
             uint best_feature = 0;
             double best_threshold = 0;
-
-
-            uint current_pos = 0;
-
-
             int visited_features = 0;
-
 
             for (uint f_idx = 0; f_idx < n_features; f_idx++)
             {
@@ -58,18 +52,14 @@ namespace Sharpkit.Learn.Tree
                 features[f_i] = features[f_j];
                 features[f_j] = tmp;
 
-
                 uint current_feature = features[f_i];
-
 
                 // Sort samples along that feature
                 sort(X, X_stride, current_feature, samples, start, end - start);
 
-
                 // Evaluate all splits
                 this.criterion.reset();
                 uint p = start;
-
 
                 while (p < end)
                 {
@@ -80,7 +70,6 @@ namespace Sharpkit.Learn.Tree
                         p += 1;
                     }
 
-
                     // (p + 1 >= end) or (X[samples[p + 1], current_feature] >
                     //                    X[samples[p], current_feature])
                     p += 1;
@@ -90,39 +79,36 @@ namespace Sharpkit.Learn.Tree
 
                     if (p < end)
                     {
-                        current_pos = p;
-                    }
+                        uint current_pos = p;
 
-
-                    // Reject if min_samples_leaf is not guaranteed
-                    if (((current_pos - start) < min_samples_leaf) ||
-                        ((end - current_pos) < min_samples_leaf))
-                    {
-                        continue;
-                    }
-
-
-                    this.criterion.update(current_pos);
-                    double current_impurity = this.criterion.children_impurity();
-
-
-                    if (current_impurity < (best_impurity - 1e-7))
-                    {
-                        best_impurity = current_impurity;
-                        best_pos = current_pos;
-                        best_feature = current_feature;
-
-
-                        double current_threshold = (X[X_stride*samples[p - 1] + current_feature] +
-                                                    X[X_stride*samples[p] + current_feature])/2.0;
-
-
-                        if (current_threshold == X[X_stride*samples[p] + current_feature])
+                        // Reject if min_samples_leaf is not guaranteed
+                        if (((current_pos - start) < min_samples_leaf) ||
+                            ((end - current_pos) < min_samples_leaf))
                         {
-                            current_threshold = X[X_stride*samples[p - 1] + current_feature];
+                            continue;
                         }
 
-                        best_threshold = current_threshold;
+
+                        this.criterion.update(current_pos);
+                        double current_impurity = this.criterion.children_impurity();
+
+                        if (current_impurity < (best_impurity - 1e-7))
+                        {
+                            best_impurity = current_impurity;
+                            best_pos = current_pos;
+                            best_feature = current_feature;
+
+
+                            double current_threshold = (X[X_stride*samples[p - 1] + current_feature] +
+                                                        X[X_stride*samples[p] + current_feature])/2.0;
+
+                            if (current_threshold == X[X_stride*samples[p] + current_feature])
+                            {
+                                current_threshold = X[X_stride*samples[p - 1] + current_feature];
+                            }
+
+                            best_threshold = current_threshold;
+                        }
                     }
                 }
 
@@ -131,10 +117,8 @@ namespace Sharpkit.Learn.Tree
                     continue;
                 }
 
-
                 // Count one more visited feature
                 visited_features += 1;
-
 
                 if (visited_features >= max_features)
                 {

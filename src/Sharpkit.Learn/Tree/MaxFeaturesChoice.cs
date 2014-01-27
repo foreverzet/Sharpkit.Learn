@@ -20,7 +20,7 @@ namespace Sharpkit.Learn.Tree
     /// </summary>
     public class MaxFeaturesChoice : IEquatable<MaxFeaturesChoice>
     {
-        private Func<double, int> f;
+        private Func<int, bool, int> f;
         private readonly string name;
         private readonly int value;
 
@@ -31,7 +31,13 @@ namespace Sharpkit.Learn.Tree
         /// <returns>Instance of <see cref="MaxFeaturesChoice"/>.</returns>
         public static MaxFeaturesChoice Auto()
         {
-            return new MaxFeaturesChoice(x=>Math.Max(1, (int)Math.Sqrt(x)), "Auto");
+            return new MaxFeaturesChoice((nFeatures, isClassification)=>
+                                             {
+                                                 if (isClassification)
+                                                     return Math.Max(1, (int)Math.Sqrt(nFeatures));
+                                                 else
+                                                     return nFeatures;
+                                             }, "Auto");
         }
 
         /// <summary>
@@ -41,7 +47,7 @@ namespace Sharpkit.Learn.Tree
         /// <returns>Instance of <see cref="MaxFeaturesChoice"/>.</returns>
         public static MaxFeaturesChoice Sqrt()
         {
-            return new MaxFeaturesChoice(x => Math.Max(1, (int)Math.Sqrt(x)), "Sqrt");
+            return new MaxFeaturesChoice((nFeatures, nClassification) => Math.Max(1, (int)Math.Sqrt(nFeatures)), "Sqrt");
         }
 
         /// <summary>
@@ -51,7 +57,7 @@ namespace Sharpkit.Learn.Tree
         /// <returns>Instance of <see cref="MaxFeaturesChoice"/>.</returns>
         public static MaxFeaturesChoice Log2()
         {
-            return new MaxFeaturesChoice(x => Math.Max(1, (int)Math.Log(x, 2)), "Log2");
+            return new MaxFeaturesChoice((nFeatures, nClassification) => Math.Max(1, (int)Math.Log(nFeatures, 2)), "Log2");
         }
 
         /// <summary>
@@ -62,7 +68,7 @@ namespace Sharpkit.Learn.Tree
         /// <returns>Instance of <see cref="MaxFeaturesChoice"/>.</returns>
         public static MaxFeaturesChoice Fraction(double fraction)
         {
-            return new MaxFeaturesChoice(x=> (int)(x* fraction), "Fraction");
+            return new MaxFeaturesChoice((nFeatures, isClassification)=> (int)(nFeatures* fraction), "Fraction");
         }
 
         /// <summary>
@@ -76,7 +82,7 @@ namespace Sharpkit.Learn.Tree
             return new MaxFeaturesChoice(maxFeatures);
         }
 
-        private MaxFeaturesChoice(Func<double, int> f, string name)
+        private MaxFeaturesChoice(Func<int, bool,  int> f, string name)
         {
             this.f = f;
             this.name = name;
@@ -98,11 +104,11 @@ namespace Sharpkit.Learn.Tree
             return value.ToString();
         }
 
-        internal int ComputeMaxFeatures(int n_features_)
+        internal int ComputeMaxFeatures(int n_features_, bool isClassification)
         {
             if (f != null)
             {
-                return f(n_features_);
+                return f(n_features_, isClassification);
             }
             else
             {

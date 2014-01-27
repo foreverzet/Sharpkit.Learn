@@ -11,6 +11,8 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
+using System.Linq;
+
 namespace Sharpkit.Learn.Tree
 {
     using System;
@@ -51,7 +53,7 @@ namespace Sharpkit.Learn.Tree
             if (this.X_old != this.X)
             {
                 this.X_old = this.X;
-                X_argsorted = X.ArgsortColumns().ToColumnWiseArray();
+                X_argsorted = X.ArgsortColumns().ToColumnWiseArray().Select(v=>(int)v).ToArray();
 
                 this.X_argsorted_stride = (uint)X.RowCount;
 

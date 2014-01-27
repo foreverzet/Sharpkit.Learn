@@ -178,7 +178,6 @@ namespace Sharpkit.Learn.Tree
         /// <returns></returns>
         public void node_value(double[] dest, uint offset)
         {
-            uint label_count_stride = 0;
             uint label_count_total_offset = 0;
             uint dest_offset = offset;
 

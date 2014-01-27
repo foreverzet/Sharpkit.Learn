@@ -55,12 +55,12 @@ namespace Sharpkit.Learn.Tree
                 // Find min, max
                 double min_feature_value;
                 double max_feature_value;
-                min_feature_value = max_feature_value = X[X_stride*samples[start] + current_feature];
+                min_feature_value = max_feature_value = X[X_stride * samples[start] + current_feature];
 
 
                 for (uint p1 = start + 1; p1 < end; p1++)
                 {
-                    double current_feature_value = X[X_stride*samples[p1] + current_feature];
+                    double current_feature_value = X[X_stride * samples[p1] + current_feature];
 
                     if (current_feature_value < min_feature_value)
                     {
@@ -80,7 +80,7 @@ namespace Sharpkit.Learn.Tree
 
                 // Draw a random threshold
                 double current_threshold = (min_feature_value +
-                                            Util.rand_double(ref rand_r_state)*(max_feature_value - min_feature_value));
+                                            Util.rand_double(ref rand_r_state) * (max_feature_value - min_feature_value));
 
                 if (current_threshold == max_feature_value)
                 {
@@ -94,19 +94,18 @@ namespace Sharpkit.Learn.Tree
 
                 while (p < partition_end)
                 {
-                    if (X[X_stride*samples[p] + current_feature] <= current_threshold)
+                    if (X[X_stride * samples[p] + current_feature] <= current_threshold)
                     {
                         p += 1;
                     }
                     else
                     {
                         partition_end -= 1;
+
+                        tmp = samples[partition_end];
+                        samples[partition_end] = samples[p];
+                        samples[p] = tmp;
                     }
-
-
-                    tmp = samples[partition_end];
-                    samples[partition_end] = samples[p];
-                    samples[p] = tmp;
                 }
 
                 uint current_pos = partition_end;
@@ -152,7 +151,7 @@ namespace Sharpkit.Learn.Tree
 
                 while (p < partition_end)
                 {
-                    if (X[X_stride*samples[p] + best_feature] <= best_threshold)
+                    if (X[X_stride * samples[p] + best_feature] <= best_threshold)
                     {
                         p += 1;
                     }

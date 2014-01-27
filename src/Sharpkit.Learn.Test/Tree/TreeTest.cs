@@ -1,5 +1,5 @@
 ﻿// -----------------------------------------------------------------------
-// <copyright file="TreeTest.cs" company="">
+// <copyright file="TreeTest.cs" company="Sharpkit.Learn">
 // TODO: Update copyright text.
 // </copyright>
 // -----------------------------------------------------------------------
@@ -7,14 +7,22 @@
 namespace Sharpkit.Learn.Test.Tree
 {
     using System;
+    using System.Linq;
     using MathNet.Numerics.LinearAlgebra.Double;
+    using MathNet.Numerics.LinearAlgebra.Generic;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Sharpkit.Learn.Datasets;
+    using Sharpkit.Learn.Preprocessing;
     using Sharpkit.Learn.Tree;
+    using Sharpkit.Learn.FeatureSelection;
+    using Sharpkit.Learn.Utils;
 
     /// <summary>
     /// Tests for Decition trees.
     /// </summary>
+    /// <remarks>
+    /// https://github.com/scikit-learn/scikit-learn/tree/7d9984b995c50442458d1e010d36799cebbb260f/sklearn/tree/tests/test_tree.py
+    /// </remarks>
     [TestClass]
     public class TreeTest
     {
@@ -28,10 +36,9 @@ namespace Sharpkit.Learn.Test.Tree
                                              "ExtraTreeClassifier"
                                          };
 
-        public DecisionTreeClassifier<TLabel> CreateTree<TLabel>(
+        public DecisionTreeClassifier<TLabel> CreateClassifier<TLabel>(
             string name,
             Criterion criterion = Criterion.Gini,
-            Splitter splitter = Splitter.Best,
             int? max_depth = null,
             int min_samples_split = 2,
             int min_samples_leaf = 1,
@@ -42,23 +49,22 @@ namespace Sharpkit.Learn.Test.Tree
             switch (name)
             {
                 case "DecisionTreeClassifier":
-                    return new DecisionTreeClassifier<TLabel>(criterion, splitter, max_depth, min_samples_split,
+                    return new DecisionTreeClassifier<TLabel>(criterion, Splitter.Best, max_depth, min_samples_split,
                                                               min_samples_leaf, max_features, random);
                 case "Presort-DecisionTreeClassifier":
                     return new DecisionTreeClassifier<TLabel>(criterion, Splitter.PresortBest, max_depth,
                                                               min_samples_split, min_samples_leaf, max_features, random);
                 case "ExtraTreeClassifier":
-                    return new ExtraTreeClassifier<TLabel>(criterion, splitter, max_depth, min_samples_split,
+                    return new ExtraTreeClassifier<TLabel>(criterion, Splitter.Random, max_depth, min_samples_split,
                                                            min_samples_leaf, max_features, random);
             }
 
             throw new InvalidOperationException("Unexpected name");
         }
 
-        public DecisionTreeRegressor CreateRegressionTree(
+        public DecisionTreeRegressor CreateRegressor(
             string name,
             Criterion criterion = Criterion.Mse,
-            Splitter splitter = Splitter.Best,
             int? max_depth = null,
             int min_samples_split = 2,
             int min_samples_leaf = 1,
@@ -69,21 +75,20 @@ namespace Sharpkit.Learn.Test.Tree
             switch (name)
             {
                 case "DecisionTreeRegressor":
-                    return new DecisionTreeRegressor(criterion, splitter, max_depth, min_samples_split, min_samples_leaf,
+                    return new DecisionTreeRegressor(criterion, Splitter.Best, max_depth, min_samples_split, min_samples_leaf,
                                                      max_features, random);
                 case "Presort-DecisionTreeRegressor":
                     return new DecisionTreeRegressor(criterion, Splitter.PresortBest, max_depth, min_samples_split,
                                                      min_samples_leaf, max_features, random);
                 case "ExtraTreeRegressor":
-                    return new ExtraTreeRegressor(criterion, splitter, max_depth, min_samples_split, min_samples_leaf,
+                    return new ExtraTreeRegressor(criterion, Splitter.Random, max_depth, min_samples_split, min_samples_leaf,
                                                   max_features, random);
             }
 
             throw new InvalidOperationException("Unexpected name");
         }
 
-
-        private string[] REG_TREES = new[]
+        private readonly string[] RegTrees = new[]
                                          {
                                              "DecisionTreeRegressor",
                                              "Presort-DecisionTreeRegressor",
@@ -99,15 +104,15 @@ ALL_TREES.update(REG_TREES)
 
 */
 // toy sample
-        private double[,] X = new double[,] {{-2, -1}, {-1, -1}, {-1, -2}, {1, 1}, {1, 2}, {2, 1}};
-        private double[] y = new double[] {-1, -1, -1, 1, 1, 1};
-        private double[,] T = new double[,] {{-1, -1}, {2, 2}, {3, 2}};
+        private readonly double[,] X = new double[,] {{-2, -1}, {-1, -1}, {-1, -2}, {1, 1}, {1, 2}, {2, 1}};
+        private readonly double[] y = new double[] {-1, -1, -1, 1, 1, 1};
+        private readonly double[,] T = new double[,] {{-1, -1}, {2, 2}, {3, 2}};
 
-        private double[] true_result = new double[] {-1, 1, 1};
+        private readonly double[] trueResult = new double[] {-1, 1, 1};
 
 
-        private IrisDataset iris = IrisDataset.Load();
-        private BostonDataset boston = BostonDataset.Load();
+        private readonly IrisDataset iris = IrisDataset.Load();
+        private readonly BostonDataset boston = BostonDataset.Load();
         /*# also load the iris dataset
 # and randomly permute it
 iris = datasets.load_iris()
@@ -135,14 +140,14 @@ boston.target = boston.target[perm]
         {
             foreach (var name in CLF_TREES)
             {
-                var clf = CreateTree<double>(name, random: new Random(0));
+                var clf = CreateClassifier<double>(name, random: new Random(0));
                 clf.Fit(X, y);
-                AssertExt.ArrayEqual(clf.Predict(T), true_result, "Failed with {0}".Frmt(name));
+                AssertExt.ArrayEqual(clf.Predict(T), trueResult, "Failed with {0}".Frmt(name));
 
 
-                clf = CreateTree<double>(name, max_features: MaxFeaturesChoice.Value(1), random: new Random(1));
+                clf = CreateClassifier<double>(name, max_features: MaxFeaturesChoice.Value(1), random: new Random(1));
                 clf.Fit(X, y);
-                AssertExt.ArrayEqual(clf.Predict(T), true_result, "Failed with {0}".Frmt(name));
+                AssertExt.ArrayEqual(clf.Predict(T), trueResult, "Failed with {0}".Frmt(name));
             }
         }
 
@@ -155,15 +160,15 @@ boston.target = boston.target[perm]
         {
             foreach (var name in CLF_TREES)
             {
-                var clf = CreateTree<double>(name, random: new Random(0));
+                var clf = CreateClassifier<double>(name, random: new Random(0));
 
                 clf.Fit(X, y, sampleWeight: DenseVector.Create(X.GetLength(0), i => 1.0).ToArray());
-                AssertExt.ArrayEqual(clf.Predict(T), true_result,
+                AssertExt.ArrayEqual(clf.Predict(T), trueResult,
                                      "Failed with {0}".Frmt(name));
 
 
                 clf.Fit(X, y, sampleWeight: DenseVector.Create(X.GetLength(0), i => 0.5).ToArray());
-                AssertExt.ArrayEqual(clf.Predict(T), true_result,
+                AssertExt.ArrayEqual(clf.Predict(T), trueResult,
                                      "Failed with {0}".Frmt(name));
             }
         }
@@ -175,34 +180,33 @@ boston.target = boston.target[perm]
         [TestMethod]
         public void TestRegressionToy()
         {
-            foreach (var name in REG_TREES)
+            foreach (var name in RegTrees)
             {
-                var reg = CreateRegressionTree(name, random: new Random(1));
+                var reg = CreateRegressor(name, random: new Random(1));
                 reg.Fit(X, y);
-                AssertExt.ArrayEqual(reg.PredictSingle(T), true_result,
+                AssertExt.ArrayEqual(reg.PredictSingle(T), trueResult,
                                      "Failed with {0}".Frmt(name));
 
 
-                var clf = CreateRegressionTree(name, max_features: MaxFeaturesChoice.Value(1), random: new Random(1));
+                var clf = CreateRegressor(name, max_features: MaxFeaturesChoice.Value(1), random: new Random(1));
                 clf.Fit(X, y);
-                AssertExt.AlmostEqual(reg.PredictSingle(T), true_result,
+                AssertExt.AlmostEqual(reg.PredictSingle(T), trueResult,
                                       "Failed with {0}".Frmt(name));
             }
         }
 
-        /*
+/*
 /// <summary>
 /// Check on a XOR problem
 /// </summary>
+[TestMethod]
 public void  test_xor()
 {
-    y = np.zeros((10, 10))
-    y[:5, :5] = 1
-    y[5:, 5:] = 1
-
+    var y = new DenseMatrix(10, 10);
+    y.SetSubMatrix(0, 5, 0, 5, DenseMatrix.Create(5, 5, (i, j) => 1.0));
+    y.SetSubMatrix(5, 5, 5, 5, DenseMatrix.Create(5, 5, (i, j) => 1.0));
 
     gridx, gridy = np.indices(y.shape)
-
 
     X = np.vstack([gridx.ravel(), gridy.ravel()]).T
     y = y.ravel()
@@ -210,9 +214,9 @@ public void  test_xor()
 
     foreach (var name in CLF_TREES)
     {
-        var clf = CreateTree(random: new Random(0));
+        var clf = CreateTree<double>(name, random: new Random(0));
         clf.Fit(X, y);
-        AssertExt.ArrayEqual(clf.Score(X, y), 1.0,
+        AssertExt.ArrayEqual(1.0, clf.Score(X, y),
                              "Failed with {0}".Frmt(name));
 
 
@@ -222,7 +226,7 @@ public void  test_xor()
                   "Failed with {0}".Frmt(name));
     }
 }
-         */
+*/
 
         /// <summary>
         /// Check consistency on dataset iris.
@@ -234,13 +238,13 @@ public void  test_xor()
             {
                 foreach (var criterion in CLF_CRITERIONS)
                 {
-                    var clf = CreateTree<int>(name, criterion: criterion, random: new Random(0));
+                    var clf = CreateClassifier<int>(name, criterion: criterion, random: new Random(0));
                     clf.Fit(iris.Data, iris.Target);
                     var score = clf.Score(iris.Data, iris.Target);
                     Assert.IsTrue(score > 0.9,
                                   "Failed with {0}, criterion = {1} and score = {2}".Frmt(name, criterion, score));
 
-                    clf = CreateTree<int>(name, criterion: criterion, max_features: MaxFeaturesChoice.Value(2),
+                    clf = CreateClassifier<int>(name, criterion: criterion, max_features: MaxFeaturesChoice.Value(2),
                                           random: new Random(0));
                     clf.Fit(iris.Data, iris.Target);
                     score = clf.Score(iris.Data, iris.Target);
@@ -257,11 +261,11 @@ public void  test_xor()
         [TestMethod]
         public void TestBoston()
         {
-            foreach (var name in REG_TREES)
+            foreach (var name in RegTrees)
             {
                 foreach (var criterion in REG_CRITERIONS)
                 {
-                    var reg = CreateRegressionTree(name, criterion: criterion, random: new Random(0));
+                    var reg = CreateRegressor(name, criterion: criterion, random: new Random(0));
                     reg.Fit(boston.Data, boston.Target);
                     var score = Sharpkit.Learn.Metrics.Metrics.MeanSquaredError(boston.Target,
                                                                                 reg.Predict(boston.Data).Column(0));
@@ -271,7 +275,7 @@ public void  test_xor()
 
                     // using fewer features reduces the learning ability of this tree,
                     // but reduces training time.
-                    reg = CreateRegressionTree(name, criterion: criterion, max_features: MaxFeaturesChoice.Value(6),
+                    reg = CreateRegressor(name, criterion: criterion, max_features: MaxFeaturesChoice.Value(6),
                                                random: new Random(0));
                     reg.Fit(boston.Data, boston.Target);
                     score = Sharpkit.Learn.Metrics.Metrics.MeanSquaredError(boston.Target,
@@ -282,7 +286,7 @@ public void  test_xor()
             }
         }
 
-        /*
+
         /// <summary>
         /// Predict probabilities using DecisionTreeClassifier.
         /// </summary>
@@ -291,7 +295,7 @@ public void  test_xor()
         {
             foreach (var name in CLF_TREES)
             {
-                var clf = CreateTree<int>(name, max_depth: 1, max_features: MaxFeaturesChoice.Value(1),
+                var clf = CreateClassifier<int>(name, max_depth: 1, max_features: MaxFeaturesChoice.Value(1),
                                           random: new Random(42));
                 clf.Fit(iris.Data, iris.Target);
 
@@ -322,9 +326,9 @@ public void  test_xor()
 
             var y = DenseVector.OfEnumerable(Enumerable.Range(0, 10000).Select(v => (double)v));
 
-            foreach (var name in REG_TREES)
+            foreach (var name in RegTrees)
             {
-                var reg = CreateRegressionTree(name, max_depth: null, random: new Random(0));
+                var reg = CreateRegressor(name, max_depth: null, random: new Random(0));
                 reg.Fit(X, y);
             }
         }
@@ -341,15 +345,15 @@ public void  test_xor()
 
             foreach (var name in CLF_TREES)
             {
-                var clf = CreateTree<int>(name, random: new Random(0));
+                var clf = CreateClassifier<int>(name, random: new Random(0));
                 clf.Fit(X, y);
                 AssertExt.ArrayEqual(clf.Predict(X), y,
                                      "Failed with {0}".Frmt(name));
             }
 
-            foreach (var name in REG_TREES)
+            foreach (var name in RegTrees)
             {
-                var reg = CreateRegressionTree(name, random: new Random(0));
+                var reg = CreateRegressor(name, random: new Random(0));
                 reg.Fit(X, y.Select(v => (double)v).ToArray());
                 AssertExt.AlmostEqual(reg.Predict(X).ToDenseMatrix().Column(0).ToArray(),
                                       y.Select(v => (double)v).ToArray(),
@@ -361,7 +365,7 @@ public void  test_xor()
         /// Check numerical stability.
         /// </summary>
         [TestMethod]
-        public void test_numerical_stability()
+        public void TestNumericalStability()
         {
             var X = new double[,]
                         {
@@ -380,9 +384,9 @@ public void  test_xor()
 
 
             //with np.errstate(all="raise"):
-            foreach (var name in REG_TREES)
+            foreach (var name in RegTrees)
             {
-                var reg = CreateRegressionTree(name, random: new Random(0));
+                var reg = CreateRegressor(name, random: new Random(0));
                 reg.Fit(X, y);
                 reg.Fit(X, y.Select(v => -v).ToArray());
                 reg.Fit(X.ToDenseMatrix()*-1, y.ToDenseVector());
@@ -393,20 +397,22 @@ public void  test_xor()
         /// <summary>
         /// Check variable importances.
         /// </summary>
-        public void test_importances()
+        [TestMethod]
+        public void TestImportances()
         {
-            var classification = SampleGenerator.MakeClassification(nSamples: 2000,
+            var classification = SampleGenerator.MakeClassification(nSamples: 200,
                                                                     nFeatures: 10,
                                                                     nInformative: 3,
                                                                     nRedundant: 0,
                                                                     nRepeated: 0,
                                                                     shuffle: false,
-                                                                    randomState: new Random(0));
+                                                                    randomState: new Random(5));
 
-
+            //var xstr = "[" + string.Join(",", classification.X.RowEnumerator().Select(r => "[" + string.Join(",", r.Item2) + "]")) + "]";
+            //var ystr = "[" + string.Join(",", classification.Y) + "]";
             foreach (var name in CLF_TREES)
             {
-                var clf = CreateTree<int>(name, random: new Random(0));
+                var clf = CreateClassifier<int>(name, random: new Random(0));
                 clf.Fit(classification.X, classification.Y);
                 var importances = clf.FeatureImportances();
                 int n_important = importances.Where(v => v > 0.1).Count();
@@ -415,251 +421,208 @@ public void  test_xor()
                 Assert.AreEqual(3, n_important, "Failed with {0}".Frmt(name));
 
 
-                Matrix<double> X_new = clf.Transform(X, threshold: ThresholdChoice.Mean());
+                var X_new = clf.Transform(classification.X, threshold: ThresholdChoice.Mean());
                 Assert.IsTrue(0 < X_new.ColumnCount, "Failed with {0}".Frmt(name));
-                Assert.IsTrue(X_new.ColumnCount < X.GetLength(1), "Failed with {0}".Frmt(name));
+                Assert.IsTrue(X_new.ColumnCount < classification.X.ColumnCount, "Failed with {0}".Frmt(name));
             }
         }
 
-/*
 
-
-def test_max_features():
-    """Check max_features."""
-    for name, TreeRegressor in REG_TREES.items():
-        reg = TreeRegressor(max_features="auto")
-        reg.fit(boston.data, boston.target)
-        assert_equal(reg.max_features_, boston.data.shape[1])
-
-
-    for name, TreeClassifier in CLF_TREES.items():
-        clf = TreeClassifier(max_features="auto")
-        clf.fit(iris.data, iris.target)
-        assert_equal(clf.max_features_, 2)
-
-
-    for name, TreeEstimator in ALL_TREES.items():
-        est = TreeEstimator(max_features="sqrt")
-        est.fit(iris.data, iris.target)
-        assert_equal(est.max_features_,
-                     int(np.sqrt(iris.data.shape[1])))
-
-
-        est = TreeEstimator(max_features="log2")
-        est.fit(iris.data, iris.target)
-        assert_equal(est.max_features_,
-                     int(np.log2(iris.data.shape[1])))
-
-
-        est = TreeEstimator(max_features=1)
-        est.fit(iris.data, iris.target)
-        assert_equal(est.max_features_, 1)
-
-
-        est = TreeEstimator(max_features=3)
-        est.fit(iris.data, iris.target)
-        assert_equal(est.max_features_, 3)
-
-
-        est = TreeEstimator(max_features=0.5)
-        est.fit(iris.data, iris.target)
-        assert_equal(est.max_features_,
-                     int(0.5 * iris.data.shape[1]))
-
-
-        est = TreeEstimator(max_features=1.0)
-        est.fit(iris.data, iris.target)
-        assert_equal(est.max_features_, iris.data.shape[1])
-
-
-        est = TreeEstimator(max_features=None)
-        est.fit(iris.data, iris.target)
-        assert_equal(est.max_features_, iris.data.shape[1])
-
-
-        # use values of max_features that are invalid
-        est = TreeEstimator(max_features=10)
-        assert_raises(ValueError, est.fit, X, y)
-
-
-        est = TreeEstimator(max_features=-1)
-        assert_raises(ValueError, est.fit, X, y)
-
-
-        est = TreeEstimator(max_features=0.0)
-        assert_raises(ValueError, est.fit, X, y)
-
-
-        est = TreeEstimator(max_features=1.5)
-        assert_raises(ValueError, est.fit, X, y)
-
-
-        est = TreeEstimator(max_features="foobar")
-        assert_raises(ValueError, est.fit, X, y)
-
-
-
-
-def test_error():
-    """Test that it gives proper exception on deficient input."""
-    for name, TreeEstimator in CLF_TREES.items():
-        # predict before fit
-        est = TreeEstimator()
-        assert_raises(Exception, est.predict_proba, X)
-
-
-        est.fit(X, y)
-        X2 = [-2, -1, 1]  # wrong feature shape for sample
-        assert_raises(ValueError, est.predict_proba, X2)
-
-
-    for name, TreeEstimator in ALL_TREES.items():
-        # Invalid values for parameters
-        assert_raises(ValueError, TreeEstimator(min_samples_leaf=-1).fit, X, y)
-        assert_raises(ValueError, TreeEstimator(min_samples_split=-1).fit,
-                      X, y)
-        assert_raises(ValueError, TreeEstimator(max_depth=-1).fit, X, y)
-        assert_raises(ValueError, TreeEstimator(max_features=42).fit, X, y)
-
-
-        # Wrong dimensions
-        est = TreeEstimator()
-        y2 = y[:-1]
-        assert_raises(ValueError, est.fit, X, y2)
-
-
-        # Test with arrays that are non-contiguous.
-        Xf = np.asfortranarray(X)
-        est = TreeEstimator()
-        est.fit(Xf, y)
-        assert_almost_equal(est.predict(T), true_result)
-
-
-        # predict before fitting
-        est = TreeEstimator()
-        assert_raises(Exception, est.predict, T)
-
-
-        # predict on vector with different dims
-        est.fit(X, y)
-        t = np.asarray(T)
-        assert_raises(ValueError, est.predict, t[:, 1:])
-
-
-        # wrong sample shape
-        Xt = np.array(X).T
-
-
-        est = TreeEstimator()
-        est.fit(np.dot(X, Xt), y)
-        assert_raises(ValueError, est.predict, X)
-
-
-        clf = TreeEstimator()
-        clf.fit(X, y)
-        assert_raises(ValueError, clf.predict, Xt)
-
-
-        */
-/*
-/// <summary>
-/// Test if leaves contain more than leaf_count training examples
-/// </summary>
-public void test_min_samples_leaf()
-{
-    foreach (var name in CLF_TREES)
-    {
-        var est = CreateTree<double>(min_samples_leaf: 5, random: new Random(0));
-        est.Fit(X, y);
-        @out = est.tree_.apply(X);
-        node_counts = np.bincount(@out);
-        leaf_count = node_counts[node_counts != 0]  // drop inner nodes
-        assert_greater(np.min(leaf_count), 4,
-                       "Failed with {0}".Frmt(name));
-    }
-
-    foreach (var name in REG_TREES)
-    {
-        var est = CreateRegressionTree(min_samples_leaf: 5, random: new Random(0));
-        est.Fit(X, y);
-        @out = est.tree_.apply(X);
-        node_counts = np.bincount(@out);
-        leaf_count = node_counts[node_counts != 0]  // drop inner nodes
-        assert_greater(np.min(leaf_count), 4,
-                       "Failed with {0}".Frmt(name));
-    }
-}
-*/
-        /*
-
-def test_pickle():
-    """Check that tree estimator are pickable """
-    for name, TreeClassifier in CLF_TREES.items():
-        clf = TreeClassifier(random_state=0)
-        clf.fit(iris.data, iris.target)
-        score = clf.score(iris.data, iris.target)
-
-
-        serialized_object = pickle.dumps(clf)
-        clf2 = pickle.loads(serialized_object)
-        assert_equal(type(clf2), clf.__class__)
-        score2 = clf2.score(iris.data, iris.target)
-        assert_equal(score, score2, "Failed to generate same score "
-                                    "after pickling (classification) "
-                                    "with {0}".format(name))
-
-
-    for name, TreeRegressor in REG_TREES.items():
-        reg = TreeRegressor(random_state=0)
-        reg.fit(boston.data, boston.target)
-        score = reg.score(boston.data, boston.target)
-
-
-        serialized_object = pickle.dumps(reg)
-        reg2 = pickle.loads(serialized_object)
-        assert_equal(type(reg2), reg.__class__)
-        score2 = reg2.score(boston.data, boston.target)
-        assert_equal(score, score2, "Failed to generate same score "
-                                    "after pickling (regression) "
-                                    "with {0}".format(name))
-
-
-
-
-def test_multioutput():
-    """Check estimators on multi-output problems."""
-    X = [[-2, -1],
-         [-1, -1],
-         [-1, -2],
-         [1, 1],
-         [1, 2],
-         [2, 1],
-         [-2, 1],
-         [-1, 1],
-         [-1, 2],
-         [2, -1],
-         [1, -1],
-         [1, -2]]
-
-
-    y = [[-1, 0],
-         [-1, 0],
-         [-1, 0],
-         [1, 1],
-         [1, 1],
-         [1, 1],
-         [-1, 2],
-         [-1, 2],
-         [-1, 2],
-         [1, 3],
-         [1, 3],
-         [1, 3]]
-
-
-    T = [[-1, -1], [1, 1], [-1, 1], [1, -1]]
-    y_true = [[-1, 0], [1, 1], [-1, 2], [1, 3]]
-
-
+        /// <summary>
+        /// Check max_features.
+        /// </summary>
+        [TestMethod]
+        public void TestMaxFeatures()
+        {
+            foreach (var name in RegTrees)
+            {
+                var reg = CreateRegressor(name, max_features: MaxFeaturesChoice.Auto());
+                reg.Fit(boston.Data, boston.Target);
+                Assert.AreEqual(boston.Data.ColumnCount, reg.max_features_);
+            }
+
+
+            foreach (var name in CLF_TREES)
+            {
+                var clf = CreateClassifier<int>(name, max_features: MaxFeaturesChoice.Auto());
+                clf.Fit(iris.Data, iris.Target);
+                Assert.AreEqual(2, clf.max_features_);
+            }
+
+            foreach (var name in CLF_TREES)
+            {
+                var est = CreateClassifier<int>(name, max_features: MaxFeaturesChoice.Sqrt());
+                est.Fit(iris.Data, iris.Target);
+                Assert.AreEqual(Math.Sqrt(iris.Data.ColumnCount), est.max_features_);
+
+
+                est = CreateClassifier<int>(name, max_features: MaxFeaturesChoice.Log2());
+                est.Fit(iris.Data, iris.Target);
+                Assert.AreEqual(Math.Log(iris.Data.ColumnCount, 2), est.max_features_);
+
+                est = CreateClassifier<int>(name, max_features: MaxFeaturesChoice.Value(1));
+                est.Fit(iris.Data, iris.Target);
+                Assert.AreEqual(1, est.max_features_);
+
+                est = CreateClassifier<int>(name, max_features: MaxFeaturesChoice.Value(3));
+                est.Fit(iris.Data, iris.Target);
+                Assert.AreEqual(3, est.max_features_);
+
+                est = CreateClassifier<int>(name, max_features: MaxFeaturesChoice.Fraction(0.5));
+                est.Fit(iris.Data, iris.Target);
+                Assert.AreEqual((int)(0.5*iris.Data.ColumnCount), est.max_features_);
+
+                est = CreateClassifier<int>(name, max_features: MaxFeaturesChoice.Fraction(1.0));
+                est.Fit(iris.Data, iris.Target);
+                Assert.AreEqual(iris.Data.ColumnCount, est.max_features_);
+
+                //est = CreateTree<int>(name, max_features: null);
+                //est.Fit(iris.Data, iris.Target);
+                //Assert.AreEqual(est.max_features_, iris.Data.ColumnCount);
+
+                var y_ = y.Select(v => (int)v).ToArray();
+                // use values of max_features that are invalid
+                est = CreateClassifier<int>(name, max_features: MaxFeaturesChoice.Value(10));
+                AssertExt.Raises<ArgumentException>(() => est.Fit(X, y_));
+
+                est = CreateClassifier<int>(name, max_features: MaxFeaturesChoice.Value(-1));
+                AssertExt.Raises<ArgumentException>(() => est.Fit(X, y_));
+
+                est = CreateClassifier<int>(name, max_features: MaxFeaturesChoice.Fraction(0.0));
+                AssertExt.Raises<ArgumentException>(() => est.Fit(X, y_));
+
+                est = CreateClassifier<int>(name, max_features: MaxFeaturesChoice.Fraction(1.5));
+                AssertExt.Raises<ArgumentException>(() => est.Fit(X, y_));
+            }
+        }
+
+        /// <summary>
+        /// Test that it gives proper exception on deficient input.
+        /// </summary>
+        [TestMethod]
+        public void TestError()
+        {
+            foreach (var name in CLF_TREES)
+            {
+                // predict before fit
+                var est = CreateClassifier<double>(name);
+                AssertExt.Raises<InvalidOperationException>(() => est.PredictProba(X));
+
+                est.Fit(X, y);
+                var x2 = new double[] {-2, -1, 1}.ToColumnMatrix(); // wrong feature shape for sample
+                AssertExt.Raises<ArgumentException>(() => est.PredictProba(x2));
+            }
+
+            foreach (var name in CLF_TREES)
+            {
+                // Invalid values for parameters
+                AssertExt.Raises<ArgumentException>(() => CreateClassifier<double>(name, min_samples_leaf: -1).Fit(X, y));
+                AssertExt.Raises<ArgumentException>(() => CreateClassifier<double>(name, min_samples_split: -1).Fit(X, y));
+                AssertExt.Raises<ArgumentException>(() => CreateClassifier<double>(name, max_depth: -1).Fit(X, y));
+                AssertExt.Raises<ArgumentException>(
+                    () => CreateClassifier<double>(name, max_features: MaxFeaturesChoice.Value(42)).Fit(X, y));
+
+                // Wrong dimensions
+                var est = CreateClassifier<double>(name);
+
+                var y2 = y.Subarray(0, y.Length - 1);
+                AssertExt.Raises<ArgumentException>(() => est.Fit(X, y2));
+
+                // predict before fitting
+                est = CreateClassifier<double>(name);
+                AssertExt.Raises<InvalidOperationException>(() => est.Predict(T));
+
+                // predict on vector with different dims
+                est.Fit(X, y);
+                AssertExt.Raises<ArgumentException>(
+                    () => est.Predict(T.Subarray(0, T.GetLength(0), 1, T.GetLength(1) - 1)));
+
+                // wrong sample shape
+                est = CreateClassifier<double>(name);
+                est.Fit(X.ToDenseMatrix()*X.ToDenseMatrix().Transpose(), y);
+                AssertExt.Raises<ArgumentException>(() => est.Predict(X));
+
+
+                est = CreateClassifier<double>(name);
+                est.Fit(X, y);
+                AssertExt.Raises<ArgumentException>(() => est.Predict(X.ToDenseMatrix().Transpose()));
+            }
+        }
+
+        /// <summary>
+        /// Test if leaves contain more than leaf_count training examples
+        /// </summary>
+        [TestMethod]
+        public void TestMinSamplesLeaf()
+        {
+            foreach (var name in CLF_TREES)
+            {
+                var est = CreateClassifier<double>(name, min_samples_leaf: 5, random: new Random(0));
+                est.Fit(X, y);
+                var @out = est.tree_.apply(X.ToDenseMatrix());
+                var node_counts = Np.BinCount(@out.Select(v => (int)v).ToArray());
+                var leaf_count = node_counts.Where(v => v != 0).ToList(); // drop inner nodes
+                Assert.IsTrue(leaf_count.Min() > 4,
+                              "Failed with {0}".Frmt(name));
+            }
+
+            foreach (var name in RegTrees)
+            {
+                var est = CreateRegressor(name, min_samples_leaf: 5, random: new Random(0));
+                est.Fit(X, y);
+                var @out = est.tree_.apply(X.ToDenseMatrix());
+                var nodeCounts = Np.BinCount(@out.Select(v => (int)v).ToArray());
+                var leafCount = nodeCounts.Where(v => v != 0).ToList(); // drop inner nodes
+                Assert.IsTrue(leafCount.Min() > 4,
+                              "Failed with {0}".Frmt(name));
+            }
+        }
+
+        /// <summary>
+        /// Check estimators on multi-output problems.
+        /// </summary>
+        [TestMethod]
+        public void TestMultioutput()
+        {
+            var X = new double[,]
+                        {
+                            {-2, -1},
+                            {-1, -1},
+                            {-1, -2},
+                            {1, 1},
+                            {1, 2},
+                            {2, 1},
+                            {-2, 1},
+                            {-1, 1},
+                            {-1, 2},
+                            {2, -1},
+                            {1, -1},
+                            {1, -2}
+                        }
+                ;
+
+
+            var y = new double[,]
+                        {
+                            {-1, 0},
+                            {-1, 0},
+                            {-1, 0},
+                            {1, 1},
+                            {1, 1},
+                            {1, 1},
+                            {-1, 2},
+                            {-1, 2},
+                            {-1, 2},
+                            {1, 3},
+                            {1, 3},
+                            {1, 3}
+                        };
+
+
+            var T = new double[,] {{-1, -1}, {1, 1}, {-1, 1}, {1, -1}};
+            var yTrue = new double[,] {{-1, 0}, {1, 1}, {-1, 2}, {1, 3}};
+
+            /*
     # toy classification problem
     for name, TreeClassifier in CLF_TREES.items():
         clf = TreeClassifier(random_state=0)
@@ -678,175 +641,178 @@ def test_multioutput():
         assert_equal(len(log_proba), 2)
         assert_equal(log_proba[0].shape, (4, 2))
         assert_equal(log_proba[1].shape, (4, 4))
+            */
+
+            // toy regression problem
+            foreach (var name in RegTrees)
+            {
+                var reg = CreateRegressor(name, random: new Random());
+                reg.Fit(X, y);
+                var yHat = reg.Predict(T);
+                AssertExt.AlmostEqual(yTrue, yHat);
+                Assert.AreEqual(Tuple.Create(4, 2), yHat.Shape());
+            }
+        }
+
+        /// <summary>
+        /// Test that n_classes_ and classes_ have proper shape.
+        /// </summary>
+        [TestMethod]
+        public void TestClassesShape()
+        {
+            foreach (var name in CLF_TREES)
+            {
+                // Classification, single output
+                var clf = CreateClassifier<double>(name, random: new Random(0));
+                clf.Fit(X, y);
+
+                Assert.AreEqual(1, clf.n_classes_.Count);
+                Assert.AreEqual(2U, clf.n_classes_[0]);
+                AssertExt.ArrayEqual(new [] {-1.0, 1.0}, clf.Classes);
+            }
+        }
 
 
-    # toy regression problem
-    for name, TreeRegressor in REG_TREES.items():
-        reg = TreeRegressor(random_state=0)
-        y_hat = reg.fit(X, y).predict(T)
-        assert_almost_equal(y_hat, y_true)
-        assert_equal(y_hat.shape, (4, 2))
+        /// <summary>
+        /// Compute sample weights such that the class distribution of y becomes
+        /// balanced.
+        /// </summary>
+        /// <param name="?"></param>
+        private static double[] BalanceWeights(int[] y)
+        {
+            var encoder = new LabelEncoder<int>();
+            y = encoder.FitTransform(y);
+            var bins = Np.BinCount(y);
 
 
+            var weights = bins.ElementsAt(y).Select(v => 1.0/v*bins.Min()).ToArray();
+            return weights;
+        }
+
+        [TestMethod]
+        public void TestBalanceWeights()
+        {
+            var weights = BalanceWeights(new[] {0, 0, 1, 1});
+            AssertExt.ArrayEqual(new[] {1.0, 1.0, 1.0, 1.0}, weights);
+
+            weights = BalanceWeights(new[] {0, 1, 1, 1, 1});
+            AssertExt.ArrayEqual(new[] {1.0, 0.25, 0.25, 0.25, 0.25}, weights);
+
+            weights = BalanceWeights(new[] {0, 0});
+            AssertExt.ArrayEqual(new[] {1.0, 1.0}, weights);
+        }
+
+        /// <summary>
+        /// Check class rebalancing.
+        /// </summary>
+        [TestMethod]
+        public void TestUnbalancedIris()
+        {
+            var unbalancedX = iris.Data.RowsAt(Enumerable.Range(0, 125));
+            var unbalancedY = iris.Target.ElementsAt(Enumerable.Range(0, 125));
+            var sampleWeight = BalanceWeights(unbalancedY);
 
 
-def test_classes_shape():
-    """Test that n_classes_ and classes_ have proper shape."""
-    for name, TreeClassifier in CLF_TREES.items():
-        # Classification, single output
-        clf = TreeClassifier(random_state=0)
-        clf.fit(X, y)
+            foreach (var name in CLF_TREES)
+            {
+                var clf = CreateClassifier<int>(name, random: new Random(0));
+                clf.Fit(unbalancedX, unbalancedY, sampleWeight: sampleWeight);
+                AssertExt.ArrayEqual(unbalancedY, clf.Predict(unbalancedX));
+            }
+        }
+
+        /// <summary>
+        /// Check sample weighting.
+        /// </summary>
+        [TestMethod]
+        public void TestSampleWeight()
+        {
+            // Test that zero-weighted samples are not taken into account
+            var X = Enumerable.Range(0, 100).ToColumnMatrix();
+            var y = Enumerable.Repeat(1, 100).ToArray();
+            Array.Clear(y, 0, 50);
+
+            var sampleWeight = Enumerable.Repeat(1, 100).ToVector();
+            sampleWeight.SetSubVector(0, 50, Enumerable.Repeat(0, 50).ToVector());
+
+            var clf = new DecisionTreeClassifier<int>(random: new Random(0));
+            clf.Fit(X, y, sampleWeight: sampleWeight);
+            AssertExt.ArrayEqual(clf.Predict(X), Enumerable.Repeat(1, 100).ToArray());
+
+            // Test that low weighted samples are not taken into account at low depth
+            X = Enumerable.Range(0, 200).ToColumnMatrix();
+            y = new int[200];
+            Array.Copy(Enumerable.Repeat(1, 50).ToArray(), 0, y, 50, 50);
+            Array.Copy(Enumerable.Repeat(2, 100).ToArray(), 0, y, 100, 100);
+            X.SetSubMatrix(100, 100, 0, 1, Enumerable.Repeat(200, 100).ToColumnMatrix());
+
+            sampleWeight = Enumerable.Repeat(1, 200).ToVector();
+
+            sampleWeight.SetSubVector(100, 100, Enumerable.Repeat(0.51, 100).ToVector());
+            // Samples of class '2' are still weightier
+            clf = new DecisionTreeClassifier<int>(max_depth: 1, random: new Random(0));
+            clf.Fit(X, y, sampleWeight: sampleWeight);
+            Assert.AreEqual(149.5, clf.tree_.Threshold[0]);
+
+            sampleWeight.SetSubVector(100, 100, Enumerable.Repeat(0.50, 100).ToVector());
+            // Samples of class '2' are no longer weightier
+            clf = new DecisionTreeClassifier<int>(max_depth: 1, random: new Random(0));
+            clf.Fit(X, y, sampleWeight: sampleWeight);
+            Assert.AreEqual(49.5, clf.tree_.Threshold[0]); // Threshold should have moved
 
 
-        assert_equal(clf.n_classes_, 2)
-        assert_array_equal(clf.classes_, [-1, 1])
+            // Test that sample weighting is the same as having duplicates
+            X = iris.Data;
+            y = iris.Target;
+
+            var random = new Random(0);
+            var duplicates = new int[200];
+            for (int i = 0; i < duplicates.Length; i++)
+            {
+                duplicates[i] = random.Next(X.RowCount);
+            }
+
+            clf = new DecisionTreeClassifier<int>(random: new Random(1));
+            clf.Fit(X.RowsAt(duplicates), y.ElementsAt(duplicates));
 
 
-        # Classification, multi-output
-        _y = np.vstack((y, np.array(y) * 2)).T
-        clf = TreeClassifier(random_state=0)
-        clf.fit(X, _y)
-        assert_equal(len(clf.n_classes_), 2)
-        assert_equal(len(clf.classes_), 2)
-        assert_array_equal(clf.n_classes_, [2, 2])
-        assert_array_equal(clf.classes_, [[-1, 1], [-2, 2]])
+            sampleWeight = Np.BinCount(duplicates, minLength: X.RowCount).ToVector();
+            var clf2 = new DecisionTreeClassifier<int>(random: new Random(1));
+            clf2.Fit(X, y, sampleWeight: sampleWeight);
 
 
+            var @internal = clf.tree_.ChildrenLeft.Indices(v => v != Tree._TREE_LEAF);
+            AssertExt.AlmostEqual(clf.tree_.Threshold.ElementsAt(@internal),
+                                  clf2.tree_.Threshold.ElementsAt(@internal));
+        }
 
 
-def test_unbalanced_iris():
-    """Check class rebalancing."""
-    unbalanced_X = iris.data[:125]
-    unbalanced_y = iris.target[:125]
-    sample_weight = balance_weights(unbalanced_y)
+        /// <summary>
+        /// Check if 32bit and 64bit get the same result.
+        /// </summary>
+        [TestMethod]
+        public void Test32BitEquality()
+        {
+            var r = CrossValidation.train_test_split(new[]
+                                                         {
+                                                             boston.Data,
+                                                             boston.Target.ToColumnMatrix()
+                                                         },
+                                                     random_state: new Random(1));
 
+            Matrix<double> xTrain = r[0].Item1;
+            Matrix<double> xTest = r[0].Item2;
 
-    for name, TreeClassifier in CLF_TREES.items():
-        clf = TreeClassifier(random_state=0)
-        clf.fit(unbalanced_X, unbalanced_y, sample_weight=sample_weight)
-        assert_almost_equal(clf.predict(unbalanced_X), unbalanced_y)
+            Vector<double> yTrain = r[1].Item1.Column(0);
+            Vector<double> yTest = r[1].Item2.Column(0);
+            var est = new DecisionTreeRegressor(random: new Random(1));
 
+            var xstr = string.Join("\n", xTrain.RowEnumerator().Select(v => string.Join(",", v.Item2) ));
+            var ystr = "[" + string.Join(",", yTrain) + "]";
 
-
-
-def test_memory_layout():
-    """Check that it works no matter the memory layout"""
-    for (name, TreeEstimator), dtype in product(ALL_TREES.items(),
-                                                [np.float64, np.float32]):
-        est = TreeEstimator(random_state=0)
-
-
-        # Nothing
-        X = np.asarray(iris.data, dtype=dtype)
-        y = iris.target
-        assert_array_equal(est.fit(X, y).predict(X), y)
-
-
-        # C-order
-        X = np.asarray(iris.data, order="C", dtype=dtype)
-        y = iris.target
-        assert_array_equal(est.fit(X, y).predict(X), y)
-
-
-        # F-order
-        X = np.asarray(iris.data, order="F", dtype=dtype)
-        y = iris.target
-        assert_array_equal(est.fit(X, y).predict(X), y)
-
-
-        # Contiguous
-        X = np.ascontiguousarray(iris.data, dtype=dtype)
-        y = iris.target
-        assert_array_equal(est.fit(X, y).predict(X), y)
-
-
-        # Strided
-        X = np.asarray(iris.data[::3], dtype=dtype)
-        y = iris.target[::3]
-        assert_array_equal(est.fit(X, y).predict(X), y)
-
-
-
-
-def test_sample_weight():
-    """Check sample weighting."""
-    # Test that zero-weighted samples are not taken into account
-    X = np.arange(100)[:, np.newaxis]
-    y = np.ones(100)
-    y[:50] = 0.0
-
-
-    sample_weight = np.ones(100)
-    sample_weight[y == 0] = 0.0
-
-
-    clf = DecisionTreeClassifier(random_state=0)
-    clf.fit(X, y, sample_weight=sample_weight)
-    assert_array_equal(clf.predict(X), np.ones(100))
-
-
-    # Test that low weighted samples are not taken into account at low depth
-    X = np.arange(200)[:, np.newaxis]
-    y = np.zeros(200)
-    y[50:100] = 1
-    y[100:200] = 2
-    X[100:200, 0] = 200
-
-
-    sample_weight = np.ones(200)
-
-
-    sample_weight[y == 2] = .51  # Samples of class '2' are still weightier
-    clf = DecisionTreeClassifier(max_depth=1, random_state=0)
-    clf.fit(X, y, sample_weight=sample_weight)
-    assert_equal(clf.tree_.threshold[0], 149.5)
-
-
-    sample_weight[y == 2] = .50  # Samples of class '2' are no longer weightier
-    clf = DecisionTreeClassifier(max_depth=1, random_state=0)
-    clf.fit(X, y, sample_weight=sample_weight)
-    assert_equal(clf.tree_.threshold[0], 49.5)  # Threshold should have moved
-
-
-    # Test that sample weighting is the same as having duplicates
-    X = iris.data
-    y = iris.target
-
-
-    duplicates = rng.randint(0, X.shape[0], 200)
-
-
-    clf = DecisionTreeClassifier(random_state=1)
-    clf.fit(X[duplicates], y[duplicates])
-
-
-    sample_weight = bincount(duplicates, minlength=X.shape[0])
-    clf2 = DecisionTreeClassifier(random_state=1)
-    clf2.fit(X, y, sample_weight=sample_weight)
-
-
-    internal = clf.tree_.children_left != tree._tree.TREE_LEAF
-    assert_array_almost_equal(clf.tree_.threshold[internal],
-                              clf2.tree_.threshold[internal])
-
-
-
-
-def test_32bit_equality():
-    """Check if 32bit and 64bit get the same result. """
-    from sklearn.cross_validation import train_test_split
-    X_train, X_test, y_train, y_test = train_test_split(boston.data,
-                                                        boston.target,
-                                                        random_state=1)
-    est = DecisionTreeRegressor(random_state=1)
-
-
-    est.fit(X_train, y_train)
-    score = est.score(X_test, y_test)
-    assert_almost_equal(0.84652100667116, score)
-
- 
- 
-*/
+            est.Fit(xTrain, yTrain);
+            double score = est.Score(xTest, yTest);
+            Assert.AreEqual(0.84652100667116, score, 1E-10);
+        }
     }
 }

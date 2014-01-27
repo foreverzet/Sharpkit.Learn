@@ -11,6 +11,8 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
+using Sharpkit.Learn.FeatureSelection;
+
 namespace Sharpkit.Learn.Tree
 {
     using System;
@@ -28,17 +30,17 @@ namespace Sharpkit.Learn.Tree
     /// </remarks> 
     public abstract class BaseDecisionTree<TLabel> : ILearntSelector
     {
-        private Criterion criterion;
-        private Splitter splitter;
-        private int? max_depth;
+        private readonly Criterion criterion;
+        private readonly Splitter splitter;
+        private readonly int? max_depth;
         private int min_samples_split;
-        private int min_samples_leaf;
-        private MaxFeaturesChoice max_features;
-        private Random random_state;
+        private readonly int min_samples_leaf;
+        private readonly MaxFeaturesChoice max_features;
+        private readonly Random random_state;
         internal int n_features_;
         internal Tree tree_;
         private int n_outputs_;
-        private int max_features_;
+        internal int max_features_;
         internal List<uint> n_classes_;
         internal List<TLabel> classes_;
 
@@ -92,8 +94,8 @@ namespace Sharpkit.Learn.Tree
             //    y = np.reshape(y, (-1, 1))
 
 
-            //this.n_outputs_ = y.ColumnCount;
-            this.n_outputs_ = 1;
+            this.n_outputs_ = y.ColumnCount;
+            //this.n_outputs_ = 1;
             int[] y_;
 
             this.classes_ = Enumerable.Repeat(default(TLabel), this.n_outputs_).ToList();
@@ -101,15 +103,15 @@ namespace Sharpkit.Learn.Tree
 
 
             //# Check parameters
-            fitCommon1(X, y, n_samples, sample_weight);
+            fitCommon1(X, y, n_samples, sample_weight, false);
 
 
             return this;
         }
 
-        private void fitCommon1(Matrix<double> X, Matrix<double> y, int n_samples, Vector<double> sample_weight)
+        private void fitCommon1(Matrix<double> X, Matrix<double> y, int n_samples, Vector<double> sample_weight, bool isClassification)
         {
-            uint max_depth = this.max_depth == null ? uint.MaxValue : (uint)this.max_depth;
+            int max_depth = this.max_depth ?? int.MaxValue;
 
             if (this.max_features == null)
             {
@@ -117,7 +119,7 @@ namespace Sharpkit.Learn.Tree
             }
             else
             {
-                this.max_features_ = max_features.ComputeMaxFeatures(this.n_features_);
+                this.max_features_ = max_features.ComputeMaxFeatures(this.n_features_, isClassification);
             }
 
             if (this.min_samples_split <= 0)
@@ -189,11 +191,11 @@ namespace Sharpkit.Learn.Tree
             }
 
             this.tree_ = new Tree(this.n_features_, this.n_classes_.ToArray(),
-                                  this.n_outputs_, splitter, max_depth,
+                                  this.n_outputs_, splitter, (uint)max_depth,
                                   (uint)min_samples_split, (uint)this.min_samples_leaf);
 
 
-            this.tree_.build(X, y, sample_weight: sample_weight);
+            this.tree_.build(X, y, sampleWeight: sample_weight);
         }
 
         /// <summary>
@@ -239,7 +241,8 @@ namespace Sharpkit.Learn.Tree
             this.classes_.AddRange(enc.Classes);
             this.n_classes_.Add((uint)enc.Classes.Length);
 
-            fitCommon1(X, y_.Select(v => (double)v).ToArray().ToDenseVector().ToColumnMatrix(), n_samples, sample_weight);
+            var yMatrix = y_.Select(v => (double)v).ToArray().ToDenseVector().ToColumnMatrix();
+            fitCommon1(X, yMatrix, n_samples, sample_weight, true);
 
 
             return this;
@@ -335,7 +338,7 @@ namespace Sharpkit.Learn.Tree
                 throw new InvalidOperationException("Estimator not fitted, call `fit` before `feature_importances_`.");
             }
 
-            return this.tree_.compute_feature_importances();
+            return this.tree_.ComputeFeatureImportances();
         }
     }
 }

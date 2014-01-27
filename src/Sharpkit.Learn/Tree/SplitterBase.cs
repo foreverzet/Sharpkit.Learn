@@ -27,7 +27,7 @@ namespace Sharpkit.Learn.Tree
         protected readonly ICriterion criterion;
         protected uint max_features;
         protected uint min_samples_leaf;
-        private Random random_state;
+        private readonly Random random_state;
         protected uint start;
         protected uint end;
         protected uint[] samples;
@@ -61,7 +61,8 @@ namespace Sharpkit.Learn.Tree
                          double[] sample_weight)
         {
             // Reset random state
-            this.rand_r_state = (uint)this.random_state.Next(0, (int)Util.RAND_R_MAX);
+            //this.rand_r_state = (uint)this.random_state.Next(0, (int)Util.RAND_R_MAX);
+            this.rand_r_state = 209652396;
 
             // Initialize samples and features structures
             int n_samples = X.RowCount;
