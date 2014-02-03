@@ -1,14 +1,6 @@
 ﻿// -----------------------------------------------------------------------
-// <copyright file="LinearModel.cs" company="Sharpkit.Learn">
-// Author: Alexandre Gramfort <alexandre.gramfort@inria.fr>
-//         Fabian Pedregosa <fabian.pedregosa@inria.fr>
-//         Olivier Grisel <olivier.grisel@ensta.org>
-//         Vincent Michel <vincent.michel@inria.fr>
-//         Peter Prettenhofer <peter.prettenhofer@gmail.com>
-//        Mathieu Blondel <mathieu@mblondel.org>
-//         Lars Buitinck <L.J.Buitinck@uva.nl>
-//
-// License: BSD 3 clause
+// <copyright file="ILinearModel.cs" company="">
+// TODO: Update copyright text.
 // </copyright>
 // -----------------------------------------------------------------------
 
@@ -19,28 +11,10 @@ namespace Sharpkit.Learn.LinearModel
     using MathNet.Numerics.LinearAlgebra.Generic;
 
     /// <summary>
-    /// Linear model base class.
+    /// TODO: Update summary.
     /// </summary>
-    public abstract class LinearModel
+    public class LinearModel
     {
-        /// <summary>
-        /// Initializes a new instance of the LinearModel class.
-        /// </summary>
-        /// <param name="fitIntercept">Whether to calculate the intercept for this model. If set
-        /// to false, no intercept will be used in calculations
-        /// (e.g. data is expected to be already centered).</param>
-        protected LinearModel(bool fitIntercept)
-        {
-            FitIntercept = fitIntercept;
-        }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether to calculate the intercept for this model. If set
-        /// to false, no intercept will be used in calculations
-        /// (e.g. data is expected to be already centered).
-        /// </summary>
-        public bool FitIntercept { get; set; }
-
         /// <summary>
         /// shape (n_targets, n_features)
         /// Estimated coefficients for problem.
@@ -52,13 +26,46 @@ namespace Sharpkit.Learn.LinearModel
         /// </summary>
         public Vector<double> Intercept { get; set; }
 
-        protected internal void SetIntercept(Vector<double> xMean, Vector<double> yMean, Vector<double> xStd)
+        /// <summary>
+        /// Gets or sets a value indicating whether to calculate the intercept for this model. If set
+        /// to false, no intercept will be used in calculations
+        /// (e.g. data is expected to be already centered).
+        /// </summary>
+        public bool FitIntercept { get; set; }
+
+        internal LinearModel(bool fitIntercept)
         {
-            if (this.FitIntercept)
+            FitIntercept = fitIntercept;
+        }
+
+        public Matrix<double> DecisionFunction(Matrix<double> x)
+        {
+            int nFeatures = this.Coef.ColumnCount;
+            if (x.ColumnCount != nFeatures)
+            {
+                throw new ArgumentException(
+                    string.Format(
+                    "X has {0} features per sample; expecting {1}",
+                    x.ColumnCount,
+                    nFeatures));
+            }
+
+
+            // todo: use TransposeAndMultiply. But there's bug in Math.Net
+            // which appears with sparse matrices.
+            var tmp = x.Multiply(this.Coef.Transpose());
+            tmp.AddRowVector(this.Intercept, tmp);
+            //tmp.MapIndexedInplace((i, j, v) => v + this.InterceptVector[j]);
+            return tmp;
+        }
+
+        internal void SetIntercept(Vector<double> xMean, Vector<double> yMean, Vector<double> xStd)
+        {
+            if (FitIntercept)
             {
                 this.Coef.DivRowVector(xStd, this.Coef);
 
-                this.Intercept = (xMean.ToRowMatrix().TransposeAndMultiply(this.Coef)*(-1)).Row(0) + yMean;
+                this.Intercept = (xMean.ToRowMatrix().TransposeAndMultiply(this.Coef) * (-1)).Row(0) + yMean;
             }
             else
             {
@@ -86,7 +93,7 @@ namespace Sharpkit.Learn.LinearModel
         /// <param name="fitIntercept"></param>
         /// <param name="normalize"></param>
         /// <param name="sampleWeight"></param>
-        internal CenterDataResult CenterData(
+        internal static CenterDataResult CenterData(
             Matrix<double> x,
             Matrix<double> y,
             bool fitIntercept,
@@ -162,7 +169,35 @@ namespace Sharpkit.Learn.LinearModel
                 xStd = DenseVector.Create(x.ColumnCount, i => 1);
             }
 
-            return new CenterDataResult {X = x, Y = y, xMean = xMean, yMean = yMean, xStd = xStd};
+            return new CenterDataResult { X = x, Y = y, xMean = xMean, yMean = yMean, xStd = xStd };
+        }
+
+        /// <summary>
+        /// Probability estimation for OvR logistic regression.
+        ///
+        /// Positive class probabilities are computed as
+        /// 1. / (1. + np.exp(-self.decision_function(X)));
+        /// multiclass is handled by normalizing that over all classes.
+        /// </summary>
+        /// <param name="x"></param>
+        /// <returns></returns>
+        internal Matrix<double> PredictProbaLrInternal(Matrix<double> x)
+        {
+            var prob = this.DecisionFunction(x);
+            prob.MapInplace(v => 1.0 / (Math.Exp(-v) + 1));
+
+            if (prob.ColumnCount == 1)
+            {
+                var p1 = prob.Clone();
+                p1.MapInplace(v => 1 - v);
+                return p1.HStack(prob);
+            }
+            else
+            {
+                // OvR normalization, like LibLinear's predict_probability
+                prob.DivColumnVector(prob.SumOfEveryRow(), prob);
+                return prob;
+            }
         }
     }
 }

@@ -79,8 +79,6 @@ namespace Sharpkit.Learn
         /// <returns>Array with ith element - the weight for i-th class (as determined by sorting).</returns>
         private static Vector ComputeClassWeightAuto(TLabel[] classes, int[] yInd)
         {
-            Vector weight;
-            
             // inversely proportional to the number of samples in the class
             var histogram = new Dictionary<TLabel, int>();
             foreach (var ind in yInd)
@@ -91,7 +89,7 @@ namespace Sharpkit.Learn
                 histogram[classes[ind]] = val;
             }
 
-            weight = new DenseVector(classes.Count());
+            Vector weight = new DenseVector(classes.Count());
             for (int i = 0; i < classes.Count(); i++)
             {
                 weight[i] = 1.0 / (histogram.ContainsKey(classes[i]) ? histogram[classes[i]] : 1);

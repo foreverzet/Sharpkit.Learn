@@ -62,12 +62,15 @@
             var y = DenseVector.OfEnumerable(new double[] {1, 1});
 
 
-            var lr2WithoutIntercept = new LinearRegression(fitIntercept: false).Fit(x2, y);
-            var lr2WithIntercept = new LinearRegression(fitIntercept: true).Fit(x2, y);
+            var lr2WithoutIntercept = new LinearRegression(fitIntercept: false);
+            lr2WithoutIntercept.Fit(x2, y);
+            var lr2WithIntercept = new LinearRegression(fitIntercept: true);
+            lr2WithIntercept.Fit(x2, y);
 
-            var lr3WithoutIntercept = new LinearRegression(fitIntercept: false).Fit(x3, y);
-            var lr3WithIntercept = new LinearRegression(fitIntercept: true).Fit(x3, y);
-
+            var lr3WithoutIntercept = new LinearRegression(fitIntercept: false);
+            lr3WithoutIntercept.Fit(x3, y);
+            var lr3WithIntercept = new LinearRegression(fitIntercept: true);
+            lr3WithIntercept.Fit(x3, y);
 
             Assert.AreEqual(lr2WithIntercept.Coef.Column(0).Count,
                             lr2WithoutIntercept.Coef.Column(0).Count);
@@ -87,7 +90,8 @@
             var beta = DenseVector.CreateRandom(n, new Normal());
             var y = x*beta;
 
-            var ols = new LinearRegression(fitIntercept: true).Fit(x, y);
+            var ols = new LinearRegression(fitIntercept: true);
+            ols.Fit(x, y);
             Assert.IsTrue((ols.Coef.Row(0) + ols.Intercept[0]).AlmostEquals(beta));
         }
 

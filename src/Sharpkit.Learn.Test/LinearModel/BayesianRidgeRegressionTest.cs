@@ -57,8 +57,7 @@ namespace Sharpkit.Learn.Test.LinearModel
             var clf = new BayesianRidgeRegression(computeScore: true);
             clf.Fit(x, y);
             var xTest = DenseMatrix.OfArray(new double[,] {{1}, {3}, {4}});
-            Assert.IsTrue(
-                DenseVector.OfEnumerable(new double[] {1, 3, 4}).AlmostEquals(clf.Predict(xTest).Column(0), 1E-5));
+            AssertExt.AlmostEqual(new double[] {1, 3, 4}, clf.Predict(xTest).Column(0).ToArray(), 1E-5);
         }
     }
 }

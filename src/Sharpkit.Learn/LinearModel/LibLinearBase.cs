@@ -18,23 +18,38 @@ namespace Sharpkit.Learn.LinearModel
     /// <summary>
     /// Base for classes binding liblinear (dense and sparse versions).
     /// </summary>
-    internal class LibLinearBase<TLabel> where TLabel : IEquatable<TLabel>
+    public class LibLinearBase<TLabel> : LinearModel where TLabel : IEquatable<TLabel>
     {
         private readonly SolverType solverType;
-        public double tol { get; private set; }
+        private double tol { get; set; }
+        /// <summary>
+        /// Gets or sets inverse of regularization strength; must be a positive float.
+        /// Like in support vector machines, smaller values specify stronger
+        /// regularization.
+        /// </summary>
         public double C { get; private set; }
-        public double interceptScaling { get; private set; }
-        private readonly ClassWeightEstimator<TLabel> classWeightEstimator;
+        private double interceptScaling { get; set; }
+
+        /// <summary>
+        /// Gets or sets class weight estimator.
+        /// </summary>
+        public ClassWeightEstimator<TLabel> ClassWeightEstimator { get; private set; }
+
         private readonly int verbose;
         private readonly Random random;
         private LabelEncoder<TLabel> _enc;
 
         private Model model;
-        private readonly LinearClassifier<TLabel> classifier;
-        private readonly bool dual;
+        
+        /// <summary>
+        /// Gets or sets a value indicating whether formulation is primal or dual. Dual formulation is only
+        /// implemented for l2 penalty. Prefer dual=false when
+        /// nSamples > nFeatures.
+        /// </summary>
+        public bool Dual { get; private set; }
 
-        public LibLinearBase(
-            LinearClassifier<TLabel> classifier,
+        internal LibLinearBase(
+            bool fitIntercept,
             Norm norm = Norm.L2,
             Loss loss = Loss.L2,
             bool dual = true,
@@ -44,18 +59,18 @@ namespace Sharpkit.Learn.LinearModel
             double interceptScaling = 1,
             ClassWeightEstimator<TLabel> classWeightEstimator = null,
             int verbose = 0,
-            Random random = null)
+            Random random = null) : base(fitIntercept)
         {
             this.solverType = GetSolverType(norm, loss, dual, multiclass);
 
-            this.classifier = classifier;
+            //this.fitIntercept = fitIntercept;
             this.tol = tol;
             this.C = c;
             this.interceptScaling = interceptScaling;
-            this.classWeightEstimator = classWeightEstimator ?? ClassWeightEstimator<TLabel>.Uniform;
+            this.ClassWeightEstimator = classWeightEstimator ?? ClassWeightEstimator<TLabel>.Uniform;
             this.verbose = verbose;
             this.random = random;
-            this.dual = dual;
+            this.Dual = dual;
         }
 
         private SolverType GetSolverType(Norm norm, Loss loss, bool dual, Multiclass multiclass)
@@ -98,8 +113,13 @@ namespace Sharpkit.Learn.LinearModel
         ///    n_features is the number of features.</param>
         /// <param name="y">shape = [n_samples]
         ///    Target vector relative to X</param>
-        public void Fit(Matrix<double> x, TLabel[] y)
+        public void Fit(Matrix<double> x, TLabel[] y, Vector<double> sampleWeight = null)
         {
+            if (sampleWeight != null)
+            {
+                throw new ArgumentException("Sample weights are not supported by the classifier");
+            }
+
             Linear.random = this.random;
 
             this._enc = new LabelEncoder<TLabel>();
@@ -107,7 +127,7 @@ namespace Sharpkit.Learn.LinearModel
             if (this.Classes.Length < 2)
                 throw new ArgumentException("The number of classes has to be greater than one.");
 
-            Vector classWeight = this.classWeightEstimator.ComputeWeights(this.Classes, y1);
+            Vector classWeight = this.ClassWeightEstimator.ComputeWeights(this.Classes, y1);
 
             if (x.RowCount != y.Length)
             {
@@ -187,34 +207,31 @@ namespace Sharpkit.Learn.LinearModel
                 r.MapInplace(v => v*-1);
             }
 
-            if (this.classifier.FitIntercept)
+            if (this.FitIntercept)
             {
-                this.classifier.Coef = r.SubMatrix(0, r.RowCount, 0, r.ColumnCount - 1);
-                this.classifier.Intercept = r.Column(r.ColumnCount - 1)*this.interceptScaling;
+                this.Coef = r.SubMatrix(0, r.RowCount, 0, r.ColumnCount - 1);
+                this.Intercept = r.Column(r.ColumnCount - 1)*this.interceptScaling;
             }
             else
             {
-                this.classifier.Coef = r;
-                this.classifier.Intercept = new DenseVector(r.RowCount);
+                this.Coef = r;
+                this.Intercept = new DenseVector(r.RowCount);
             }
         }
 
+        /// <summary>
+        /// Gets ordered list of class labeled discovered int <see cref="LogisticRegression{TLabel}.Fit"/>.
+        /// </summary>
         public TLabel[] Classes
         {
             get { return this._enc.Classes; }
         }
 
-        public bool Dual
-        {
-            get { return this.dual; }
-        }
-
-
         private double Bias
         {
             get
             {
-                if (this.classifier.FitIntercept)
+                if (this.FitIntercept)
                 {
                     return this.interceptScaling;
                 }

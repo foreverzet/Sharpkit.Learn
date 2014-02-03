@@ -12,9 +12,6 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-using MathNet.Numerics;
-using MathNet.Numerics.LinearAlgebra.Generic.Factorization;
-
 namespace Sharpkit.Learn.LinearModel
 {
     using System;
@@ -26,7 +23,7 @@ namespace Sharpkit.Learn.LinearModel
     /// <summary>
     /// Ordinary least squares Linear Regression.
     /// </summary>
-    public class LinearRegression : LinearRegressor
+    public class LinearRegression : LinearModel, IRegressor
     {
         /// <summary>
         /// Gets or sets a value indicating whether regressors X shall be normalized
@@ -53,7 +50,7 @@ namespace Sharpkit.Learn.LinearModel
         /// <param name="y">Target values.[n_samples, n_targets]</param>
         /// <param name="sampleWeight">Sample weights.[n_samples]</param>
         /// <returns>Instance of self.</returns>
-        public override LinearRegressor Fit(Matrix<double> x, Matrix<double> y, Vector<double> sampleWeight = null)
+        public void Fit(Matrix<double> x, Matrix<double> y, Vector<double> sampleWeight = null)
         {
             var centerDataResult = CenterData(x, y, this.FitIntercept, this.Normalize);
             x = centerDataResult.X;
@@ -71,7 +68,11 @@ namespace Sharpkit.Learn.LinearModel
             }
 
             this.SetIntercept(centerDataResult.xMean, centerDataResult.yMean, centerDataResult.xStd);
-            return this;
+        }
+
+        public Matrix<double> Predict(Matrix<double> x)
+        {
+            return this.DecisionFunction(x);
         }
     }
 }

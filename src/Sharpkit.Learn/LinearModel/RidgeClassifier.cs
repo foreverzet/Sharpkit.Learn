@@ -15,10 +15,9 @@
     /// advantage of the multi-variate response support in Ridge.
     /// </remarks>
     /// <typeparam name="TLabel"></typeparam>
-    public class RidgeClassifier<TLabel> : LinearClassifier<TLabel> where TLabel:IEquatable<TLabel>
+    public class RidgeClassifier<TLabel> : RidgeBase, IClassifier<TLabel> where TLabel:IEquatable<TLabel>
     {
         private LabelBinarizer<TLabel> labelBinarizer;
-        private readonly RidgeBase ridgeBase;
 
         /// <summary>
         /// Initializes a new instance of the RidgeClassifier class.
@@ -45,14 +44,14 @@
             int? maxIter = null,
             double tol = 1e-3,
             ClassWeightEstimator<TLabel> classWeightEstimator = null,
-            RidgeSolver solver = RidgeSolver.Auto) : base(fitIntercept, classWeightEstimator)
+            RidgeSolver solver = RidgeSolver.Auto) : base(fitIntercept, alpha, normalize, maxIter, tol, solver)
         {
             if (classWeightEstimator == ClassWeightEstimator<TLabel>.Auto)
             {
                 throw new ArgumentException("ClassWeight.Auto is not supported.");
             }
 
-            this.ridgeBase = new RidgeBase(this, alpha, normalize, maxIter, tol, solver);
+            this.ClassWeightEstimator = classWeightEstimator ?? ClassWeightEstimator<TLabel>.Uniform;
         }
 
         /// <summary>
@@ -61,19 +60,13 @@
         /// <param name="x">[n_samples,n_features]. Training data</param>
         /// <param name="y">Target values.</param>
         /// <returns>Instance of self.</returns>
-        public IClassifier<TLabel> Fit(double[,] x, TLabel[] y)
+        public void Fit(Matrix<double> x, TLabel[] y, Vector<double> sampleWeight = null)
         {
-            return this.Fit(x.ToDenseMatrix(), y);
-        }
+            if (sampleWeight != null)
+            {
+                throw new ArgumentException("Sample weights are not supported by the classifier");
+            }
 
-        /// <summary>
-        /// Fit Ridge regression model.
-        /// </summary>
-        /// <param name="x">[n_samples,n_features]. Training data</param>
-        /// <param name="y">Target values.</param>
-        /// <returns>Instance of self.</returns>
-        public override IClassifier<TLabel> Fit(Matrix<double> x, TLabel[] y)
-        {
             this.labelBinarizer = new LabelBinarizer<TLabel>(posLabel : 1, negLabel : -1);
             Matrix<double> Y = this.labelBinarizer.Fit(y).Transform(y);
             // second parameter is used only for ClassWeight.Auto, which we don't support here.
@@ -81,23 +74,35 @@
             Vector cw = this.ClassWeightEstimator.ComputeWeights(this.Classes, new int[0]);
             //# get the class weight corresponding to each sample
             Vector sampleWeightClasses = y.Select(v => cw[Array.BinarySearch(this.Classes, v)]).ToArray().ToDenseVector();
-            this.ridgeBase.Fit(x, Y, sampleWeight : sampleWeightClasses);
-            return this;
+            base.Fit(x, Y, sampleWeight: sampleWeightClasses);
         }
 
-        public override Matrix<double> PredictProba(Matrix<double> x)
+        public TLabel[] Predict(Matrix<double> x)
+        {
+            var scores = this.DecisionFunction(x);
+            if (scores.ColumnCount == 1)
+            {
+                return scores.Column(0).Select(v => v > 0 ? Classes[1] : Classes[0]).ToArray();
+            }
+            else
+            {
+                return scores.RowEnumerator().Select(r => Classes[r.Item2.MaximumIndex()]).ToArray();
+            }
+        }
+
+        public Matrix<double> PredictProba(Matrix<double> x)
         {
             throw new NotImplementedException();
         }
 
-        public override Matrix<double> PredictLogProba(Matrix<double> x)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override TLabel[] Classes
+        public TLabel[] Classes
         {
             get { return this.labelBinarizer.Classes; }
         }
+
+        /// <summary>
+        /// Gets or sets class weight estimator.
+        /// </summary>
+        public ClassWeightEstimator<TLabel> ClassWeightEstimator { get; private set; }
     }
 }

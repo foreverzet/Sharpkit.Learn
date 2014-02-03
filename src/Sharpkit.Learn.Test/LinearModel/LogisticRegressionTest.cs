@@ -46,7 +46,8 @@ namespace Sharpkit.Learn.Test.LinearModel
             int[] classes = y.Distinct().OrderBy(v => v).ToArray();
             int nClasses = classes.Length;
 
-            var predicted = clf.Fit(X, y).Predict(X);
+            clf.Fit(X, y);
+            var predicted = clf.Predict(X);
             Assert.IsTrue(classes.SequenceEqual(clf.Classes));
 
             Assert.AreEqual(nSamples, predicted.Length);

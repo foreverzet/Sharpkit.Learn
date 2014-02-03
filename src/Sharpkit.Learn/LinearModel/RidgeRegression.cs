@@ -7,7 +7,6 @@
 namespace Sharpkit.Learn.LinearModel
 {
     using System;
-    using MathNet.Numerics.LinearAlgebra.Double;
     using MathNet.Numerics.LinearAlgebra.Generic;
 
     /// <summary>
@@ -19,10 +18,8 @@ namespace Sharpkit.Learn.LinearModel
     /// This estimator has built-in support for multi-variate regression
     /// (i.e., when y is a 2d-array of shape [n_samples, n_targets]).
     /// </summary>
-    public class RidgeRegression: LinearRegressor
+    public class RidgeRegression: RidgeBase, IRegressor
     {
-        private readonly RidgeBase ridgeBase;
-
         /// <summary>
         /// Initializes a new instance of the RidgeRegression class.
         /// </summary>
@@ -52,25 +49,13 @@ namespace Sharpkit.Learn.LinearModel
             bool normalize = false,
             int? maxIter = null,
             double tol = 1e-3,
-            RidgeSolver solver = RidgeSolver.Auto) : base(fitIntercept)
+            RidgeSolver solver = RidgeSolver.Auto) : base(fitIntercept, alpha, normalize, maxIter, tol, solver)
         {
-            ridgeBase = new RidgeBase(this, alpha, normalize, maxIter, tol, solver);
         }
 
-        public double Score(Matrix<double> x, Matrix<double> y)
+        public Matrix<double> Predict(Matrix<double> x)
         {
-            return Metrics.Metrics.R2Score(y, this.Predict(x));
-        }
-
-        public double Score(Matrix<double> x, Vector<double> y)
-        {
-            return Metrics.Metrics.R2Score(y.ToColumnMatrix(), this.Predict(x));
-        }
-
-        public override LinearRegressor Fit(Matrix<double> x, Matrix<double> y, Vector<double> sampleWeight = null)
-        {
-            ridgeBase.Fit(x, y, sampleWeight);
-            return this;
+            return this.DecisionFunction(x);
         }
     }
 }

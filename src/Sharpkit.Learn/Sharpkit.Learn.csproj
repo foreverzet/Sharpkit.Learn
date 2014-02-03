@@ -53,13 +53,21 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ClassWeightEstimator.cs" />
+    <Compile Include="CrossValidation.cs" />
+    <Compile Include="Datasets\BostonDataset.cs" />
     <Compile Include="Datasets\DiabetesDataset.cs" />
     <Compile Include="Datasets\DigitsDataset.cs" />
     <Compile Include="Datasets\IrisDataset.cs" />
     <Compile Include="Datasets\SampleGenerator.cs" />
     <Compile Include="IClassifier.cs" />
+    <Compile Include="IClassifierExtensions.cs" />
+    <Compile Include="FeatureSelection\ILearntSelector.cs" />
+    <Compile Include="FeatureSelection\ILearntSelectorExtensions.cs" />
+    <Compile Include="IRegressor.cs" />
+    <Compile Include="IRegressorExtensions.cs" />
     <Compile Include="LeastSquares\LsqrResult.cs" />
     <Compile Include="LinearModel\BayesianRidgeRegression.cs" />
+    <Compile Include="LinearModel\LinearModel.cs" />
     <Compile Include="LinearModel\LogisticRegression.cs" />
     <Compile Include="LinearModel\Loss.cs" />
     <Compile Include="LinearModel\Multiclass.cs" />
@@ -70,9 +78,6 @@
     <Compile Include="Metrics\PrecisionRecallResultAvg.cs" />
     <Compile Include="Preprocessing\LabelBinarizer.cs" />
     <Compile Include="LinearModel\LibLinearBase.cs" />
-    <Compile Include="LinearModel\LinearClassifier.cs" />
-    <Compile Include="LinearModel\LinearModel.cs" />
-    <Compile Include="LinearModel\LinearRegressor.cs" />
     <Compile Include="LinearModel\LinearRegression.cs" />
     <Compile Include="LeastSquares\Lsqr.cs" />
     <Compile Include="LinearModel\RidgeBase.cs" />
@@ -82,14 +87,38 @@
     <Compile Include="Metrics\Metrics.cs" />
     <Compile Include="Preprocessing\LabelEncoder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="StringExtensions.cs" />
     <Compile Include="Svm\Kernel.cs" />
     <Compile Include="Svm\LibSvmBase.cs" />
     <Compile Include="Svm\LibSvmImpl.cs" />
     <Compile Include="Svm\LibSvmKernel.cs" />
+    <Compile Include="Svm\NuSvc.cs" />
     <Compile Include="Svm\Svc.cs" />
     <Compile Include="Svm\SvcBase.cs" />
+    <Compile Include="FeatureSelection\ThresholdChoice.cs" />
+    <Compile Include="Tree\BaseDecisionTree.cs" />
+    <Compile Include="Tree\BestSplitter.cs" />
+    <Compile Include="Tree\ClassificationCriterion.cs" />
+    <Compile Include="Tree\Criterion.cs" />
+    <Compile Include="Tree\DecisionTreeClassifier.cs" />
+    <Compile Include="Tree\DecisionTreeRegressor.cs" />
+    <Compile Include="Tree\Entropy.cs" />
+    <Compile Include="Tree\ExtraTreeClassifier.cs" />
+    <Compile Include="Tree\ExtraTreeRegressor.cs" />
+    <Compile Include="Tree\Gini.cs" />
+    <Compile Include="Tree\ICriterion.cs" />
+    <Compile Include="Tree\MaxFeaturesChoice.cs" />
+    <Compile Include="Tree\MSE.cs" />
+    <Compile Include="Tree\PresortBestSplitter.cs" />
+    <Compile Include="Tree\RandomSplitter.cs" />
+    <Compile Include="Tree\RegressionCriterion.cs" />
+    <Compile Include="Tree\Splitter.cs" />
+    <Compile Include="Tree\SplitterBase.cs" />
+    <Compile Include="Tree\Tree.cs" />
+    <Compile Include="Tree\Util.cs" />
     <Compile Include="Utils\Fixes.cs" />
     <Compile Include="Utils\Multiclass.cs" />
+    <Compile Include="Utils\Np.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Datasets\Data\diabetes_data.csv.gz" />
@@ -101,6 +130,8 @@
   <ItemGroup>
     <EmbeddedResource Include="Datasets\Data\digits.csv.gz" />
     <EmbeddedResource Include="Datasets\Data\digits.rst" />
+    <EmbeddedResource Include="Datasets\Data\boston_house_prices.csv" />
+    <EmbeddedResource Include="Datasets\Data\boston_house_prices.rst" />
     <None Include="packages.config" />
     <None Include="Sharpkit.Learn.nuspec">
       <SubType>Designer</SubType>

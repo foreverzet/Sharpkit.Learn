@@ -15,6 +15,7 @@ namespace Sharpkit.Learn.Test.LinearModel
     using Learn.Datasets;
     using Learn.LinearModel;
     using MathNet.Numerics.LinearAlgebra.Generic;
+    using Sharpkit.Learn;
 
     /// <summary>
     /// Tests for <see cref="RidgeRegression"/> and <see cref="RidgeClassifier{TLabel}"/>.
@@ -54,12 +55,12 @@ namespace Sharpkit.Learn.Test.LinearModel
             var rng = new Random(0);
             const double alpha = 1.0;
 
-            foreach (var solver in new[] {RidgeSolver.Svd, RidgeSolver.DenseCholesky, RidgeSolver.Lsqr}) 
+            foreach (var solver in new[] { RidgeSolver.Svd, RidgeSolver.DenseCholesky, RidgeSolver.Lsqr })
             {
                 // With more samples than features
                 int nSamples = 6;
                 int nFeatures = 5;
-                var normal = new Normal {RandomSource = rng};
+                var normal = new Normal { RandomSource = rng };
                 Vector y = DenseVector.CreateRandom(nSamples, normal);
                 Matrix x = DenseMatrix.CreateRandom(nSamples, nFeatures, normal);
 
@@ -91,24 +92,27 @@ namespace Sharpkit.Learn.Test.LinearModel
             var rng = new Random(0);
             const double alpha = 1.0;
 
-            foreach (var solver in new[]{RidgeSolver.Svd, RidgeSolver.DenseCholesky, RidgeSolver.Lsqr})
+            foreach (var solver in new[] { RidgeSolver.Svd, RidgeSolver.DenseCholesky, RidgeSolver.Lsqr })
             {
-                var tests = new[] {new[]{6, 5}, new[]{5, 10}};
+                var tests = new[] { new[] { 6, 5 }, new[] { 5, 10 } };
                 foreach (var test in tests)
                 {
                     int nSamples = test[0];
                     int nFeatures = test[1];
-                    Vector y = DenseVector.CreateRandom(nSamples, new Normal{RandomSource = rng});
-                    Matrix x = DenseMatrix.CreateRandom(nSamples, nFeatures, new Normal {RandomSource = rng});
+                    Vector y = DenseVector.CreateRandom(nSamples, new Normal { RandomSource = rng });
+                    Matrix x = DenseMatrix.CreateRandom(nSamples, nFeatures, new Normal { RandomSource = rng });
                     Vector sampleWeight = DenseVector.CreateRandom(nSamples, new ContinuousUniform(1, 2));
 
-                    var coefs = new RidgeRegression(alpha: alpha, solver: solver, fitIntercept:false)
-                        .Fit(x, y, sampleWeight).Coef.Column(0);
+                    var ridgeRegression = new RidgeRegression(alpha: alpha, solver: solver, fitIntercept: false);
+                    ridgeRegression.Fit(x, y, sampleWeight);
+                    var coefs = ridgeRegression.Coef.Column(0);
                     // Sample weight can be implemented via a simple rescaling
                     // for the square loss
-                    var coefs2 = new RidgeRegression(alpha, solver:solver, fitIntercept:false).Fit(
+                    var regression2 = new RidgeRegression(alpha, solver: solver, fitIntercept: false);
+                    regression2.Fit(
                         x.MulColumnVector(sampleWeight.Sqrt()),
-                        y.PointwiseMultiply(sampleWeight.Sqrt())).Coef.Column(0);
+                        y.PointwiseMultiply(sampleWeight.Sqrt()));
+                    var coefs2 = regression2.Coef.Column(0);
 
                     Assert.IsTrue(coefs.AlmostEquals(coefs2));
                 }
@@ -124,10 +128,10 @@ namespace Sharpkit.Learn.Test.LinearModel
             var rng = new Random(0);
             const int nSamples = 5;
             const int nFeatures = 10;
-            Matrix x = DenseMatrix.CreateRandom(nSamples, nFeatures, new Normal {RandomSource = rng});
-            Vector y = DenseVector.CreateRandom(nSamples, new Normal {RandomSource = rng});
+            Matrix x = DenseMatrix.CreateRandom(nSamples, nFeatures, new Normal { RandomSource = rng });
+            Vector y = DenseVector.CreateRandom(nSamples, new Normal { RandomSource = rng });
 
-            Matrix Y = DenseMatrix.OfColumns(y.Count, 2, new[]{y, y.Add(1)});
+            Matrix Y = DenseMatrix.OfColumns(y.Count, 2, new[] { y, y.Add(1) });
 
             var ridge = new RidgeRegression();
 
@@ -153,10 +157,10 @@ namespace Sharpkit.Learn.Test.LinearModel
             var rng = new Random(0);
             const int nSamples = 5;
             const int nFeatures = 10;
-            Matrix x = DenseMatrix.CreateRandom(nSamples, nFeatures, new Normal {RandomSource = rng});
-            Vector y = DenseVector.CreateRandom(nSamples, new Normal {RandomSource = rng});
+            Matrix x = DenseMatrix.CreateRandom(nSamples, nFeatures, new Normal { RandomSource = rng });
+            Vector y = DenseVector.CreateRandom(nSamples, new Normal { RandomSource = rng });
 
-            Matrix y1 = DenseMatrix.OfColumns(y.Count, 2, new[] {y, y.Add(1)});
+            Matrix y1 = DenseMatrix.OfColumns(y.Count, 2, new[] { y, y.Add(1) });
 
             var ridge = new RidgeRegression();
 
@@ -175,17 +179,17 @@ namespace Sharpkit.Learn.Test.LinearModel
         [TestMethod]
         public void TestToyRidgeObject()
         {
-            var x = DenseMatrix.OfArray(new double[,] {{1}, {2}});
-            var y = new DenseVector(new double[] {1, 2});
+            var x = DenseMatrix.OfArray(new double[,] { { 1 }, { 2 } });
+            var y = new DenseVector(new double[] { 1, 2 });
             var clf = new RidgeRegression(alpha: 0.0);
             clf.Fit(x, y);
-            var xTest = DenseMatrix.OfArray(new double[,] {{1}, {2}, {3}, {4}});
+            var xTest = DenseMatrix.OfArray(new double[,] { { 1 }, { 2 }, { 3 }, { 4 } });
             Assert.AreEqual((clf.Predict(xTest) -
-                DenseMatrix.OfArray(new double[,] {{1}, {2}, {3}, {4}})).FrobeniusNorm(), 0.0, 1e-10);
+                DenseMatrix.OfArray(new double[,] { { 1 }, { 2 }, { 3 }, { 4 } })).FrobeniusNorm(), 0.0, 1e-10);
 
             Assert.AreEqual(clf.Coef.RowCount, 1);
 
-            var y1 = DenseMatrix.OfColumns(y.Count, 2, new[] {y, y});
+            var y1 = DenseMatrix.OfColumns(y.Count, 2, new[] { y, y });
 
             clf.Fit(x, y1);
 
@@ -202,8 +206,8 @@ namespace Sharpkit.Learn.Test.LinearModel
             // we need more samples than features
             const int nSamples = 5;
             const int nFeatures = 4;
-            var y = DenseVector.CreateRandom(nSamples, new Normal{RandomSource = random});
-            var x = DenseMatrix.CreateRandom(nSamples, nFeatures, new Normal {RandomSource = random});
+            var y = DenseVector.CreateRandom(nSamples, new Normal { RandomSource = random });
+            var x = DenseMatrix.CreateRandom(nSamples, nFeatures, new Normal { RandomSource = random });
 
             var ridge = new RidgeRegression(alpha: 0.0, fitIntercept: false);
             var ols = new LinearRegression(fitIntercept: false);
@@ -250,7 +254,7 @@ namespace Sharpkit.Learn.Test.LinearModel
 
             Assert.AreEqual(clf.Coef.Shape(), Tuple.Create(nClasses, nFeatures));
             int[] yPred = clf.Predict(filter(xIris));
-            var result = yIris.Zip(yPred, Tuple.Create).Sum(t => t.Item1 == t.Item2 ? 1.0 : 0.0)/yPred.Length;
+            var result = yIris.Zip(yPred, Tuple.Create).Sum(t => t.Item1 == t.Item2 ? 1.0 : 0.0) / yPred.Length;
             Assert.IsTrue(result >= .79);
 
             return null;
@@ -272,7 +276,7 @@ namespace Sharpkit.Learn.Test.LinearModel
         }
 
         [TestMethod]
-        public void  TestDenseSparse()
+        public void TestDenseSparse()
         {
             foreach (Func<Func<Matrix<double>, Matrix<double>>, double?> testFunc in
                 new Func<Func<Matrix<double>, Matrix<double>>, double?>[] {
@@ -281,7 +285,7 @@ namespace Sharpkit.Learn.Test.LinearModel
                               TestRidgeClassifiers,
                               TestTolerance})
             {
-                Func<Matrix<double>, Matrix<double>> DENSE_FILTER =  DenseMatrix.OfMatrix;
+                Func<Matrix<double>, Matrix<double>> DENSE_FILTER = DenseMatrix.OfMatrix;
                 Func<Matrix<double>, Matrix<double>> SPARSE_FILTER = SparseMatrix.OfMatrix;
 
                 // test dense matrix
@@ -301,30 +305,30 @@ namespace Sharpkit.Learn.Test.LinearModel
         /// </summary>
         public void TestClassWeights()
         {
-            Matrix x = DenseMatrix.OfArray(new [,]
+            Matrix x = DenseMatrix.OfArray(new[,]
                                            {
                                                {-1.0, -1.0}, {-1.0, 0}, {-.8, -1.0},
                                                {1.0, 1.0}, {1.0, 0.0}
                                            });
-            var y = new [] {1, 1, 1, -1, -1};
+            var y = new[] { 1, 1, 1, -1, -1 };
 
-            var clf = new RidgeClassifier<int>(classWeightEstimator : null);
+            var clf = new RidgeClassifier<int>(classWeightEstimator: null);
             clf.Fit(x, y);
             Assert.AreEqual(
-                clf.Predict(DenseMatrix.OfArray(new[,] {{0.2, -1.0}})),
-                new DenseMatrix(1, 1, new double[] {1}));
+                clf.Predict(DenseMatrix.OfArray(new[,] { { 0.2, -1.0 } })),
+                new DenseMatrix(1, 1, new double[] { 1 }));
 
             // we give a small weights to class 1
             clf = new RidgeClassifier<int>(
-                classWeightEstimator: ClassWeightEstimator<int>.Explicit(new Dictionary<int, double> {{1, 0.001}}));
+                classWeightEstimator: ClassWeightEstimator<int>.Explicit(new Dictionary<int, double> { { 1, 0.001 } }));
 
             clf.Fit(x, y);
 
             // now the hyperplane should rotate clock-wise and
             // the prediction on this point should shift
             Assert.AreEqual(
-                clf.Predict(DenseMatrix.OfArray(new [,] {{0.2, -1.0}})),
-                new DenseMatrix(1, 1, new double[] {-1}));
+                clf.Predict(DenseMatrix.OfArray(new[,] { { 0.2, -1.0 } })),
+                new DenseMatrix(1, 1, new double[] { -1 }));
         }
     }
 }

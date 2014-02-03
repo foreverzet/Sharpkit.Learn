@@ -7,6 +7,7 @@
 namespace Sharpkit.Learn.LinearModel
 {
     using System;
+    using System.Linq;
     using MathNet.Numerics.LinearAlgebra.Double;
     using MathNet.Numerics.LinearAlgebra.Generic;
 
@@ -44,35 +45,8 @@ namespace Sharpkit.Learn.LinearModel
     ///    http://www.csie.ntu.edu.tw/~cjlin/papers/maxent_dual.pdf
     /// </para>
     /// </remarks>
-    public class LogisticRegression<TLabel> : LinearClassifier<TLabel> where TLabel : IEquatable<TLabel>
+    public class LogisticRegression<TLabel> : LibLinearBase<TLabel>, IClassifier<TLabel> where TLabel : IEquatable<TLabel>
     {
-        private readonly LibLinearBase<TLabel> libLinearBase;
-
-        /// <summary>
-        /// Gets or sets a value indicating whether formulation is primal or dual. Dual formulation is only
-        /// implemented for l2 penalty. Prefer dual=false when
-        /// nSamples > nFeatures.
-        /// </summary>
-        public bool Dual
-        {
-            get { return this.libLinearBase.Dual; }
-        }
-
-        public double InterceptScaling
-        {
-            get { return this.libLinearBase.interceptScaling; }
-        }
-
-        /// <summary>
-        /// Gets or sets inverse of regularization strength; must be a positive float.
-        /// Like in support vector machines, smaller values specify stronger
-        /// regularization.
-        /// </summary>
-        public double C
-        {
-            get { return this.libLinearBase.C; }
-        }
-
         /// <summary>
         /// Initializes a new instance of the logistic regression class.
         /// </summary>
@@ -119,31 +93,26 @@ namespace Sharpkit.Learn.LinearModel
             bool fitIntercept = true,
             double interceptScaling = 1,
             ClassWeightEstimator<TLabel> classWeightEstimator = null,
-            Random random = null) : base(fitIntercept, classWeightEstimator)
+            Random random = null) : base(fitIntercept, penalty, Loss.LogisticRegression, dual, tol, c, interceptScaling:interceptScaling, random : random, classWeightEstimator: classWeightEstimator)
         {
-            libLinearBase = new LibLinearBase<TLabel>(
-                this,
-                penalty,
-                Loss.LogisticRegression,
-                dual,
-                tol,
-                c,
-                interceptScaling: interceptScaling,
-                random: random);
         }
 
         /// <summary>
-        /// Fit the model according to the given training data.
+        /// Predict class labels for samples in X.
         /// </summary>
-        /// <param name="x">[nSamples, nFeatures]. Training vectors,
-        /// where nSamples is the number of samples and nFeatures
-        /// is the number of features.</param>
-        /// <param name="y">[nSamples] Target class labels.</param>
-        /// <returns>Reference to itself.</returns>
-        public override IClassifier<TLabel> Fit(Matrix<double> x, TLabel[] y)
+        /// <param name="x">[n_samples, n_features] Samples.</param>
+        /// <returns>[n_samples] Predicted class label per sample.</returns>
+        public TLabel[] Predict(Matrix<double> x)
         {
-            this.libLinearBase.Fit(x, y);
-            return this;
+            var scores = this.DecisionFunction(x);
+            if (scores.ColumnCount == 1)
+            {
+                return scores.Column(0).Select(v => v > 0 ? Classes[1] : Classes[0]).ToArray();
+            }
+            else
+            {
+                return scores.RowEnumerator().Select(r => Classes[r.Item2.MaximumIndex()]).ToArray();
+            }
         }
 
         /// <summary>
@@ -156,33 +125,9 @@ namespace Sharpkit.Learn.LinearModel
         ///       Returns the probability of the sample for each class in the model,
         ///       where classes are ordered as they are in <see cref="Classes"/>.
         /// </returns>
-        public override Matrix<double> PredictProba(Matrix<double> x)
+        public Matrix<double> PredictProba(Matrix<double> x)
         {
-            return PredictProbaLr(x);
-        }
-
-        /// <summary>
-        /// Log of probability estimates.
-        ///
-        /// The returned estimates for all classes are ordered by the
-        /// label of classes.
-        /// </summary>
-        /// <param name="x">[n_samples, n_features].</param>
-        /// <returns>[n_samples, n_classes]
-        /// Returns the log-probability of the sample for each class in the
-        /// model, where classes are ordered as they are in <see cref="Classes"/>.
-        /// </returns>
-        public override Matrix<double> PredictLogProba(Matrix<double> x)
-        {
-            return this.PredictProba(x).Log();
-        }
-
-        /// <summary>
-        /// Gets ordered list of class labeled discovered int <see cref="LogisticRegression{TLabel}.Fit"/>.
-        /// </summary>
-        public override TLabel[] Classes
-        {
-            get { return this.libLinearBase.Classes; }
+            return PredictProbaLrInternal(x);
         }
 
         /// <summary>

@@ -6,42 +6,63 @@ namespace Sharpkit.Learn.LinearModel
     using LeastSquares;
     using MathNet.Numerics.LinearAlgebra.Generic;
 
-    internal class RidgeBase
+    public class RidgeBase : LinearModel
     {
-        private readonly double alpha;
-        private readonly bool normalize;
-        private readonly int? maxIter;
-        private readonly double tol;
-        private readonly RidgeSolver solver;
-        private readonly LinearModel model;
+        /// <summary>
+        /// Small positive values of alpha improve the conditioning of the problem
+        /// and reduce the variance of the estimates.  Alpha corresponds to
+        /// ``(2*C)^-1`` in other linear models such as LogisticRegression or
+        /// LinearSVC.
+        /// </summary>
+        public double Alpha { get; set; }
 
-        public RidgeBase(
-            LinearModel model,
+        /// <summary>
+        /// If True, the regressors X will be normalized before regression.
+        /// </summary>
+        public bool Normalize { get; set; }
+
+        /// <summary>
+        /// Maximum number of iterations for conjugate gradient solver.
+        /// The default value is determined by Math.Net.
+        /// </summary>
+        public int? MaxIter { get; set; }
+
+        /// <summary>
+        /// Precision of the solution.
+        /// </summary>
+        public double Tol { get; set; }
+
+        /// <summary>
+        /// Solver to use in the computational routines.
+        /// </summary>
+        public RidgeSolver Solver { get; set; }
+
+        internal RidgeBase(
+            bool fitIntercept,
             double alpha = 1.0,
             bool normalize = false,
             int? maxIter = null,
             double tol = 1e-3,
-            RidgeSolver solver = RidgeSolver.Auto)
+            RidgeSolver solver = RidgeSolver.Auto) : base(fitIntercept)
         {
-            this.model = model;
-            this.alpha = alpha;
-            this.normalize = normalize;
-            this.maxIter = maxIter;
-            this.tol = tol;
-            this.solver = solver;
+            this.Alpha = alpha;
+            this.Normalize = normalize;
+            this.MaxIter = maxIter;
+            this.Tol = tol;
+            this.Solver = solver;
         }
 
         public void Fit(Matrix<double> x, Matrix<double> y, Vector<double> sampleWeight = null)
         {
-            var t = model.CenterData(x, y, model.FitIntercept, this.normalize, sampleWeight);
+            var t = CenterData(x, y, FitIntercept, this.Normalize, sampleWeight);
 
-            this.model.Coef = RidgeRegression(t.X, t.Y,
-                                                     alpha: this.alpha,
-                                                     maxIter: this.maxIter,
-                                                     tol: this.tol,
+            this.Coef = RidgeRegression(t.X, t.Y,
+                                                     alpha: this.Alpha,
+                                                     maxIter: this.MaxIter,
+                                                     tol: this.Tol,
                                                      sampleWeight: sampleWeight,
-                                                     solver: this.solver);
-            this.model.SetIntercept(t.xMean, t.yMean, t.xStd);
+                                                     solver: this.Solver);
+            SetIntercept(t.xMean, t.yMean, t.xStd);
         }
 
         /// <summary>

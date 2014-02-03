@@ -1,5 +1,6 @@
 ﻿module LinearRegressionSamples
 open System
+open Sharpkit.Learn
 open Sharpkit.Learn.LinearModel
 
 // MathNet.Numerics.Control.LinearAlgebraProvider <- (new Mkl.MklLinearAlgebraProvider() :> ILinearAlgebraProvider)

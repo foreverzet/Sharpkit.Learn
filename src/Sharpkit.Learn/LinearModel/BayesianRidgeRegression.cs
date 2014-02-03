@@ -9,7 +9,6 @@ namespace Sharpkit.Learn.LinearModel
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
 
     using MathNet.Numerics.LinearAlgebra.Double;
     using MathNet.Numerics.LinearAlgebra.Generic;
@@ -33,7 +32,7 @@ namespace Sharpkit.Learn.LinearModel
     /// >>> clf.predict([[1, 1]])
     /// array([ 1.])
     /// </example>
-    public class BayesianRidgeRegression : LinearRegressor
+    public class BayesianRidgeRegression : LinearModel, IRegressor
     {
         /// <summary>
         /// Initializes a new instance of the BayesianRidgeRegression class.
@@ -79,8 +78,7 @@ namespace Sharpkit.Learn.LinearModel
             bool computeScore = false,
             bool fitIntercept = true,
             bool normalize = false,
-            bool verbose = false)
-            : base(fitIntercept)
+            bool verbose = false) : base(fitIntercept)
         {
             this.NumIter = numIter;
             this.Tol = tol;
@@ -165,7 +163,7 @@ namespace Sharpkit.Learn.LinearModel
         /// <param name="y">Target values.[n_samples]</param>
         /// <param name="sampleWeight">Sample weights.[n_samples]</param>
         /// <returns>Instance of self.</returns>
-        public override LinearRegressor Fit(Matrix<double> x, Matrix<double> y, Vector<double> sampleWeight = null)
+        public void Fit(Matrix<double> x, Matrix<double> y, Vector<double> sampleWeight = null)
         {
             if (y.ColumnCount != 1)
             {
@@ -177,7 +175,7 @@ namespace Sharpkit.Learn.LinearModel
                 throw new ArgumentException("Sample weights are not supported by this classifier.");
             }
 
-            var t = CenterData(x, y, FitIntercept, Normalize, sampleWeight);
+            var t = LinearModel.CenterData(x, y, FitIntercept, Normalize, sampleWeight);
             int nSamples = t.X.RowCount;
             int nFeatures = t.X.ColumnCount;
 
@@ -273,8 +271,12 @@ namespace Sharpkit.Learn.LinearModel
             this.Lambda = lambda;
             this.Coef = coef.ToRowMatrix();
 
-            this.SetIntercept(t.xMean, t.yMean, t.xStd);
-            return this;
+            SetIntercept(t.xMean, t.yMean, t.xStd);
+        }
+
+        public Matrix<double> Predict(Matrix<double> x)
+        {
+            return this.DecisionFunction(x);
         }
     }
 }

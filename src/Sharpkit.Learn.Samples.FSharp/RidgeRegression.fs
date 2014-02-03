@@ -1,5 +1,6 @@
 ﻿module RidgeSamples
 open System
+open Sharpkit.Learn
 open Sharpkit.Learn.LinearModel
 
 let clf = new RidgeRegression(alpha = 0.5)

@@ -95,8 +95,13 @@ namespace Sharpkit.Learn.Svm
         /// is the number of features.</param>
         /// <param name="y">[nSamples] Target class labels.</param>
         /// <returns>Reference to itself.</returns>
-        public virtual IClassifier<TLabel> Fit(Matrix<double> x, TLabel[] y)
+        public virtual void Fit(Matrix<double> x, TLabel[] y, Vector<double> sampleWeight = null)
         {
+            if (sampleWeight != null)
+            {
+                throw new ArgumentException("Sample weights are not supported by the classifier");
+            }
+
             this.enc = new LabelEncoder<TLabel>();
             int[] y1 = this.enc.FitTransform(y);
             if (this.Classes.Length < 2)
@@ -109,8 +114,6 @@ namespace Sharpkit.Learn.Svm
                 .ToArray();
 
             base.Fit(x, DenseVector.OfEnumerable(y1.Select(Convert.ToDouble)));
-
-            return this;
         }
 
         /// <summary>
@@ -206,27 +209,6 @@ namespace Sharpkit.Learn.Svm
             }
 
             return result;
-        }
-
-        /// <summary>
-        /// Compute log probabilities of possible outcomes for samples in X.
-        /// The model need to have probability information computed at training
-        /// time: fit with attribute `probability` set to True.
-        /// </summary>
-        /// <param name="x">[nSamples, nFeatures]</param>
-        /// <returns>[nSamples, nClasses]
-        ///    Returns the log-probabilities of the sample for each class in
-        ///    the model. The columns correspond to the classes in sorted
-        ///    order, as they appear in the attribute `classes_`.</returns>
-        /// <remarks>
-        ///         The probability model is created using cross validation, so
-        /// the results can be slightly different than those obtained by
-        /// predict. Also, it will produce meaningless results on very small
-        /// datasets.
-        /// </remarks>
-        public Matrix<double> PredictLogProba(Matrix<double> x)
-        {
-            return this.PredictProba(x).Log();
         }
 
         private Matrix<double> PredictProbaInternal(Matrix<double> x)
