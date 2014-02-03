@@ -406,7 +406,7 @@ public void  test_xor()
                                                                     nRedundant: 0,
                                                                     nRepeated: 0,
                                                                     shuffle: false,
-                                                                    randomState: new Random(5));
+                                                                    randomState: new Random(13));
 
             //var xstr = "[" + string.Join(",", classification.X.RowEnumerator().Select(r => "[" + string.Join(",", r.Item2) + "]")) + "]";
             //var ystr = "[" + string.Join(",", classification.Y) + "]";
@@ -807,12 +807,12 @@ public void  test_xor()
             Vector<double> yTest = r[1].Item2.Column(0);
             var est = new DecisionTreeRegressor(random: new Random(1));
 
-            var xstr = string.Join("\n", xTrain.RowEnumerator().Select(v => string.Join(",", v.Item2) ));
-            var ystr = "[" + string.Join(",", yTrain) + "]";
+            //var xstr = string.Join("\n", xTrain.RowEnumerator().Select(v => string.Join(",", v.Item2) ));
+            //var ystr = "[" + string.Join(",", yTrain) + "]";
 
             est.Fit(xTrain, yTrain);
             double score = est.Score(xTest, yTest);
-            Assert.AreEqual(0.84652100667116, score, 1E-10);
+            Assert.AreEqual(0.74776186837750824, score, 1E-10);
         }
     }
 }

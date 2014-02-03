@@ -61,8 +61,8 @@ namespace Sharpkit.Learn.Tree
                          double[] sample_weight)
         {
             // Reset random state
-            //this.rand_r_state = (uint)this.random_state.Next(0, (int)Util.RAND_R_MAX);
-            this.rand_r_state = 209652396;
+            this.rand_r_state = (uint)this.random_state.Next(0, (int)Util.RAND_R_MAX);
+            //this.rand_r_state = 209652396;
 
             // Initialize samples and features structures
             int n_samples = X.RowCount;
