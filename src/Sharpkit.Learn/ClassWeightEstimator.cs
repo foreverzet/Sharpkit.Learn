@@ -23,12 +23,14 @@ namespace Sharpkit.Learn
         /// to the frequency of the class in the data.
         /// </summary>
         public static readonly ClassWeightEstimator<TLabel> Auto = new ClassWeightEstimator<TLabel>(
+            "Auto",
             (classes, yInd) => ComputeClassWeightAuto(classes, yInd));
         
         /// <summary>
         /// All class weights will be 1.0.
         /// </summary>
         public static readonly ClassWeightEstimator<TLabel> Uniform = new ClassWeightEstimator<TLabel>(
+            "Uniform",
             (classes, yInd) => ComputeClassWeightUniform(classes));
 
         /// <summary>
@@ -37,11 +39,18 @@ namespace Sharpkit.Learn
         private readonly Func<TLabel[], int[], Vector> func;
 
         /// <summary>
+        /// String representation of the class.
+        /// </summary>
+        private readonly string textValue = string.Empty;
+
+        /// <summary>
         /// Initializes a new instance of the ClassWeightEstimator class.
         /// </summary>
+        /// <param name="textValue">String representation.</param>
         /// <param name="func">Function which computes class weights.</param>
-        private ClassWeightEstimator(Func<TLabel[], int[], Vector> func)
+        private ClassWeightEstimator(string textValue, Func<TLabel[], int[], Vector> func)
         {
+            this.textValue = textValue;
             this.func = func;
         }
 
@@ -54,9 +63,23 @@ namespace Sharpkit.Learn
         /// <returns>Instance of <see cref="ClassWeightEstimator{TLabel}"/>.</returns>
         public static ClassWeightEstimator<TLabel> Explicit(Dictionary<TLabel, double> classWeights)
         {
-            return new ClassWeightEstimator<TLabel>((classes, y) => ComputeClassWeightExplicit(classWeights, classes));
+            var dictionary = string.Join(",", classWeights.Select(v => string.Format("{0}=>{1}", v.Key, v.Value)));
+            return new ClassWeightEstimator<TLabel>(
+                string.Format("Explicit({0})", dictionary),
+                (classes, y) => ComputeClassWeightExplicit(classWeights, classes));
         }
-        
+
+        /// <summary>
+        /// Returns a string that represents the current object.
+        /// </summary>
+        /// <returns>
+        /// A string that represents the current object.
+        /// </returns>
+        public override string ToString()
+        {
+            return this.textValue;
+        }
+
         /// <summary>
         /// Calculates weights for each sample.
         /// </summary>

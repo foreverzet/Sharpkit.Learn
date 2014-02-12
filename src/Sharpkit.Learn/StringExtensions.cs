@@ -4,15 +4,18 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
+// -----------------------------------------------------------------------
+// <copyright file="StringExtensions.cs" company="Sharpkit.Learn">
+//  Copyright Sergey Zyuzin 2014.
+// </copyright>
+// -----------------------------------------------------------------------
+
 namespace Sharpkit.Learn
 {
     using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
 
     /// <summary>
-    /// TODO: Update summary.
+    /// String extension methods to make porting Python code easier.
     /// </summary>
     internal static class StringExtensions
     {

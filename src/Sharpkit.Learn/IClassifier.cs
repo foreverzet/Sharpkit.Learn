@@ -28,6 +28,7 @@ namespace Sharpkit.Learn
         /// where nSamples is the number of samples and nFeatures
         /// is the number of features.</param>
         /// <param name="y">[nSamples] Target class labels.</param>
+        /// <param name="sampleWeight">Individual weights for each sample. Array with dimensions [nSamples].</param>
         void Fit(Matrix<double> x, TLabel[] y, Vector<double> sampleWeight = null);
         
         /// <summary>

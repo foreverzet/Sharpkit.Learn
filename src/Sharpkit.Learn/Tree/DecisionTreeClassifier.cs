@@ -60,7 +60,6 @@ namespace Sharpkit.Learn.Tree
     Attributes
     ----------
     `tree_` : Tree object
-        The underlying Tree object.
 
 
     `max_features_` : int,
@@ -83,33 +82,32 @@ namespace Sharpkit.Learn.Tree
         /// <param name="splitter">The strategy used to choose the split at each node. Supported
         /// strategies are <see cref="Splitter.Best"/> to choose the best split and <see cref="Splitter.Random"/> to choose
         /// the best random split.</param>
-        /// <param name="max_depth">The maximum depth of the tree. If <c>null</c>, then nodes are expanded until
+        /// <param name="maxDepth">The maximum depth of the tree. If <c>null</c>, then nodes are expanded until
         /// all leaves are pure or until all leaves contain less than
-        /// <paramref name="min_samples_split"/> samples.</param>
-        /// <param name="min_samples_split">The minimum number of samples required to split an internal node.</param>
-        /// <param name="min_samples_leaf">The minimum number of samples required to be at a leaf node.</param>
-        /// <param name="max_features">Number of features to consider when looking for the best split. If null - 
+        /// <paramref name="minSamplesSplit"/> samples.</param>
+        /// <param name="minSamplesSplit">The minimum number of samples required to split an internal node.</param>
+        /// <param name="minSamplesLeaf">The minimum number of samples required to be at a leaf node.</param>
+        /// <param name="maxFeatures">Number of features to consider when looking for the best split. If null - 
         /// then all features will be considered.</param>
         /// <param name="random">random number generator</param>
         public DecisionTreeClassifier(
             Criterion criterion = Criterion.Gini,
             Splitter splitter = Splitter.Best,
-            int? max_depth = null,
-            int min_samples_split = 2,
-            int min_samples_leaf = 1,
-            MaxFeaturesChoice max_features = null,
+            int? maxDepth = null,
+            int minSamplesSplit = 2,
+            int minSamplesLeaf = 1,
+            MaxFeaturesChoice maxFeatures = null,
             Random random = null)
-            : base(criterion, splitter, max_depth, min_samples_split, min_samples_leaf, max_features, random)
+            : base(criterion, splitter, maxDepth, minSamplesSplit, minSamplesLeaf, maxFeatures, random)
         {
         }
 
         /// <summary>
-        /// [n_classes] or a list of such arrays.
-        /// The classes labels.
+        /// Gets ordered list of class labeled discovered int <see cref="Fit"/>.
         /// </summary>
         public TLabel[] Classes
         {
-            get { return this.classes_.ToArray(); }
+            get { return this.classes.ToArray(); }
         }
 
         /// <summary>
@@ -119,7 +117,7 @@ namespace Sharpkit.Learn.Tree
         /// where nSamples is the number of samples and nFeatures
         /// is the number of features.</param>
         /// <param name="y">[nSamples] Target class labels.</param>
-        /// <returns>Reference to itself.</returns>
+        /// <param name="sampleWeight">Individual weights for each sample. Array with dimensions [nSamples].</param>
         public void Fit(Matrix<double> x, TLabel[] y, Vector<double> sampleWeight = null)
         {
             this.fitClassification(x, y, sampleWeight);
@@ -137,31 +135,37 @@ namespace Sharpkit.Learn.Tree
         }
 
         /// <summary>
-        /// Predict class probabilities of the input samples X.
+        /// Calculates probability estimates.
+        /// The returned estimates for all classes are ordered by the
+        /// label of classes.
         /// </summary>
-        /// <param name="X">[n_samples, n_features] The input samples.</param>
-        /// <returns>[n_samples, n_classes]
-        ///    The class probabilities of the input samples. Classes are ordered
-        ///    by arithmetical order.</returns>
-        public Matrix<double> PredictProba(Matrix<double> X)
+        /// <param name="x">[nSamples, nFeatures]. Samples.</param>
+        /// <returns>
+        /// [nSamples, nClasses]. The probability of the sample for each class in the model,
+        /// where classes are ordered as they are in <see cref="IClassifier{TLabel}.Classes"/>.
+        /// </returns>
+        public Matrix<double> PredictProba(Matrix<double> x)
         {
-            int n_samples = X.RowCount;
-            int n_features = X.ColumnCount;
+            int nSamples = x.RowCount;
+            int nFeatures = x.ColumnCount;
 
             CheckFitted();
 
-            if (this.n_features_ != n_features)
+            if (this.nFeatures != nFeatures)
             {
-                throw new ArgumentException(string.Format("Number of features of the model must " +
-                                                          " match the input. Model n_features is {0} and " +
-                                                          " input n_features is {1}",
-                                                          this.n_features_, n_features));
+                var message = string.Format(
+                    "Number of features of the model must " +
+                    " match the input. Model n_features is {0} and " +
+                    " input n_features is {1}",
+                    this.nFeatures,
+                    nFeatures);
+
+                throw new ArgumentException(message);
             }
 
-            var proba = this.tree_.predict(X)[0];
+            var proba = this.tree_.predict(x)[0];
 
-
-            proba = proba.SubMatrix(0, proba.RowCount, 0, (int)this.n_classes_[0]);
+            proba = proba.SubMatrix(0, proba.RowCount, 0, (int)this.nClasses[0]);
             var normalizer = proba.SumOfEveryRow();
             normalizer.MapInplace(v => v == 0.0 ? 1.0 : v, true);
             return proba.DivColumnVector(normalizer);

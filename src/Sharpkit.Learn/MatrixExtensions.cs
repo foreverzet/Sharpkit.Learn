@@ -1,6 +1,6 @@
 ﻿// -----------------------------------------------------------------------
-// <copyright file="MatrixExtensions.cs" company="">
-// 
+// <copyright file="MatrixExtensions.cs" company="Sharpkit.Learn">
+//  Copyright Sergey Zyuzin 2014.
 // </copyright>
 // -----------------------------------------------------------------------
 
@@ -348,7 +348,7 @@ namespace Sharpkit.Learn
             double result = 0;
             foreach (var column in matrix.ColumnEnumerator())
             {
-                result+= column.Item2.Sum();
+                result += column.Item2.Sum();
             }
 
             result /= matrix.ColumnCount * matrix.RowCount;
@@ -374,7 +374,7 @@ namespace Sharpkit.Learn
             return result;
         }
 
-        public static Tuple<int,int> Shape<T>(this T[,] array)
+        public static Tuple<int, int> Shape<T>(this T[,] array)
         {
             return Tuple.Create(array.GetLength(0), array.GetLength(1));
         }
@@ -468,7 +468,7 @@ namespace Sharpkit.Learn
         /// <returns>Column matrix.</returns>
         public static Matrix<double> ToColumnMatrix(this IEnumerable<int> vector)
         {
-            return DenseVector.OfEnumerable(vector.Select(v=>(double)v)).ToColumnMatrix();
+            return DenseVector.OfEnumerable(vector.Select(v => (double)v)).ToColumnMatrix();
         }
 
         /// <summary>
@@ -491,16 +491,16 @@ namespace Sharpkit.Learn
             return DenseVector.OfEnumerable(vector);
         }
 
-        //todo this shall return Matrix<int>
+        // todo this shall return Matrix<int>
         public static Matrix<double> ArgsortColumns(this Matrix<double> matrix)
         {
-            Matrix<double> result = DenseMatrix.Create(matrix.RowCount, matrix.ColumnCount, (x,y)=>0);
+            Matrix<double> result = DenseMatrix.Create(matrix.RowCount, matrix.ColumnCount, (x, y) => 0);
             foreach (var column in matrix.ColumnEnumerator())
             {
                 var newColumn = column.Item2
                     .Select((v, i) => Tuple.Create(v, i))
                     .OrderBy(t => t.Item1)
-                    .Select(t => t.Item2).Select(v=>(double)v).ToArray();
+                    .Select(t => t.Item2).Select(v => (double)v).ToArray();
 
                 result.SetColumn(column.Item1, newColumn);
             }
@@ -551,7 +551,7 @@ namespace Sharpkit.Learn
 
         public static Matrix Outer(this Vector<double> left, Vector<double> right)
         {
-            return DenseMatrix.Create(left.Count, right.Count, (i, j) => left[i]*right[j]);
+            return DenseMatrix.Create(left.Count, right.Count, (i, j) => left[i] * right[j]);
         }
 
         public static int[] ArgmaxColumns(this Matrix<double> m)

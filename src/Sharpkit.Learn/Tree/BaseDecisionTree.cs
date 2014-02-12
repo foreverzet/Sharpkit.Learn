@@ -32,60 +32,71 @@ namespace Sharpkit.Learn.Tree
     {
         private readonly Criterion criterion;
         private readonly Splitter splitter;
-        private readonly int? max_depth;
-        private int min_samples_split;
-        private readonly int min_samples_leaf;
-        private readonly MaxFeaturesChoice max_features;
-        private readonly Random random_state;
-        internal int n_features_;
+        private readonly int? maxDepth;
+        private int minSamplesSplit;
+        private readonly int minSamplesLeaf;
+        private readonly MaxFeaturesChoice maxFeatures;
+        private readonly Random randomState;
+        internal int nFeatures;
+        
+        /// <summary>
+        /// The underlying Tree object.
+        /// </summary>
         internal Tree tree_;
-        private int n_outputs_;
-        internal int max_features_;
-        internal List<uint> n_classes_;
-        internal List<TLabel> classes_;
+        private int nOutputs;
+
+        /// <summary>
+        /// The inferred value of maxFeatures.
+        /// </summary>
+        internal int maxFeaturesValue;
+        internal List<uint> nClasses;
+        internal List<TLabel> classes;
 
         public BaseDecisionTree(
             Criterion criterion,
             Splitter splitter,
-            int? max_depth,
-            int min_samples_split,
-            int min_samples_leaf,
-            MaxFeaturesChoice max_features,
-            Random random_state)
+            int? maxDepth,
+            int minSamplesSplit,
+            int minSamplesLeaf,
+            MaxFeaturesChoice maxFeatures,
+            Random randomState)
         {
             this.criterion = criterion;
             this.splitter = splitter;
-            this.max_depth = max_depth;
-            this.min_samples_split = min_samples_split;
-            this.min_samples_leaf = min_samples_leaf;
-            this.max_features = max_features;
-            this.random_state = random_state ?? new Random();
+            this.maxDepth = maxDepth;
+            this.minSamplesSplit = minSamplesSplit;
+            this.minSamplesLeaf = minSamplesLeaf;
+            this.maxFeatures = maxFeatures;
+            this.randomState = randomState ?? new Random();
         }
 
         /// <summary>
         /// Build a decision tree from the training set (X, y).
         /// </summary>
-        /// <param name="X">[n_samples, n_features] The training input samples.</param>
+        /// <param name="x">[n_samples, n_features] The training input samples.</param>
         /// <param name="y">[n_samples, n_outputs] The target values.</param>
-        /// <param name="sample_weight">[n_samples] or None.
+        /// <param name="sampleWeight">[n_samples] or None.
         ///  Sample weights. If None, then samples are equally weighted. Splits
         ///  that would create child nodes with net zero or negative weight are
         ///  ignored while searching for a split in each node. In the case of
         ///  classification, splits are also ignored if they would result in any
         ///  single class carrying a negative weight in either child node.</param>
         /// <returns></returns>
-        internal BaseDecisionTree<TLabel> fitRegression(Matrix<double> X, Matrix<double> y, Vector<double> sample_weight = null)
+        internal BaseDecisionTree<TLabel> fitRegression(
+            Matrix<double> x,
+            Matrix<double> y,
+            Vector<double> sampleWeight = null)
         {
             // Determine output settings
-            int n_samples = X.RowCount;
-            this.n_features_ = X.ColumnCount;
+            int nSamples = x.RowCount;
+            this.nFeatures = x.ColumnCount;
 
 
-            if (y.RowCount != n_samples)
+            if (y.RowCount != nSamples)
             {
                 throw new ArgumentException(string.Format("Number of labels={0} does not match number of samples={1}",
                                                           y.RowCount,
-                                                          n_samples));
+                                                          nSamples));
             }
 
             //if (y.ndim == 1)
@@ -94,67 +105,72 @@ namespace Sharpkit.Learn.Tree
             //    y = np.reshape(y, (-1, 1))
 
 
-            this.n_outputs_ = y.ColumnCount;
-            //this.n_outputs_ = 1;
+            this.nOutputs = y.ColumnCount;
+            //this.nOutputs = 1;
             int[] y_;
 
-            this.classes_ = Enumerable.Repeat(default(TLabel), this.n_outputs_).ToList();
-            this.n_classes_ = Enumerable.Repeat(1U, this.n_outputs_).ToList();
+            this.classes = Enumerable.Repeat(default(TLabel), this.nOutputs).ToList();
+            this.nClasses = Enumerable.Repeat(1U, this.nOutputs).ToList();
 
 
             //# Check parameters
-            fitCommon1(X, y, n_samples, sample_weight, false);
+            fitCommon(x, y, nSamples, sampleWeight, false);
 
 
             return this;
         }
 
-        private void fitCommon1(Matrix<double> X, Matrix<double> y, int n_samples, Vector<double> sample_weight, bool isClassification)
+        private void fitCommon(
+            Matrix<double> x,
+            Matrix<double> y,
+            int nSamples,
+            Vector<double> sampleWeight,
+            bool isClassification)
         {
-            int max_depth = this.max_depth ?? int.MaxValue;
+            int maxDepth = this.maxDepth ?? int.MaxValue;
 
-            if (this.max_features == null)
+            if (this.maxFeatures == null)
             {
-                this.max_features_ = this.n_features_;
+                this.maxFeaturesValue = this.nFeatures;
             }
             else
             {
-                this.max_features_ = max_features.ComputeMaxFeatures(this.n_features_, isClassification);
+                this.maxFeaturesValue = maxFeatures.ComputeMaxFeatures(this.nFeatures, isClassification);
             }
 
-            if (this.min_samples_split <= 0)
+            if (this.minSamplesSplit <= 0)
             {
                 throw new ArgumentException("min_samples_split must be greater than zero.");
             }
-            if (this.min_samples_leaf <= 0)
+            if (this.minSamplesLeaf <= 0)
             {
-                throw new ArgumentException("min_samples_leaf must be greater than zero.");
+                throw new ArgumentException("minSamplesLeaf must be greater than zero.");
             }
 
-            if (max_depth <= 0)
+            if (maxDepth <= 0)
             {
-                throw new ArgumentException("max_depth must be greater than zero. ");
+                throw new ArgumentException("maxDepth must be greater than zero. ");
             }
 
-            if (!(0 < max_features_ && max_features_ <= this.n_features_))
+            if (!(0 < maxFeaturesValue && maxFeaturesValue <= this.nFeatures))
             {
-                throw new ArgumentException("max_features must be in (0, n_features]");
+                throw new ArgumentException("maxFeatures must be in (0, n_features]");
             }
 
-            if (sample_weight != null)
+            if (sampleWeight != null)
             {
-                if (sample_weight.Count != n_samples)
+                if (sampleWeight.Count != nSamples)
                 {
                     throw new ArgumentException(
                         string.Format("Number of weights={0} does not match number of samples={1}",
-                                      sample_weight.Count, n_samples));
+                                      sampleWeight.Count, nSamples));
                 }
             }
 
 
             // Set min_samples_split sensibly
-            min_samples_split = Math.Max(this.min_samples_split,
-                                         2*this.min_samples_leaf);
+            minSamplesSplit = Math.Max(this.minSamplesSplit,
+                                         2*this.minSamplesLeaf);
 
 
             // Build tree
@@ -162,13 +178,13 @@ namespace Sharpkit.Learn.Tree
             switch (this.criterion)
             {
                 case Criterion.Gini:
-                    criterion = new Gini((uint)n_outputs_, n_classes_.ToArray());
+                    criterion = new Gini((uint)nOutputs, nClasses.ToArray());
                     break;
                 case Criterion.Entropy:
-                    criterion = new Entropy((uint)n_outputs_, n_classes_.ToArray());
+                    criterion = new Entropy((uint)nOutputs, nClasses.ToArray());
                     break;
                 case Criterion.Mse:
-                    criterion = new MSE((uint)n_outputs_);
+                    criterion = new MSE((uint)nOutputs);
                     break;
                 default:
                     throw new InvalidOperationException("Unknown criterion type");
@@ -178,32 +194,32 @@ namespace Sharpkit.Learn.Tree
             switch (this.splitter)
             {
                 case Splitter.Best:
-                    splitter = new BestSplitter(criterion, (uint)this.max_features_, (uint)this.min_samples_leaf, random_state);
+                    splitter = new BestSplitter(criterion, (uint)this.maxFeaturesValue, (uint)this.minSamplesLeaf, randomState);
                     break;
                 case Splitter.PresortBest:
-                    splitter = new PresortBestSplitter(criterion, (uint)this.max_features_, (uint)this.min_samples_leaf, random_state);
+                    splitter = new PresortBestSplitter(criterion, (uint)this.maxFeaturesValue, (uint)this.minSamplesLeaf, randomState);
                     break;
                 case Splitter.Random:
-                    splitter = new RandomSplitter(criterion, (uint)this.max_features_, (uint)this.min_samples_leaf, random_state);
+                    splitter = new RandomSplitter(criterion, (uint)this.maxFeaturesValue, (uint)this.minSamplesLeaf, randomState);
                     break;
                 default:
                     throw new InvalidOperationException("Unknown splitter type");
             }
 
-            this.tree_ = new Tree(this.n_features_, this.n_classes_.ToArray(),
-                                  this.n_outputs_, splitter, (uint)max_depth,
-                                  (uint)min_samples_split, (uint)this.min_samples_leaf);
+            this.tree_ = new Tree(this.nFeatures, this.nClasses.ToArray(),
+                                  this.nOutputs, splitter, (uint)maxDepth,
+                                  (uint)minSamplesSplit, (uint)this.minSamplesLeaf);
 
 
-            this.tree_.build(X, y, sampleWeight: sample_weight);
+            this.tree_.build(x, y, sampleWeight: sampleWeight);
         }
 
         /// <summary>
         /// Build a decision tree from the training set (X, y).
         /// </summary>
-        /// <param name="X">[n_samples, n_features] The training input samples. </param>
+        /// <param name="x">[n_samples, n_features] The training input samples. </param>
         /// <param name="y"> [n_samples] The target values.</param>
-        /// <param name="sample_weight">[n_samples] or None
+        /// <param name="sampleWeight">[n_samples] or None
         /// Sample weights. If None, then samples are equally weighted. Splits
         /// that would create child nodes with net zero or negative weight are
         /// ignored while searching for a split in each node. In the case of
@@ -213,36 +229,36 @@ namespace Sharpkit.Learn.Tree
         /// Returns this.
         /// </returns>
         internal BaseDecisionTree<TLabel> fitClassification(
-            Matrix<double> X,
+            Matrix<double> x,
             TLabel[] y,
-            Vector<double> sample_weight = null)
+            Vector<double> sampleWeight = null)
         {
             // Determine output settings
-            int n_samples = X.RowCount;
-            this.n_features_ = X.ColumnCount;
+            int nSamples = x.RowCount;
+            this.nFeatures = x.ColumnCount;
 
-            if (y.Length != n_samples)
+            if (y.Length != nSamples)
             {
                 throw new ArgumentException(string.Format("Number of labels={0} does not match number of samples={1}",
                                                           y.Length,
-                                                          n_samples));
+                                                          nSamples));
             }
 
-            this.n_outputs_ = 1;
+            this.nOutputs = 1;
             int[] y_;
 
 
-            this.classes_ = new List<TLabel>();
-            this.n_classes_ = new List<uint>();
+            this.classes = new List<TLabel>();
+            this.nClasses = new List<uint>();
 
             var enc = new LabelEncoder<TLabel>();
             y_ = enc.FitTransform(y).ToArray();
 
-            this.classes_.AddRange(enc.Classes);
-            this.n_classes_.Add((uint)enc.Classes.Length);
+            this.classes.AddRange(enc.Classes);
+            this.nClasses.Add((uint)enc.Classes.Length);
 
             var yMatrix = y_.Select(v => (double)v).ToArray().ToDenseVector().ToColumnMatrix();
-            fitCommon1(X, yMatrix, n_samples, sample_weight, true);
+            fitCommon(x, yMatrix, nSamples, sampleWeight, true);
 
 
             return this;
@@ -266,18 +282,18 @@ namespace Sharpkit.Learn.Tree
             }
 
 
-            if (this.n_features_ != n_features)
+            if (this.nFeatures != n_features)
             {
                 throw new ArgumentException(
                     String.Format(
                         "Number of features of the model must match the input. Model n_features is {0} and input n_features is {1} ",
-                        this.n_features_, n_features));
+                        this.nFeatures, n_features));
             }
 
 
             Matrix<double> proba = this.tree_.predict(X)[0];
 
-            return proba.ArgmaxColumns().Select(v => this.classes_[v]).ToArray();
+            return proba.ArgmaxColumns().Select(v => this.classes[v]).ToArray();
         }
 
         /// <summary>
@@ -295,18 +311,18 @@ namespace Sharpkit.Learn.Tree
             CheckFitted();
 
 
-            if (this.n_features_ != n_features)
+            if (this.nFeatures != n_features)
             {
                 throw new ArgumentException(
                     String.Format(
                         "Number of features of the model must match the input. Model n_features is {0} and input n_features is {1} ",
-                        this.n_features_, n_features));
+                        this.nFeatures, n_features));
             }
 
 
             var proba = this.tree_.predict(X);
 
-            var result = DenseMatrix.Create(n_samples, this.n_outputs_, (x, y) => 0);
+            var result = DenseMatrix.Create(n_samples, this.nOutputs, (x, y) => 0);
             for (int i = 0; i < proba.Length; i++)
             {
                 result.SetColumn(i, proba[i].Column(0));

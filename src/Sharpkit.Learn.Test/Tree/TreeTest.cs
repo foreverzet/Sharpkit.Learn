@@ -438,7 +438,7 @@ public void  test_xor()
             {
                 var reg = CreateRegressor(name, max_features: MaxFeaturesChoice.Auto());
                 reg.Fit(boston.Data, boston.Target);
-                Assert.AreEqual(boston.Data.ColumnCount, reg.max_features_);
+                Assert.AreEqual(boston.Data.ColumnCount, reg.maxFeaturesValue);
             }
 
 
@@ -446,35 +446,35 @@ public void  test_xor()
             {
                 var clf = CreateClassifier<int>(name, max_features: MaxFeaturesChoice.Auto());
                 clf.Fit(iris.Data, iris.Target);
-                Assert.AreEqual(2, clf.max_features_);
+                Assert.AreEqual(2, clf.maxFeaturesValue);
             }
 
             foreach (var name in CLF_TREES)
             {
                 var est = CreateClassifier<int>(name, max_features: MaxFeaturesChoice.Sqrt());
                 est.Fit(iris.Data, iris.Target);
-                Assert.AreEqual(Math.Sqrt(iris.Data.ColumnCount), est.max_features_);
+                Assert.AreEqual(Math.Sqrt(iris.Data.ColumnCount), est.maxFeaturesValue);
 
 
                 est = CreateClassifier<int>(name, max_features: MaxFeaturesChoice.Log2());
                 est.Fit(iris.Data, iris.Target);
-                Assert.AreEqual(Math.Log(iris.Data.ColumnCount, 2), est.max_features_);
+                Assert.AreEqual(Math.Log(iris.Data.ColumnCount, 2), est.maxFeaturesValue);
 
                 est = CreateClassifier<int>(name, max_features: MaxFeaturesChoice.Value(1));
                 est.Fit(iris.Data, iris.Target);
-                Assert.AreEqual(1, est.max_features_);
+                Assert.AreEqual(1, est.maxFeaturesValue);
 
                 est = CreateClassifier<int>(name, max_features: MaxFeaturesChoice.Value(3));
                 est.Fit(iris.Data, iris.Target);
-                Assert.AreEqual(3, est.max_features_);
+                Assert.AreEqual(3, est.maxFeaturesValue);
 
                 est = CreateClassifier<int>(name, max_features: MaxFeaturesChoice.Fraction(0.5));
                 est.Fit(iris.Data, iris.Target);
-                Assert.AreEqual((int)(0.5*iris.Data.ColumnCount), est.max_features_);
+                Assert.AreEqual((int)(0.5*iris.Data.ColumnCount), est.maxFeaturesValue);
 
                 est = CreateClassifier<int>(name, max_features: MaxFeaturesChoice.Fraction(1.0));
                 est.Fit(iris.Data, iris.Target);
-                Assert.AreEqual(iris.Data.ColumnCount, est.max_features_);
+                Assert.AreEqual(iris.Data.ColumnCount, est.maxFeaturesValue);
 
                 //est = CreateTree<int>(name, max_features: null);
                 //est.Fit(iris.Data, iris.Target);
@@ -666,8 +666,8 @@ public void  test_xor()
                 var clf = CreateClassifier<double>(name, random: new Random(0));
                 clf.Fit(X, y);
 
-                Assert.AreEqual(1, clf.n_classes_.Count);
-                Assert.AreEqual(2U, clf.n_classes_[0]);
+                Assert.AreEqual(1, clf.nClasses.Count);
+                Assert.AreEqual(2U, clf.nClasses[0]);
                 AssertExt.ArrayEqual(new [] {-1.0, 1.0}, clf.Classes);
             }
         }
@@ -750,13 +750,13 @@ public void  test_xor()
 
             sampleWeight.SetSubVector(100, 100, Enumerable.Repeat(0.51, 100).ToVector());
             // Samples of class '2' are still weightier
-            clf = new DecisionTreeClassifier<int>(max_depth: 1, random: new Random(0));
+            clf = new DecisionTreeClassifier<int>(maxDepth: 1, random: new Random(0));
             clf.Fit(X, y, sampleWeight: sampleWeight);
             Assert.AreEqual(149.5, clf.tree_.Threshold[0]);
 
             sampleWeight.SetSubVector(100, 100, Enumerable.Repeat(0.50, 100).ToVector());
             // Samples of class '2' are no longer weightier
-            clf = new DecisionTreeClassifier<int>(max_depth: 1, random: new Random(0));
+            clf = new DecisionTreeClassifier<int>(maxDepth: 1, random: new Random(0));
             clf.Fit(X, y, sampleWeight: sampleWeight);
             Assert.AreEqual(49.5, clf.tree_.Threshold[0]); // Threshold should have moved
 
@@ -793,12 +793,12 @@ public void  test_xor()
         [TestMethod]
         public void Test32BitEquality()
         {
-            var r = CrossValidation.train_test_split(new[]
+            var r = CrossValidation.TrainTestSplit(new[]
                                                          {
                                                              boston.Data,
                                                              boston.Target.ToColumnMatrix()
                                                          },
-                                                     random_state: new Random(1));
+                                                     randomState: new Random(1));
 
             Matrix<double> xTrain = r[0].Item1;
             Matrix<double> xTest = r[0].Item2;
