@@ -42,28 +42,23 @@ namespace Sharpkit.Learn.Tree
     /// </para>
     /// </remarks> 
     /// <example>
-    /// >>> from sklearn.datasets import load_boston
-    /// >>> from sklearn.cross_validation import cross_val_score
-    /// >>> from sklearn.tree import DecisionTreeRegressor
-    /// >>> boston = load_boston()
-    /// >>> regressor = DecisionTreeRegressor(random_state=0)
-    /// >>> cross_val_score(regressor, boston.data, boston.target, cv=10)
-    /// array([ 0.61..., 0.57..., -0.34..., 0.41..., 0.75...,
-    ///        0.07..., 0.29..., 0.33..., -1.42..., -1.77...])
+    /// <code>
+    /// <![CDATA[
+    ///   using Sharpkit.Learn;
+    ///   using Sharpkit.Learn.Tree;
+    ///   using Sharpkit.Learn.Datasets;
+    ///
+    ///   var reg = new DecisionTreeRegressor();
+    ///   var boston = BostonDataset.Load();
+    ///   reg.Fit(boston.Data, boston.Target);
+    ///   var score = Sharpkit.Learn.Metrics.Metrics.MeanSquaredError(
+    ///     boston.Target,
+    ///     reg.Predict(boston.Data).Column(0));
+    /// ]]>
+    /// </code>
     /// </example>
     public class DecisionTreeRegressor : BaseDecisionTree<int>, IRegressor
     {
-        /*
-    Attributes
-    ----------
-    `tree_` : Tree object
-        The underlying Tree object.
-
-
-    `max_features_` : int,
-        The infered value of max_features.
-    */
-
         /// <summary>
         /// Initializes a new instance of the DecisionTreeRegressor class.
         /// </summary>
@@ -72,39 +67,54 @@ namespace Sharpkit.Learn.Tree
         /// <param name="splitter">The strategy used to choose the split at each node. Supported
         /// strategies are <see cref="Splitter.Best"/> to choose the best split and <see cref="Splitter.Random"/> to choose
         /// the best random split.</param>
-        /// <param name="max_depth">The maximum depth of the tree. If <c>null</c>, then nodes are expanded until
+        /// <param name="maxDepth">The maximum depth of the tree. If <c>null</c>, then nodes are expanded until
         /// all leaves are pure or until all leaves contain less than
-        /// <paramref name="min_samples_split"/> samples.</param>
-        /// <param name="min_samples_split">The minimum number of samples required to split an internal node.</param>
-        /// <param name="min_samples_leaf">The minimum number of samples required to be at a leaf node.</param>
-        /// <param name="max_features">Number of features to consider when looking for the best split. If null - 
+        /// <paramref name="minSamplesSplit"/> samples.</param>
+        /// <param name="minSamplesSplit">The minimum number of samples required to split an internal node.</param>
+        /// <param name="minSamplesLeaf">The minimum number of samples required to be at a leaf node.</param>
+        /// <param name="maxFeatures">Number of features to consider when looking for the best split. If null - 
         /// then all features will be considered.</param>
         /// <param name="random">random number generator</param>
         public DecisionTreeRegressor(
             Criterion criterion = Criterion.Mse,
             Splitter splitter = Splitter.Best,
-            int? max_depth = null,
-            int min_samples_split = 2,
-            int min_samples_leaf = 1,
-            MaxFeaturesChoice max_features = null,
-            Random random = null) : base(criterion,
-                                         splitter,
-                                         max_depth,
-                                         min_samples_split,
-                                         min_samples_leaf,
-                                         max_features,
-                                         random)
+            int? maxDepth = null,
+            int minSamplesSplit = 2,
+            int minSamplesLeaf = 1,
+            MaxFeaturesChoice maxFeatures = null,
+            Random random = null) : base(
+                criterion,
+                splitter,
+                maxDepth,
+                minSamplesSplit,
+                minSamplesLeaf,
+                maxFeatures,
+                random)
         {
         }
 
+        /// <summary>
+        /// Fit the model according to the given training data.
+        /// </summary>
+        /// <param name="x">
+        /// Matrix with dimensions [nSamples, nFeatures].
+        /// Training vectors, where nSamples is the number of samples
+        /// and nFeatures is the number of features.</param>
+        /// <param name="y">Vector with dimensions [nSamples, nTargets]. Target values.</param>
+        /// <param name="sampleWeight">Individual weights for each sample. Array with dimensions [nSamples].</param>
         public void Fit(Matrix<double> x, Matrix<double> y, Vector<double> sampleWeight = null)
         {
-            this.fitRegression(x, y, sampleWeight);
+            this.FitRegression(x, y, sampleWeight);
         }
 
+        /// <summary>
+        /// Predict target values for samples in <paramref name="x"/>.
+        /// </summary>
+        /// <param name="x">Array with dimensions [nSamples, nFeatures].</param>
+        /// <returns>Returns predicted values. Array with dimensions [nSamples, nTargets].</returns>
         public Matrix<double> Predict(Matrix<double> x)
         {
-            return this.predictRegression(x);
+            return this.PredictRegression(x);
         }
     }
 }

@@ -64,8 +64,8 @@ namespace Sharpkit.Learn.Tree
                 while (p < end)
                 {
                     while ((p + 1 < end) &&
-                           (X[X_stride*samples[p + 1] + current_feature] <=
-                            X[X_stride*samples[p] + current_feature] + 1e-7))
+                           (X[X_stride * samples[p + 1] + current_feature] <=
+                            X[X_stride * samples[p] + current_feature] + 1e-7))
                     {
                         p += 1;
                     }
@@ -99,12 +99,12 @@ namespace Sharpkit.Learn.Tree
                             best_feature = current_feature;
 
 
-                            double current_threshold = (X[X_stride*samples[p - 1] + current_feature] +
-                                                        X[X_stride*samples[p] + current_feature])/2.0;
+                            double current_threshold = (X[X_stride * samples[p - 1] + current_feature] +
+                                                        X[X_stride * samples[p] + current_feature]) / 2.0;
 
-                            if (current_threshold == X[X_stride*samples[p] + current_feature])
+                            if (current_threshold == X[X_stride * samples[p] + current_feature])
                             {
-                                current_threshold = X[X_stride*samples[p - 1] + current_feature];
+                                current_threshold = X[X_stride * samples[p - 1] + current_feature];
                             }
 
                             best_threshold = current_threshold;
@@ -136,7 +136,7 @@ namespace Sharpkit.Learn.Tree
 
                 while (p < partition_end)
                 {
-                    if (X[X_stride*samples[p] + best_feature] <= best_threshold)
+                    if (X[X_stride * samples[p] + best_feature] <= best_threshold)
                         p += 1;
                     else
                     {
@@ -173,7 +173,7 @@ namespace Sharpkit.Learn.Tree
         {
             //# Heapsort, adapted from Numerical Recipes in C
             uint n = length;
-            uint parent = length/2;
+            uint parent = length / 2;
 
             while (true)
             {
@@ -194,25 +194,25 @@ namespace Sharpkit.Learn.Tree
                     samples[n + samples_offset] = samples[0 + samples_offset];
                 }
 
-                double tmp_value = X[X_stride*tmp + current_feature];
+                double tmp_value = X[X_stride * tmp + current_feature];
                 uint index = parent;
-                uint child = index*2 + 1;
+                uint child = index * 2 + 1;
 
                 while (child < n)
                 {
                     if ((child + 1 < n) &&
-                        (X[X_stride*samples[child + 1 + samples_offset] + current_feature] >
-                         X[X_stride*samples[child + samples_offset] + current_feature]))
+                        (X[X_stride * samples[child + 1 + samples_offset] + current_feature] >
+                         X[X_stride * samples[child + samples_offset] + current_feature]))
                     {
                         child += 1;
                     }
 
 
-                    if (X[X_stride*samples[child + samples_offset] + current_feature] > tmp_value)
+                    if (X[X_stride * samples[child + samples_offset] + current_feature] > tmp_value)
                     {
                         samples[index + samples_offset] = samples[child + samples_offset];
                         index = child;
-                        child = index*2 + 1;
+                        child = index * 2 + 1;
                     }
                     else
                     {

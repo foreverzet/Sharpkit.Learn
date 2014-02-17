@@ -114,7 +114,7 @@ namespace Sharpkit.Learn.Tree
 
 
             this.maxNClasses = nClasses.Max();
-            this.valueStride = (uint)this.nOutputs*this.maxNClasses;
+            this.valueStride = (uint)this.nOutputs * this.maxNClasses;
 
 
             for (uint k = 0; k < nOutputs; k++)
@@ -171,7 +171,7 @@ namespace Sharpkit.Learn.Tree
                 }
                 else
                 {
-                    capacity = 2*this.Capacity;
+                    capacity = 2 * this.Capacity;
                 }
             }
 
@@ -181,7 +181,7 @@ namespace Sharpkit.Learn.Tree
             this.ChildrenRight = Resize(this.ChildrenRight, capacity);
             this.Feature = Resize(this.Feature, capacity);
             this.Threshold = Resize(this.Threshold, capacity);
-            this.Value = Resize(this.Value, capacity*(int)this.valueStride);
+            this.Value = Resize(this.Value, capacity * (int)this.valueStride);
             this.Impurity = Resize(this.Impurity, capacity);
             this.NNodeSamples = Resize(this.NNodeSamples, capacity);
 
@@ -310,7 +310,7 @@ namespace Sharpkit.Learn.Tree
                 uint nNodeSamples = end - start;
                 bool isLeaf = ((depth >= this.maxDepth) ||
                                 (nNodeSamples < this.minSamplesSplit) ||
-                                (nNodeSamples < 2*this.minSamplesLeaf));
+                                (nNodeSamples < 2 * this.minSamplesLeaf));
 
                 splitter.node_reset(start, end, ref impurity);
                 isLeaf = isLeaf || (impurity < 1e-7);
@@ -327,7 +327,7 @@ namespace Sharpkit.Learn.Tree
                 if (isLeaf)
                 {
                     // Don't store value for internal nodes
-                    splitter.node_value(this.Value, nodeId*this.valueStride);
+                    splitter.node_value(this.Value, nodeId * this.valueStride);
                 }
                 else
                 {
@@ -392,7 +392,7 @@ namespace Sharpkit.Learn.Tree
                         }
                     }
 
-                    uint offset = nodeId*valueStride;
+                    uint offset = nodeId * valueStride;
 
                     for (int c = 0; c < NClasses[0]; c++)
                     {
@@ -400,14 +400,14 @@ namespace Sharpkit.Learn.Tree
                     }
                 }
 
-                return new[] {@out};
+                return new[] { @out };
             }
             else // n_outputs > 1
             {
-                //out_multi = np.zeros((n_samples,
+                // out_multi = np.zeros((n_samples,
                 //                      n_outputs,
                 //                      max_n_classes), dtype=np.float64)
-                //Note: I've changed order
+                // Note: I've changed order
                 var outMulti = new MathNet.Numerics.LinearAlgebra.Generic.Matrix<double>[nOutputs];
                 for (int i = 0; i < outMulti.Length; i++)
                 {

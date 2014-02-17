@@ -56,12 +56,12 @@ namespace Sharpkit.Learn.Tree
         /// <returns></returns>
         public static double rand_double(ref uint random_state)
         {
-            return (double)our_rand_r(ref random_state)/RAND_R_MAX;
+            return (double)our_rand_r(ref random_state) / RAND_R_MAX;
         }
 
         public static double log(double x)
         {
-            return Math.Log(x)/Math.Log(2.0);
+            return Math.Log(x) / Math.Log(2.0);
         }
     }
 }

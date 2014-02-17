@@ -42,37 +42,21 @@ namespace Sharpkit.Learn.Tree
     /// </para>
     /// </remarks> 
     /// <example>
-    ///  Examples
-    /// >>> from sklearn.datasets import load_iris
-    /// >>> from sklearn.cross_validation import cross_val_score
-    /// >>> from sklearn.tree import DecisionTreeClassifier
-    /// >>> clf = DecisionTreeClassifier(random_state=0)
-    /// >>> iris = load_iris()
-    /// >>> cross_val_score(clf, iris.data, iris.target, cv=10)
-    ///                             
-    /// array([ 1.     ,  0.93...,  0.86...,  0.93...,  0.93...,
-    ///        0.93...,  0.93...,  1.     ,  0.93...,  1.      ])
+    /// <code>
+    /// <![CDATA[
+    ///   using Sharpkit.Learn;
+    ///   using Sharpkit.Learn.Tree;
+    ///   using Sharpkit.Learn.Datasets;
+    /// 
+    ///   var clf = new DecisionTreeClassifier<int>();
+    ///   var iris = IrisDataset.Load();
+    ///   clf.Fit(iris.Data, iris.Target);
+    ///   var score = clf.Score(iris.Data, iris.Target);
+    /// ]]>
+    /// </code>
     /// </example>
     public class DecisionTreeClassifier<TLabel> : BaseDecisionTree<TLabel>, IClassifier<TLabel>
     {
-        /*
-
-    Attributes
-    ----------
-    `tree_` : Tree object
-
-
-    `max_features_` : int,
-        The infered value of max_features.
-
-
-    `n_classes_` : int or list
-        The number of classes (for single output problems),
-        or a list containing the number of classes for each
-        output (for multi-output problems).
-
-    """*/
-
         /// <summary>
         /// Initializes a new instance of the DecisionTreeClassifier class.
         /// </summary>
@@ -107,7 +91,7 @@ namespace Sharpkit.Learn.Tree
         /// </summary>
         public TLabel[] Classes
         {
-            get { return this.classes.ToArray(); }
+            get { return this.ClassesInternal.ToArray(); }
         }
 
         /// <summary>
@@ -120,7 +104,7 @@ namespace Sharpkit.Learn.Tree
         /// <param name="sampleWeight">Individual weights for each sample. Array with dimensions [nSamples].</param>
         public void Fit(Matrix<double> x, TLabel[] y, Vector<double> sampleWeight = null)
         {
-            this.fitClassification(x, y, sampleWeight);
+            this.FitClassification(x, y, sampleWeight);
         }
 
         /// <summary>
@@ -131,7 +115,7 @@ namespace Sharpkit.Learn.Tree
         /// <returns>[nSamples] Class labels for samples in <paramref name="x"/>.</returns>
         public TLabel[] Predict(Matrix<double> x)
         {
-            return this.predictClassification(x);
+            return this.PredictClassification(x);
         }
 
         /// <summary>
@@ -151,21 +135,21 @@ namespace Sharpkit.Learn.Tree
 
             CheckFitted();
 
-            if (this.nFeatures != nFeatures)
+            if (this.NFeatures != nFeatures)
             {
                 var message = string.Format(
                     "Number of features of the model must " +
                     " match the input. Model n_features is {0} and " +
                     " input n_features is {1}",
-                    this.nFeatures,
+                    this.NFeatures,
                     nFeatures);
 
                 throw new ArgumentException(message);
             }
 
-            var proba = this.tree_.predict(x)[0];
+            var proba = this.Tree.predict(x)[0];
 
-            proba = proba.SubMatrix(0, proba.RowCount, 0, (int)this.nClasses[0]);
+            proba = proba.SubMatrix(0, proba.RowCount, 0, (int)this.NClasses[0]);
             var normalizer = proba.SumOfEveryRow();
             normalizer.MapInplace(v => v == 0.0 ? 1.0 : v, true);
             return proba.DivColumnVector(normalizer);
