@@ -22,15 +22,16 @@ namespace Sharpkit.Learn.LinearModel
     /// </para>
     /// </summary>
     /// <example>
-    /// >>> from sklearn import linear_model
-    /// >>> clf = linear_model.BayesianRidge()
-    /// >>> clf.fit([[0,0], [1, 1], [2, 2]], [0, 1, 2])
-    /// ... # doctest: +NORMALIZE_WHITESPACE
-    /// BayesianRidge(alpha_1=1e-06, alpha_2=1e-06, compute_score=False,
-    ///        copy_X=True, fit_intercept=True, lambda_1=1e-06, lambda_2=1e-06,
-    ///        n_iter=300, normalize=False, tol=0.001, verbose=False)
-    /// >>> clf.predict([[1, 1]])
-    /// array([ 1.])
+    /// <code>
+    ///   <![CDATA[
+    ///   var x = new double[,] {{1}, {2}, {6}, {8}, {10}};
+    ///   var y = new double[] {1, 2, 6, 8, 10};
+    ///   var clf = new BayesianRidgeRegression(computeScore: true);
+    ///   clf.Fit(x, y);
+    ///   var xTest = new double[,] {{1}, {3}, {4}};
+    ///   var result = clf.Predict(xTest);
+    ///    ]]>
+    /// </code>
     /// </example>
     public class BayesianRidgeRegression : LinearModel, IRegressor
     {
