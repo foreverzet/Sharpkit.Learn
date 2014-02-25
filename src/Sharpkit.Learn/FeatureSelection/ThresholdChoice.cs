@@ -1,24 +1,20 @@
 ﻿// -----------------------------------------------------------------------
-// <copyright file="ThresholdChoice.cs" company="">
-// TODO: Update copyright text.
+// <copyright file="ThresholdChoice.cs" company="Sharpkit.Learn">
+//  Copyright (c) 2013 Sergey Zyuzin
+//  License: BSD 3 clause
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace Sharpkit.Learn
+namespace Sharpkit.Learn.FeatureSelection
 {
     using System;
     using MathNet.Numerics.LinearAlgebra.Generic;
     using MathNet.Numerics.Statistics;
 
     /// <summary>
-    /*The threshold value to use for feature selection. Features whose
-            importance is greater or equal are kept while the others are
-            discarded. If "median" (resp. "mean"), then the threshold value is
-            the median (resp. the mean) of the feature importances. A scaling
-            factor (e.g., "1.25*mean") may also be used. If None and if
-            available, the object attribute ``threshold`` is used. Otherwise,
-            "mean" is used by default.
-    */
+    /// The threshold value to use for feature selection. Features whose
+    /// importance is greater or equal are kept while the others are
+    /// discarded.
     /// </summary>
     public class ThresholdChoice
     {
@@ -26,16 +22,33 @@ namespace Sharpkit.Learn
         private readonly double value;
         private readonly double scale;
 
+         /// <summary>
+        /// The threshold value is the mean of the feature importances. A scaling
+        /// factor (e.g., "1.25*mean") may also be used.
+        /// </summary>
+        /// <param name="scale">Scaling factor.</param>
+        /// <returns>ThresholdChoice instace.</returns>
         public static ThresholdChoice Mean(double scale = 1.0)
         {
             return new ThresholdChoice("mean", scale, 1.0);
         }
 
+        /// <summary>
+        /// The threshold value is the median of the feature importances. A scaling
+        /// factor (e.g., "1.25*median") may also be used.
+        /// </summary>
+        /// <param name="scale">Scaling factor.</param>
+        /// <returns>ThresholdChoice instace.</returns>
         public static ThresholdChoice Median(double scale = 1.0)
         {
             return new ThresholdChoice("median", scale, 1.0);
         }
 
+        /// <summary>
+        /// Threshold value is specified explicitly.
+        /// </summary>
+        /// <param name="value">Thershold value.</param>
+        /// <returns>ThresholdChoice instace.</returns>
         public static ThresholdChoice Value(double value)
         {
             return new ThresholdChoice("value", 1.0, value);
@@ -48,6 +61,11 @@ namespace Sharpkit.Learn
             this.value = value;
         }
 
+        /// <summary>
+        /// Calculates threshold value.
+        /// </summary>
+        /// <param name="importances">Feature importances.</param>
+        /// <returns>Threshold value.</returns>
         public double GetValue(Vector<double> importances)
         {
             switch(name)

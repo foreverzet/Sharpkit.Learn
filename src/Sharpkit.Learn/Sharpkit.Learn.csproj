@@ -92,7 +92,6 @@
     <Compile Include="Svm\LibSvmBase.cs" />
     <Compile Include="Svm\LibSvmImpl.cs" />
     <Compile Include="Svm\LibSvmKernel.cs" />
-    <Compile Include="Svm\NuSvc.cs" />
     <Compile Include="Svm\Svc.cs" />
     <Compile Include="Svm\SvcBase.cs" />
     <Compile Include="FeatureSelection\ThresholdChoice.cs" />

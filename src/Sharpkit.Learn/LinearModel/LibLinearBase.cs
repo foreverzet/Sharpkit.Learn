@@ -113,6 +113,7 @@ namespace Sharpkit.Learn.LinearModel
         ///    n_features is the number of features.</param>
         /// <param name="y">shape = [n_samples]
         ///    Target vector relative to X</param>
+        /// <param name="sampleWeight">Sample weights.</param>
         public void Fit(Matrix<double> x, TLabel[] y, Vector<double> sampleWeight = null)
         {
             if (sampleWeight != null)
@@ -220,7 +221,7 @@ namespace Sharpkit.Learn.LinearModel
         }
 
         /// <summary>
-        /// Gets ordered list of class labeled discovered int <see cref="LogisticRegression{TLabel}.Fit"/>.
+        /// Gets ordered list of class labeled discovered in <see cref="LibLinearBase{TLabel}.Fit"/>.
         /// </summary>
         public TLabel[] Classes
         {

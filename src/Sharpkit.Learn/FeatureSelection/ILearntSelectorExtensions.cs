@@ -4,7 +4,6 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-
 namespace Sharpkit.Learn.FeatureSelection
 {
     using System;

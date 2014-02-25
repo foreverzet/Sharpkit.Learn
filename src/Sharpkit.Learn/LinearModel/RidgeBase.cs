@@ -1,4 +1,12 @@
-﻿
+﻿// -----------------------------------------------------------------------
+// <copyright file="RidgeBase.cs" company="Sharpkit.Learn">
+// Author: Mathieu Blondel <mathieu@mblondel.org>
+//         Reuben Fletcher-Costin <reuben.fletchercostin@gmail.com>
+//         Fabian Pedregosa <fabian@fseoane.net>
+//  License: BSD 3 clause
+// </copyright>
+// -----------------------------------------------------------------------
+
 namespace Sharpkit.Learn.LinearModel
 {
     using System;
@@ -6,7 +14,10 @@ namespace Sharpkit.Learn.LinearModel
     using LeastSquares;
     using MathNet.Numerics.LinearAlgebra.Generic;
 
-    public class RidgeBase : LinearModel
+    /// <summary>
+    /// Base class for Ridge models.
+    /// </summary>
+    public abstract class RidgeBase : LinearModel
     {
         /// <summary>
         /// Small positive values of alpha improve the conditioning of the problem
@@ -52,6 +63,15 @@ namespace Sharpkit.Learn.LinearModel
             this.Solver = solver;
         }
 
+        /// <summary>
+        /// Fit the model according to the given training data.
+        /// </summary>
+        /// <param name="x">shape = [n_samples, n_features]
+        ///    Training vector, where n_samples in the number of samples and
+        ///    n_features is the number of features.</param>
+        /// <param name="y">shape = [n_samples]
+        ///    Target vector relative to X</param>
+        /// <param name="sampleWeight">Sample weights.</param>
         public void Fit(Matrix<double> x, Matrix<double> y, Vector<double> sampleWeight = null)
         {
             var t = CenterData(x, y, FitIntercept, this.Normalize, sampleWeight);

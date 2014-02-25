@@ -1,20 +1,19 @@
 ﻿// -----------------------------------------------------------------------
-// <copyright file="Multiclass.cs" company="">
-// TODO: Update copyright text.
+// <copyright file="Multiclass.cs" company="Sharpkit.Learn">
+//  Copyright (c) 2013 Sergey Zyuzin
+//  License: BSD 3 clause
 // </copyright>
 // -----------------------------------------------------------------------
 
 namespace Sharpkit.Learn.Utils
 {
     using System;
-    using System.Collections.Generic;
     using System.Linq;
-    using System.Text;
 
     /// <summary>
     /// TODO: Update summary.
     /// </summary>
-    public static class Multiclass
+    internal static class Multiclass
     {
 
         /*

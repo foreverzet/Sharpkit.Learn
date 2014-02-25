@@ -48,7 +48,7 @@ namespace Sharpkit.Learn.LinearModel
     public class LogisticRegression<TLabel> : LibLinearBase<TLabel>, IClassifier<TLabel> where TLabel : IEquatable<TLabel>
     {
         /// <summary>
-        /// Initializes a new instance of the logistic regression class.
+        /// Initializes a new instance of the LogisticRegression class.
         /// </summary>
         /// <param name="penalty">Used to specify the norm used in the penalization.</param>
         /// <param name="dual">
@@ -79,8 +79,7 @@ namespace Sharpkit.Learn.LinearModel
         /// <param name="classWeightEstimator">Set the parameter C of class i to class_weight[i]*C for
         /// SVC. If not given or ClassWeight.Uniform is used, all classes are supposed to have
         /// weight one. ClassWeight.Auto uses the values of y to
-        //  automatically adjust weights inversely proportional to
-        /// class frequencies.</param>
+        /// automatically adjust weights inversely proportional to class frequencies.</param>
         /// <param name="random">
         /// The seed of the pseudo random number generator to use when
         /// shuffling the data.
@@ -123,7 +122,7 @@ namespace Sharpkit.Learn.LinearModel
         /// <param name="x">[n_samples, n_features]</param>
         /// <returns>[n_samples, n_classes]
         ///       Returns the probability of the sample for each class in the model,
-        ///       where classes are ordered as they are in <see cref="Classes"/>.
+        ///       where classes are ordered as they are in <see cref="LibLinearBase{TLabel}.Classes"/>.
         /// </returns>
         public Matrix<double> PredictProba(Matrix<double> x)
         {

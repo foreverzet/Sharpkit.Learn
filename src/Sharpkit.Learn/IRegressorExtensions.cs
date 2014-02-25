@@ -110,7 +110,7 @@ namespace Sharpkit.Learn
         /// </summary>
         /// <param name="regressor">A <see cref="IRegressor"/> instance.</param>
         /// <param name="x">Feature matrix. Matrix with dimensions [nSamples, nFeatures].</param>
-        /// <param name="y">True values for <see cref="x"/>. Matrix with dimensions [nSamples, nTargets].</param>
+        /// <param name="y">True values for <paramref name="x"/>. Matrix with dimensions [nSamples, nTargets].</param>
         /// <returns> R^2 of Predict(x) wrt. y.</returns>
         public static double Score(this IRegressor regressor, Matrix<double> x, Matrix<double> y)
         {
@@ -130,7 +130,7 @@ namespace Sharpkit.Learn
         /// </summary>
         /// <param name="regressor">A <see cref="IRegressor"/> instance.</param>
         /// <param name="x">Feature matrix. Matrix with dimensions [nSamples, nFeatures].</param>
-        /// <param name="y">True values for <see cref="x"/>. Vector with dimensions [nSamples].</param>
+        /// <param name="y">True values for <paramref name="x"/>. Vector with dimensions [nSamples].</param>
         /// <returns> R^2 of Predict(X) wrt. y.</returns>
         public static double Score(this IRegressor regressor, Matrix<double> x, Vector<double> y)
         {

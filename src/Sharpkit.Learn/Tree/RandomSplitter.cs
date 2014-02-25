@@ -118,9 +118,9 @@ namespace Sharpkit.Learn.Tree
                 }
 
                 // Evaluate split
-                this.criterion.reset();
-                this.criterion.update(current_pos);
-                double current_impurity = this.criterion.children_impurity();
+                this.criterion.Reset();
+                this.criterion.Update(current_pos);
+                double current_impurity = this.criterion.ChildrenImpurity();
 
 
                 if (current_impurity < best_impurity)

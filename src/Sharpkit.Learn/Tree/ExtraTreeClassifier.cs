@@ -28,8 +28,6 @@ namespace Sharpkit.Learn.Tree
     /// Warning: Extra-trees should only be used within ensemble methods.
     /// </summary>
     /// <seealso cref="ExtraTreeRegressor"/>
-    /*/// <seealso cref="ExtraTreesRegressor"/>
-    /// <seealso cref="ExtraTreesClassifier"/>*/
     /// <remarks>
     /// <para>References</para>
     ///   [1] P. Geurts, D. Ernst., and L. Wehenkel, "Extremely randomized trees",

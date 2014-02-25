@@ -11,11 +11,10 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-using System.Linq;
-
 namespace Sharpkit.Learn.Tree
 {
     using System;
+    using System.Linq;
     using MathNet.Numerics.LinearAlgebra.Generic;
 
     /// <summary>
@@ -118,7 +117,7 @@ namespace Sharpkit.Learn.Tree
                 }
 
                 // Evaluate all splits
-                this.criterion.reset();
+                this.criterion.Reset();
                 p = start;
                 while (p < end)
                 {
@@ -150,8 +149,8 @@ namespace Sharpkit.Learn.Tree
                         }
 
 
-                        this.criterion.update(current_pos);
-                        double current_impurity = this.criterion.children_impurity();
+                        this.criterion.Update(current_pos);
+                        double current_impurity = this.criterion.ChildrenImpurity();
 
 
                         if (current_impurity < (best_impurity - 1e-7))

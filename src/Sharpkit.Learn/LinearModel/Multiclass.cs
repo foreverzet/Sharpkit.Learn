@@ -1,5 +1,15 @@
-﻿namespace Sharpkit.Learn.LinearModel
+﻿// -----------------------------------------------------------------------
+// <copyright file="Multiclass.cs" company="Sharpkit.Learn">
+//  Copyright (c) 2013 Sergey Zyuzin
+//  License: BSD 3 clause
+// </copyright>
+// -----------------------------------------------------------------------
+
+namespace Sharpkit.Learn.LinearModel
 {
+    /// <summary>
+    /// Determines how to handle multiclass problem.
+    /// </summary>
     public enum Multiclass
     {
         /// <summary>

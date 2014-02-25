@@ -28,8 +28,6 @@ namespace Sharpkit.Learn.Tree
     /// Warning: Extra-trees should only be used within ensemble methods.
     /// </summary>
     /// <seealso cref="ExtraTreeClassifier{TLabel}"/>
-    /*/// <seealso cref="ExtraTreesRegressor"/>
-    /// <seealso cref="ExtraTreesClassifier"/>*/
     /// <remarks>
     /// https://github.com/scikit-learn/scikit-learn/tree/30eb78de8d1e7b25fb1a4b0d8c63afdcc972ee84/sklearn/tree/tree.py
     /// </remarks> 
@@ -40,19 +38,35 @@ namespace Sharpkit.Learn.Tree
     /// </remarks>
     public class ExtraTreeRegressor : DecisionTreeRegressor
     {
+        /// <summary>
+        /// Initializes a new instance of the ExtraTreeRegressor class.
+        /// </summary>
+        /// <param name="criterion"> The function to measure the quality of a split. The only supported
+        /// criterion is <see cref="Criterion.Mse"/> for the mean squared error.</param>
+        /// <param name="splitter">The strategy used to choose the split at each node. Supported
+        /// strategies are <see cref="Splitter.Best"/> to choose the best split and <see cref="Splitter.Random"/> to choose
+        /// the best random split.</param>
+        /// <param name="maxDepth">The maximum depth of the tree. If <c>null</c>, then nodes are expanded until
+        /// all leaves are pure or until all leaves contain less than
+        /// <paramref name="minSamplesSplit"/> samples.</param>
+        /// <param name="minSamplesSplit">The minimum number of samples required to split an internal node.</param>
+        /// <param name="minSamplesLeaf">The minimum number of samples required to be at a leaf node.</param>
+        /// <param name="maxFeatures">Number of features to consider when looking for the best split. If null - 
+        /// then all features will be considered.</param>
+        /// <param name="random">random number generator</param>
         public ExtraTreeRegressor(
             Criterion criterion = Criterion.Mse,
             Splitter splitter = Splitter.Random,
-            int? max_depth = null,
-            int min_samples_split = 2,
-            int min_samples_leaf = 1,
-            MaxFeaturesChoice max_features = null,
+            int? maxDepth = null,
+            int minSamplesSplit = 2,
+            int minSamplesLeaf = 1,
+            MaxFeaturesChoice maxFeatures = null,
             Random random = null) : base(criterion,
                                          splitter,
-                                         max_depth,
-                                         min_samples_split,
-                                         min_samples_leaf,
-                                         max_features ?? MaxFeaturesChoice.Auto(),
+                                         maxDepth,
+                                         minSamplesSplit,
+                                         minSamplesLeaf,
+                                         maxFeatures ?? MaxFeaturesChoice.Auto(),
                                          random)
         {
         }

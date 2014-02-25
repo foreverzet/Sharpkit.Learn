@@ -1,4 +1,13 @@
-﻿namespace Sharpkit.Learn.LinearModel
+﻿// -----------------------------------------------------------------------
+// <copyright file="RidgeClassifier.cs" company="Sharpkit.Learn">
+// Author: Mathieu Blondel <mathieu@mblondel.org>
+//         Reuben Fletcher-Costin <reuben.fletchercostin@gmail.com>
+//         Fabian Pedregosa <fabian@fseoane.net>
+//  License: BSD 3 clause
+// </copyright>
+// -----------------------------------------------------------------------
+
+namespace Sharpkit.Learn.LinearModel
 {
     using System;
     using System.Linq;
@@ -59,6 +68,7 @@
         /// </summary>
         /// <param name="x">[n_samples,n_features]. Training data</param>
         /// <param name="y">Target values.</param>
+        /// <param name="sampleWeight">Sample weights.</param>
         /// <returns>Instance of self.</returns>
         public void Fit(Matrix<double> x, TLabel[] y, Vector<double> sampleWeight = null)
         {
@@ -77,6 +87,12 @@
             base.Fit(x, Y, sampleWeight: sampleWeightClasses);
         }
 
+        /// <summary>
+        /// Perform classification on samples in X.
+        /// For an one-class model, +1 or -1 is returned.
+        /// </summary>
+        /// <param name="x">[nSamples, nFeatures]. Samples.</param>
+        /// <returns>[nSamples] Class labels for samples in <paramref name="x"/>.</returns>
         public TLabel[] Predict(Matrix<double> x)
         {
             var scores = this.DecisionFunction(x);
@@ -90,11 +106,24 @@
             }
         }
 
+        /// <summary>
+        /// Calculates probability estimates.
+        /// The returned estimates for all classes are ordered by the
+        /// label of classes.
+        /// </summary>
+        /// <param name="x">[nSamples, nFeatures]. Samples.</param>
+        /// <returns>
+        /// [nSamples, nClasses]. The probability of the sample for each class in the model,
+        /// where classes are ordered as they are in <see cref="IClassifier{TLabel}.Classes"/>.
+        /// </returns>
         public Matrix<double> PredictProba(Matrix<double> x)
         {
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// Gets ordered list of class labeled discovered int <see cref="IClassifier{TLabel}.Fit"/>.
+        /// </summary>
         public TLabel[] Classes
         {
             get { return this.labelBinarizer.Classes; }

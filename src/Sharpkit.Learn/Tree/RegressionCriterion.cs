@@ -75,7 +75,7 @@ namespace Sharpkit.Learn.Tree
         /// <param name="samples"></param>
         /// <param name="start"></param>
         /// <param name="end"></param>
-        public void init(double[] y,
+        public void Init(double[] y,
                          uint y_stride,
                          double[] sample_weight,
                          uint[] samples,
@@ -139,13 +139,13 @@ namespace Sharpkit.Learn.Tree
 
 
             // Reset to pos=start
-            this.reset();
+            this.Reset();
         }
 
         /// <summary>
         /// Reset the criterion at pos=start.
         /// </summary>
-        public void reset()
+        public void Reset()
         {
             this.pos = this.start;
 
@@ -171,7 +171,7 @@ namespace Sharpkit.Learn.Tree
         ///   the right child to the left child.
         /// </summary>
         /// <param name="new_pos"></param>
-        public void update(uint new_pos)
+        public void Update(uint new_pos)
         {
             double w = 1.0;
 
@@ -214,23 +214,18 @@ namespace Sharpkit.Learn.Tree
                                 weighted_n_right*(mean_right[k]*mean_right[k]));
             }
 
-            this.weighted_n_left = weighted_n_left;
-            this.weighted_n_right = weighted_n_right;
-
-
             this.pos = new_pos;
         }
 
-        public abstract double node_impurity();
+        public abstract double NodeImpurity();
 
 
-        public abstract double children_impurity();
+        public abstract double ChildrenImpurity();
 
         /// <summary>
         /// Compute the node value of samples[start:end] into dest.
         /// </summary>
-        /// <param name="dest"></param>
-        public void node_value(double[] dest, uint offset)
+        public void NodeValue(double[] dest, uint offset)
         {
             Array.Copy(this.mean_total, 0, dest, offset, n_outputs);
         }

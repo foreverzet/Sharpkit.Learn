@@ -150,7 +150,7 @@ namespace Sharpkit.Learn.Tree
 
             this.nOutputs = y.ColumnCount;
             // this.nOutputs = 1;
-            int[] y_;
+            //int[] y_;
 
             this.ClassesInternal = Enumerable.Repeat(default(TLabel), this.nOutputs).ToList();
             this.NClasses = Enumerable.Repeat(1U, this.nOutputs).ToList();

@@ -1,6 +1,7 @@
 ﻿// -----------------------------------------------------------------------
-// <copyright file="ILinearModel.cs" company="">
-// TODO: Update copyright text.
+// <copyright file="LinearModel.cs" company="Sharpkit.Learn">
+//  Copyright (c) 2013 Sergey Zyuzin
+//  License: BSD 3 clause
 // </copyright>
 // -----------------------------------------------------------------------
 
@@ -11,9 +12,9 @@ namespace Sharpkit.Learn.LinearModel
     using MathNet.Numerics.LinearAlgebra.Generic;
 
     /// <summary>
-    /// TODO: Update summary.
+    /// Base class for Linear Models
     /// </summary>
-    public class LinearModel
+    public abstract class LinearModel
     {
         /// <summary>
         /// shape (n_targets, n_features)
@@ -38,6 +39,11 @@ namespace Sharpkit.Learn.LinearModel
             FitIntercept = fitIntercept;
         }
 
+        /// <summary>
+        /// Decision function of the linear model.
+        /// </summary>
+        /// <param name="x">(n_samples, n_features)Samples.</param>
+        /// <returns>Predicted values.</returns>
         public Matrix<double> DecisionFunction(Matrix<double> x)
         {
             int nFeatures = this.Coef.ColumnCount;

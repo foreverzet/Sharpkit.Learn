@@ -57,7 +57,7 @@ namespace Sharpkit.Learn.Tree
             this.label_count_total = new double[n_outputs * label_count_stride];
         }
         
-        public void init(double[] y,
+        public void Init(double[] y,
                          uint y_stride,
                          double[] sample_weight,
                          uint[] samples,
@@ -104,13 +104,13 @@ namespace Sharpkit.Learn.Tree
             this.weighted_n_node_samples = weighted_n_node_samples;
 
             // Reset to pos=start
-            this.reset();
+            this.Reset();
         }
 
         /// <summary>
         /// Reset the criterion at pos=start.
         /// </summary>
-        public void reset()
+        public void Reset()
         {
             this.pos = this.start;
 
@@ -138,7 +138,7 @@ namespace Sharpkit.Learn.Tree
         /// the right child to the left child.
         /// </summary>
         /// <param name="new_pos"></param>
-        public void update(uint new_pos)
+        public void Update(uint new_pos)
         {
             // Note: We assume start <= pos < new_pos <= end
 
@@ -167,16 +167,14 @@ namespace Sharpkit.Learn.Tree
             this.pos = new_pos;
         }
 
-        public abstract double node_impurity();
+        public abstract double NodeImpurity();
 
-        public abstract double children_impurity();
+        public abstract double ChildrenImpurity();
 
         /// <summary>
         /// Compute the node value of samples[start:end] into dest.
         /// </summary>
-        /// <param name="dest"></param>
-        /// <returns></returns>
-        public void node_value(double[] dest, uint offset)
+        public void NodeValue(double[] dest, uint offset)
         {
             uint label_count_total_offset = 0;
             uint dest_offset = offset;

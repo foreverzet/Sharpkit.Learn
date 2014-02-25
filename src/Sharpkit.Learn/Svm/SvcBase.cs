@@ -94,6 +94,7 @@ namespace Sharpkit.Learn.Svm
         /// where nSamples is the number of samples and nFeatures
         /// is the number of features.</param>
         /// <param name="y">[nSamples] Target class labels.</param>
+        /// <param name="sampleWeight">Sample weights.</param>
         /// <returns>Reference to itself.</returns>
         public virtual void Fit(Matrix<double> x, TLabel[] y, Vector<double> sampleWeight = null)
         {

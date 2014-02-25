@@ -1,6 +1,7 @@
 ﻿// -----------------------------------------------------------------------
-// <copyright file="Np.cs" company="">
-// TODO: Update copyright text.
+// <copyright file="Np.cs" company="Sharpkit.Learn">
+//  Copyright (c) 2013 Sergey Zyuzin
+//  License: BSD 3 clause
 // </copyright>
 // -----------------------------------------------------------------------
 
@@ -9,12 +10,11 @@ namespace Sharpkit.Learn.Utils
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Text;
 
     /// <summary>
-    /// TODO: Update summary.
+    /// Some numpy routines used here and there.
     /// </summary>
-    public static class Np
+    internal static class Np
     {
         public static int[] BinCount(int[] vals, int? minLength = null)
         {

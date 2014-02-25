@@ -55,10 +55,10 @@ namespace Sharpkit.Learn.Tree
                 uint current_feature = features[f_i];
 
                 // Sort samples along that feature
-                sort(X, X_stride, current_feature, samples, start, end - start);
+                Sort(X, X_stride, current_feature, samples, start, end - start);
 
                 // Evaluate all splits
-                this.criterion.reset();
+                this.criterion.Reset();
                 uint p = start;
 
                 while (p < end)
@@ -89,8 +89,8 @@ namespace Sharpkit.Learn.Tree
                         }
 
 
-                        this.criterion.update(current_pos);
-                        double current_impurity = this.criterion.children_impurity();
+                        this.criterion.Update(current_pos);
+                        double current_impurity = this.criterion.ChildrenImpurity();
 
                         if (current_impurity < (best_impurity - 1e-7))
                         {
@@ -158,17 +158,12 @@ namespace Sharpkit.Learn.Tree
         /// In-place sorting of samples[start:end] using
         ///  X[sample[i], current_feature] as key.
         /// </summary>
-        /// <param name="X"></param>
-        /// <param name="X_stride"></param>
-        /// <param name="current_feature"></param>
-        /// <param name="samples"></param>
-        /// <param name="length"></param>
-        private static void sort(
-            double[] X,
-            uint X_stride,
-            uint current_feature,
+        private static void Sort(
+            double[] x,
+            uint xStride,
+            uint currentFeature,
             uint[] samples,
-            uint samples_offset,
+            uint samplesOffset,
             uint length)
         {
             //# Heapsort, adapted from Numerical Recipes in C
@@ -181,7 +176,7 @@ namespace Sharpkit.Learn.Tree
                 if (parent > 0)
                 {
                     parent -= 1;
-                    tmp = samples[parent + samples_offset];
+                    tmp = samples[parent + samplesOffset];
                 }
                 else
                 {
@@ -190,27 +185,27 @@ namespace Sharpkit.Learn.Tree
                     {
                         return;
                     }
-                    tmp = samples[n + samples_offset];
-                    samples[n + samples_offset] = samples[0 + samples_offset];
+                    tmp = samples[n + samplesOffset];
+                    samples[n + samplesOffset] = samples[0 + samplesOffset];
                 }
 
-                double tmp_value = X[X_stride * tmp + current_feature];
+                double tmp_value = x[xStride * tmp + currentFeature];
                 uint index = parent;
                 uint child = index * 2 + 1;
 
                 while (child < n)
                 {
                     if ((child + 1 < n) &&
-                        (X[X_stride * samples[child + 1 + samples_offset] + current_feature] >
-                         X[X_stride * samples[child + samples_offset] + current_feature]))
+                        (x[xStride * samples[child + 1 + samplesOffset] + currentFeature] >
+                         x[xStride * samples[child + samplesOffset] + currentFeature]))
                     {
                         child += 1;
                     }
 
 
-                    if (X[X_stride * samples[child + samples_offset] + current_feature] > tmp_value)
+                    if (x[xStride * samples[child + samplesOffset] + currentFeature] > tmp_value)
                     {
-                        samples[index + samples_offset] = samples[child + samples_offset];
+                        samples[index + samplesOffset] = samples[child + samplesOffset];
                         index = child;
                         child = index * 2 + 1;
                     }
@@ -219,7 +214,7 @@ namespace Sharpkit.Learn.Tree
                         break;
                     }
                 }
-                samples[index + samples_offset] = tmp;
+                samples[index + samplesOffset] = tmp;
             }
         }
     }

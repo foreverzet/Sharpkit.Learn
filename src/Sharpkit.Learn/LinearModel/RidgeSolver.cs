@@ -1,6 +1,9 @@
 ﻿// -----------------------------------------------------------------------
-// <copyright file="RidgeSolver.cs" company="">
-// TODO: Update copyright text.
+// <copyright file="RidgeSolver.cs" company="Sharpkit.Learn">
+// Author: Mathieu Blondel <mathieu@mblondel.org>
+//         Reuben Fletcher-Costin <reuben.fletchercostin@gmail.com>
+//         Fabian Pedregosa <fabian@fseoane.net>
+//  License: BSD 3 clause
 // </copyright>
 // -----------------------------------------------------------------------
 

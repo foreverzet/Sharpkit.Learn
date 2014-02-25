@@ -70,6 +70,11 @@ namespace Sharpkit.Learn.LinearModel
             this.SetIntercept(centerDataResult.xMean, centerDataResult.yMean, centerDataResult.xStd);
         }
 
+        /// <summary>
+        /// Predict target values for samples in <paramref name="x"/>.
+        /// </summary>
+        /// <param name="x">Array with dimensions [nSamples, nFeatures].</param>
+        /// <returns>Returns predicted values. Array with dimensions [nSamples, nTargets].</returns>
         public Matrix<double> Predict(Matrix<double> x)
         {
             return this.DecisionFunction(x);

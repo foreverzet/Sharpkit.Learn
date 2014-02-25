@@ -20,8 +20,19 @@ namespace Sharpkit.Learn.Tree
     /// </summary>
     public enum Splitter
     {
+        /// <summary>
+        /// Splitter for finding the best split.
+        /// </summary>
         Best,
+
+        /// <summary>
+        /// Splitter for finding the best split, using presorting.
+        /// </summary>
         PresortBest,
+
+        /// <summary>
+        /// 
+        /// </summary>
         Random
     }
 }

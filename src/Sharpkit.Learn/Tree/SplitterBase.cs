@@ -55,7 +55,6 @@ namespace Sharpkit.Learn.Tree
         /// <summary>
         /// Initialize the splitter.
         /// </summary>
-        /// <param name="?"></param>
         public virtual void init(Matrix<double> X,
                          Matrix<double> y,
                          double[] sample_weight)
@@ -112,7 +111,7 @@ namespace Sharpkit.Learn.Tree
             this.end = end;
 
 
-            this.criterion.init(this.y,
+            this.criterion.Init(this.y,
                                 this.y_stride,
                                 this.sample_weight,
                                 this.samples,
@@ -120,7 +119,7 @@ namespace Sharpkit.Learn.Tree
                                 end);
 
 
-            impurity = this.criterion.node_impurity();
+            impurity = this.criterion.NodeImpurity();
         }
 
         /// <summary>
@@ -134,10 +133,9 @@ namespace Sharpkit.Learn.Tree
         /// <summary>
         /// Copy the value of node samples[start:end] into dest.
         /// </summary>
-        /// <param name="dest"></param>
         public void node_value(double[] dest, uint offset)
         {
-            this.criterion.node_value(dest, offset);
+            this.criterion.NodeValue(dest, offset);
         }
     }
 }

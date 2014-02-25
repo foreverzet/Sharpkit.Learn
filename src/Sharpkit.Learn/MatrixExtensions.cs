@@ -111,6 +111,7 @@ namespace Sharpkit.Learn
         /// element in the original vector.
         /// </summary>
         /// <param name="vector">Vector which elements will be squared.</param>
+        /// <param name="f">Function to be applied to every element of the vector.</param>
         /// <returns>Vector with squared elements.</returns>
         public static Vector<double> Map(this Vector<double> vector, Func<double, double> f)
         {
@@ -123,8 +124,9 @@ namespace Sharpkit.Learn
         /// Returns vector where every element is transformed by f of corresponding
         /// element in the original vector.
         /// </summary>
-        /// <param name="vector">Vector which elements will be squared.</param>
-        /// <returns>Vector with squared elements.</returns>
+        /// <param name="matrix">Matrix which elements will be transformed by <paramref name="f"/>.</param>
+        /// <param name="f">Function to be applied to every matrix element.</param>
+        /// <returns>Matrix with squared elements.</returns>
         public static Matrix<double> Map(this Matrix<double> matrix, Func<double, double> f)
         {
             var newMatrix = matrix.Clone();
@@ -452,7 +454,7 @@ namespace Sharpkit.Learn
         }
 
         /// <summary>
-        /// Converts <see cref="IEnumerable"/> to column matrix.
+        /// Converts <see cref="IEnumerable{Double}"/> to column matrix.
         /// </summary>
         /// <param name="vector">Enumerable to convert.</param>
         /// <returns>Column matrix.</returns>
@@ -462,7 +464,7 @@ namespace Sharpkit.Learn
         }
 
         /// <summary>
-        /// Converts <see cref="IEnumerable"/> to column matrix.
+        /// Converts <see cref="IEnumerable{Int32}"/> to column matrix.
         /// </summary>
         /// <param name="vector">Enumerable to convert.</param>
         /// <returns>Column matrix.</returns>
@@ -472,7 +474,7 @@ namespace Sharpkit.Learn
         }
 
         /// <summary>
-        /// Converts <see cref="IEnumerable{int}"/> to Vector.
+        /// Converts <see cref="IEnumerable{Int32}"/> to Vector.
         /// </summary>
         /// <param name="vector">Enumerable to convert.</param>
         /// <returns>Vector.</returns>
@@ -482,7 +484,7 @@ namespace Sharpkit.Learn
         }
 
         /// <summary>
-        /// Converts <see cref="IEnumerable{int}"/> to Vector.
+        /// Converts <see cref="IEnumerable{Int32}"/> to Vector.
         /// </summary>
         /// <param name="vector">Enumerable to convert.</param>
         /// <returns>Vector.</returns>

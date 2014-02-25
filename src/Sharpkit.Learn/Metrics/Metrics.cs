@@ -327,18 +327,19 @@ namespace Sharpkit.Learn.Metrics
         /// The best performance is 1 with <paramref name="normalize"/> == <c>true</c> and the number
         /// of samples with <paramref name="normalize"/> == <c>false</c>.
         /// </remarks>
-        /// <remarks>
-        /// In binary and multiclass classification, this function is equal
-        /// to the <see cref="Metrics.JaccardSimilarityScore"/> function.
-        /// </remarks>
-        /// <example>
-        /// </example>
-        /// <seealso cref="Metrics.HammingLoss"/>
-        /// <seealso cref="Metrics.ZeroOneLoss"/>
-        /// <seealso cref="Metrics.JaccardSimilarityScore"/>
         public static double AccuracyScore<TLabel>(TLabel[] y_true, TLabel[] y_pred, bool normalize = true)
             where TLabel : IEquatable<TLabel>
         {
+            /*/// <remarks>
+/// In binary and multiclass classification, this function is equal
+/// to the <see cref="Metrics.JaccardSimilarityScore"/> function.
+/// </remarks>
+/// <example>
+/// </example>
+/// <seealso cref="Metrics.HammingLoss"/>
+/// <seealso cref="Metrics.ZeroOneLoss"/>
+/// <seealso cref="Metrics.JaccardSimilarityScore"/>*/
+
             /*
     Examples
     --------

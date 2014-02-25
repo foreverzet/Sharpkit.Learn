@@ -1,6 +1,9 @@
 ﻿// -----------------------------------------------------------------------
-// <copyright file="RidgeRegression.cs" company="">
-// TODO: Update copyright text.
+// <copyright file="RidgeRegression.cs" company="Sharpkit.Learn">
+// Author: Mathieu Blondel <mathieu@mblondel.org>
+//         Reuben Fletcher-Costin <reuben.fletchercostin@gmail.com>
+//         Fabian Pedregosa <fabian@fseoane.net>
+//  License: BSD 3 clause
 // </copyright>
 // -----------------------------------------------------------------------
 
@@ -53,6 +56,11 @@ namespace Sharpkit.Learn.LinearModel
         {
         }
 
+        /// <summary>
+        /// Predict target values for samples in <paramref name="x"/>.
+        /// </summary>
+        /// <param name="x">Array with dimensions [nSamples, nFeatures].</param>
+        /// <returns>Returns predicted values. Array with dimensions [nSamples, nTargets].</returns>
         public Matrix<double> Predict(Matrix<double> x)
         {
             return this.DecisionFunction(x);

@@ -432,6 +432,9 @@ namespace Sharpkit.Learn.Svm
             return x;
         }
 
+        /// <summary>
+        /// Validates arguments to be used in prediction.
+        /// </summary>
         protected Matrix<double> ValidateForPredict(Matrix<double> x)
         {
             if (this.IsSparse && !(x is SparseMatrix))

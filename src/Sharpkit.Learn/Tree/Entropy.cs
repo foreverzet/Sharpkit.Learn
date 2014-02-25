@@ -41,7 +41,7 @@ namespace Sharpkit.Learn.Tree
         ///samples[start:end].
         /// </summary>
         /// <returns></returns>
-        public override double node_impurity()
+        public override double NodeImpurity()
         {
             double total = 0.0;
             uint label_count_total_offset = 0;
@@ -71,7 +71,7 @@ namespace Sharpkit.Learn.Tree
         ///samples[start:pos] + the impurity of samples[pos:end].
         /// </summary>
         /// <returns></returns>
-        public override double children_impurity()
+        public override double ChildrenImpurity()
         {
             double total = 0.0;
             uint label_count_left_offset = 0;

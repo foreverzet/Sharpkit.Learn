@@ -23,40 +23,40 @@ namespace Sharpkit.Learn.Tree
     /// </remarks>
     internal interface ICriterion
     {
-        void init(double[] y,
-                  uint y_stride,
-                  double[] sample_weight,
+        void Init(double[] y,
+                  uint yStride,
+                  double[] sampleWeight,
                   uint[] samples,
                   uint start,
                   uint end);
+
         /// <summary>
         /// Reset the criterion at pos=start.
         /// </summary>
-        void reset();
+        void Reset();
 
         /// <summary>
         /// Update the collected statistics by moving samples[pos:new_pos] from
         ///   the right child to the left child.
         /// </summary>
-        void update(uint new_pos);
+        void Update(uint newPos);
 
         /// <summary>
         /// Evaluate the impurity of the current node, i.e. the impurity of
         /// samples[start:end].
         /// </summary>
         /// <returns></returns>
-        double node_impurity();
+        double NodeImpurity();
 
         /// <summary>
         /// Evaluate the impurity in children nodes, i.e. the impurity of
         /// samples[start:pos] + the impurity of samples[pos:end].
         /// </summary>
-        double children_impurity();
+        double ChildrenImpurity();
 
         /// <summary>
         /// Compute the node value of samples[start:end] into dest.
         /// </summary>
-        /// <param name="dest"></param>
-        void node_value(double[] dest, uint offset);
+        void NodeValue(double[] dest, uint offset);
     }
 }
