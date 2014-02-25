@@ -94,67 +94,67 @@ namespace Sharpkit.Learn.LinearModel
         /// <summary>
         /// Gets a value indicating whether the regressors X will be normalized before regression.
         /// </summary>
-        public bool Normalize { get; private set; }
+        public bool Normalize { get; set; }
 
         /// <summary>
         /// Gets a value indicating whether to compute the objective function at each step of the model.
         /// </summary>
-        public bool ComputeScore { get; private set; }
+        public bool ComputeScore { get; set; }
 
         /// <summary>
         /// Gets hyper-parameter : inverse scale parameter (rate parameter) for the
         /// Gamma distribution prior over the lambda parameter.
         /// </summary>
-        public double Lambda1 { get; private set; }
+        public double Lambda1 { get; set; }
 
         /// <summary>
         /// Gets hyper-parameter : inverse scale parameter (rate parameter) for the
         /// Gamma distribution prior over the lambda parameter.
         /// </summary>
-        public double Lambda2 { get; private set; }
+        public double Lambda2 { get; set; }
         
         /// <summary>
         /// Gets Hyper-parameter : shape parameter for the Gamma distribution prior
         /// over the alpha parameter.
         /// </summary>
-        public double Alpha1 { get; private set; }
+        public double Alpha1 { get; set; }
         
         /// <summary>
         /// Gets Hyper-parameter : inverse scale parameter (rate parameter) for the
         /// Gamma distribution prior over the alpha parameter.
         /// </summary>
-        public double Alpha2 { get; private set; }
+        public double Alpha2 { get; set; }
         
         /// <summary>
         /// Gets precision.
         /// </summary>
-        public double Tol { get; private set; }
+        public double Tol { get; set; }
 
         /// <summary>
         /// Gets maximum number of iterations.
         /// </summary>
-        public int NumIter { get; private set; }
+        public int NumIter { get; set; }
 
         /// <summary>
         /// Gets a value indicating whether verbose mode when fitting the model.
         /// </summary>
-        public bool Verbose { get; private set; }
+        public bool Verbose { get; set; }
 
         /// <summary>
         /// Gets estimated precision of the noise.
         /// </summary>
-        public double Alpha { get; private set; }
+        public double Alpha { get; set; }
 
         /// <summary>
         /// Gets estimated precisions of the weights.
         /// (nFeatures).
         /// </summary>
-        public double Lambda { get; private set; }
+        public double Lambda { get; set; }
 
         /// <summary>
         /// Gets value of the objective function (to be maximized), If computed.
         /// </summary>
-        public List<double> Scores { get; private set; }
+        public List<double> Scores { get; set; }
 
         /// <summary>
         /// Fit linear model.
